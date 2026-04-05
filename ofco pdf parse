@@ -1,0 +1,1162 @@
+
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import csv
+import io
+import json
+import re
+from dataclasses import asdict, dataclass, field
+from pathlib import Path
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+
+import fitz  # PyMuPDF
+import pytesseract
+from PIL import Image, ImageFilter, ImageOps
+
+
+NUM_RE = r"(?:\d{1,3}(?:,\d{3})*|\d+)(?:\.\d+)?"
+OCR_SCORE_KEYWORDS = [
+    "tax invoice",
+    "delivery note",
+    "manifest",
+    "shipping list",
+    "cargo manifest",
+    "subject",
+    "from",
+    "sent",
+    "rotation",
+    "ofco",
+    "safeen",
+    "abu dhabi ports",
+    "invoice total",
+    "invoice number",
+    "diesel",
+    "fresh water",
+    "bunker",
+    "permit",
+    "adnoc",
+]
+
+
+@dataclass
+class PagePayload:
+    page_no: int
+    native_text: str = ""
+    ocr_text: str = ""
+    best_text: str = ""
+    text_source: str = "native"
+    rotation: int = 0
+    page_type: str = "IGNORE"
+    confidence: float = 0.0
+    parsed: Dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class DocumentResult:
+    pdf_path: str
+    page_count: int
+    page_summary: List[Dict[str, Any]]
+    master_header: Dict[str, Any]
+    master_rows: List[Dict[str, Any]]
+    vendor_invoices: List[Dict[str, Any]]
+    support_documents: List[Dict[str, Any]]
+    linkages: List[Dict[str, Any]]
+
+
+def normalize_space(text: str) -> str:
+    text = text.replace("\u00a0", " ")
+    text = text.replace("\ufb01", "fi").replace("\ufb02", "fl")
+    text = re.sub(r"[ \t]+", " ", text)
+    text = re.sub(r"\r", "\n", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip()
+
+
+def clean_line(text: str) -> str:
+    return re.sub(r"\s+", " ", text or "").strip(" |")
+
+
+FIELD_STOP_TOKENS = [
+    "Tax Invoice Number",
+    "Tax Invoice Date",
+    "Customer REG. No",
+    "Customer REG, No",
+    "GRT/DWT",
+    "LOA",
+    "Dep. Date",
+    "Dep Date",
+    "Voyage No",
+    "Payment Storage Date",
+    "Payment Storage",
+    "Free Storage End Date",
+    "Free Storage End",
+    "Invoice Number",
+    "Invoice Issue Date",
+    "Tax Registration Number",
+    "Tax Registration",
+    "Address",
+    "Phone No",
+    "Fax No",
+    "VAT Registration",
+    "Arrival Date",
+    "Rotation No",
+    "Port",
+    "Vessel Name",
+    "Customer",
+]
+
+
+def strip_trailing_labels(value: str) -> str:
+    value = clean_line(value)
+    for token in FIELD_STOP_TOKENS:
+        idx = value.find(token)
+        if idx > 0:
+            value = value[:idx].strip()
+    return clean_line(value)
+
+
+def parse_number(value: Any) -> Optional[float]:
+    if value is None:
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    s = str(value)
+    s = s.replace(",", "").replace("§", "5").replace("O", "0")
+    m = re.search(r"-?\d+(?:\.\d+)?", s)
+    return float(m.group(0)) if m else None
+
+
+def search_value(text: str, patterns: Sequence[str], flags: int = re.IGNORECASE | re.MULTILINE) -> Optional[str]:
+    for pattern in patterns:
+        m = re.search(pattern, text, flags)
+        if m:
+            return clean_line(m.group(1))
+    return None
+
+
+def find_first_y(page: fitz.Page, texts: Sequence[str]) -> Optional[float]:
+    hits: List[float] = []
+    for needle in texts:
+        try:
+            rects = page.search_for(needle)
+        except Exception:
+            rects = []
+        for rect in rects:
+            hits.append(rect.y0)
+    return min(hits) if hits else None
+
+
+def text_quality_score(text: str) -> float:
+    t = text.lower()
+    hits = sum(t.count(k) for k in OCR_SCORE_KEYWORDS)
+    alpha_words = len(re.findall(r"[A-Za-z]{3,}", text))
+    digits = len(re.findall(r"\d", text))
+    weird = len(re.findall(r"[^\w\s.,:/%()\-+&#]", text))
+    return hits * 60.0 + alpha_words * 0.6 + digits * 0.1 - weird * 1.0
+
+
+def render_page(page: fitz.Page, dpi: int = 220) -> Image.Image:
+    zoom = dpi / 72.0
+    pix = page.get_pixmap(matrix=fitz.Matrix(zoom, zoom), alpha=False)
+    return Image.open(io.BytesIO(pix.tobytes("png")))
+
+
+def preprocess_for_ocr(img: Image.Image) -> Image.Image:
+    gray = img.convert("L")
+    gray = ImageOps.autocontrast(gray)
+    gray = gray.filter(ImageFilter.SHARPEN)
+    # binary threshold; tuned for scanned invoice pages like the current OFCO package
+    bw = gray.point(lambda p: 255 if p > 180 else 0)
+    return bw
+
+
+def try_osd_rotation(img: Image.Image) -> Optional[int]:
+    try:
+        osd = pytesseract.image_to_osd(img)
+    except Exception:
+        return None
+    m = re.search(r"Rotate:\s*(\d+)", osd)
+    if m:
+        return int(m.group(1))
+    return None
+
+
+def ocr_best_rotation(
+    img: Image.Image,
+    lang: str = "eng",
+    psm: int = 6,
+    use_osd_first: bool = True,
+) -> Tuple[str, int]:
+    config = f"--oem 3 --psm {psm}"
+    candidates: List[int] = []
+
+    if use_osd_first:
+        thumb = img.copy()
+        thumb.thumbnail((1600, 1600))
+        osd_rotation = try_osd_rotation(thumb)
+        if osd_rotation is not None:
+            candidates.append(osd_rotation)
+
+    for angle in (0, 90, 180, 270):
+        if angle not in candidates:
+            candidates.append(angle)
+
+    best_text = ""
+    best_angle = 0
+    best_score = float("-inf")
+
+    for idx, angle in enumerate(candidates):
+        candidate_img = img.rotate(angle, expand=True) if angle else img
+        text = pytesseract.image_to_string(candidate_img, lang=lang, config=config)
+        score = text_quality_score(text)
+        if score > best_score:
+            best_score = score
+            best_text = normalize_space(text)
+            best_angle = angle
+        # early stop if the OSD guess is clearly good
+        if idx == 0 and best_score >= 350:
+            break
+
+    return best_text, best_angle
+
+
+def has_useful_native_text(text: str) -> bool:
+    if not text:
+        return False
+    alpha_words = len(re.findall(r"[A-Za-z]{3,}", text))
+    digits = len(re.findall(r"\d", text))
+    return alpha_words >= 25 or digits >= 60
+
+
+def normalize_ocr_code(raw: Optional[str], vendor_hint: str = "") -> Optional[str]:
+    if not raw:
+        return None
+    s = raw.strip().replace(",", ".").replace(" ", "")
+    vendor_hint = vendor_hint.upper()
+
+    # cleanup typical OCR collapse
+    mapping = {
+        ("SAFEEN", "61"): "6.1",
+        ("SAFEEN", "66"): "6.6",
+        ("SAFEEN", "152"): "15.2",
+        ("ADP", "220"): "2.20",
+        ("ADP", "2013"): "201.3",
+        ("ADP", "1023"): "102.3",
+        ("ADP", "63"): "6.3",
+    }
+    if (vendor_hint, s) in mapping:
+        return mapping[(vendor_hint, s)]
+
+    if re.fullmatch(r"\d+(?:\.\d+)?", s):
+        return s
+    return raw
+
+
+def flatten_dict_rows(rows: List[Dict[str, Any]], json_keys: Optional[Sequence[str]] = None) -> List[Dict[str, Any]]:
+    flat: List[Dict[str, Any]] = []
+    json_keys = set(json_keys or [])
+    for row in rows:
+        out: Dict[str, Any] = {}
+        for k, v in row.items():
+            if isinstance(v, (dict, list)) or k in json_keys:
+                out[k] = json.dumps(v, ensure_ascii=False)
+            else:
+                out[k] = v
+        flat.append(out)
+    return flat
+
+
+class OFCOPdfParser:
+    def __init__(
+        self,
+        pdf_path: Path,
+        out_dir: Path,
+        ocr_dpi: int = 220,
+        ocr_lang: str = "eng",
+        enable_ocr: bool = True,
+        pages: Optional[Sequence[int]] = None,
+    ) -> None:
+        self.pdf_path = pdf_path
+        self.out_dir = out_dir
+        self.ocr_dpi = ocr_dpi
+        self.ocr_lang = ocr_lang
+        self.enable_ocr = enable_ocr
+        self.pages = sorted(set(pages or []))
+        self.doc = fitz.open(pdf_path)
+
+    # ------------------------------------------------------------------ #
+    # low level text extraction
+    # ------------------------------------------------------------------ #
+    def extract_page_payload(self, page_no: int) -> PagePayload:
+        page = self.doc[page_no - 1]
+        native_text = normalize_space(page.get_text("text", sort=True))
+        payload = PagePayload(
+            page_no=page_no,
+            native_text=native_text,
+            best_text=native_text,
+            text_source="native",
+        )
+
+        if has_useful_native_text(native_text):
+            return payload
+
+        if not self.enable_ocr:
+            return payload
+
+        img = preprocess_for_ocr(render_page(page, dpi=self.ocr_dpi))
+        ocr_text, rotation = ocr_best_rotation(img, lang=self.ocr_lang)
+        payload.ocr_text = ocr_text
+        payload.rotation = rotation
+
+        if text_quality_score(ocr_text) > text_quality_score(native_text):
+            payload.best_text = ocr_text
+            payload.text_source = "ocr"
+
+        return payload
+
+    # ------------------------------------------------------------------ #
+    # page classification
+    # ------------------------------------------------------------------ #
+    def classify_page(self, payload: PagePayload) -> Tuple[str, float]:
+        text = payload.best_text.lower()
+        scores: Dict[str, float] = {
+            "MASTER_OFCO": 0.0,
+            "VENDOR_SAFEEN": 0.0,
+            "VENDOR_ADP": 0.0,
+            "SUPPORT_MANIFEST": 0.0,
+            "SUPPORT_PACKING_LIST": 0.0,
+            "SUPPORT_DELIVERY_NOTE": 0.0,
+            "SUPPORT_EMAIL": 0.0,
+            "SUPPORT_RATE_NOTICE": 0.0,
+            "SUPPORT_PERMIT": 0.0,
+            "IGNORE": 0.0,
+        }
+
+        def add(page_type: str, *needles: str, weight: float = 1.0) -> None:
+            for needle in needles:
+                if needle in text:
+                    scores[page_type] += weight
+
+        add("MASTER_OFCO", "ofco offshore support & logistic services llc", "invoice number", weight=1.2)
+        add("MASTER_OFCO", "grand total", "for vat purpose (aed)", "bank details", "proj.ref/contr.no", "invoice currency", "p.o./ref.no.", weight=2.0)
+        if "s n" in text and "description" in text and "amount incl" in text:
+            scores["MASTER_OFCO"] += 2.5
+
+        add("VENDOR_SAFEEN", "safeen group", "tax invoice details", "musaffah channel", weight=1.5)
+        if "safeen group" in text and ("rotation no" in text or "voyage no" in text):
+            scores["VENDOR_SAFEEN"] += 3.0
+
+        add("VENDOR_ADP", "abu dhabi ports", "ad ports group", "musaffah port", "tax registration number", weight=1.0)
+        if "tax registration number" in text and "invoice issue date" in text:
+            scores["VENDOR_ADP"] += 4.0
+        if "payer name" in text or "payer address" in text or "consignee/shipper" in text:
+            scores["VENDOR_ADP"] += 2.0
+        if "tariff id" in text or "amount excl tax" in text or "tariff description" in text:
+            scores["VENDOR_ADP"] += 3.0
+        if "port dues cargo" in text or "waste handling first domestic skip" in text:
+            scores["VENDOR_ADP"] += 2.0
+
+        add("SUPPORT_MANIFEST", "cargo manifest", weight=3.0)
+        add("SUPPORT_PACKING_LIST", "shipping list for lightning project", "backload manifest", "shipment no", weight=2.0)
+
+        add("SUPPORT_DELIVERY_NOTE", "delivery note", "bunker delivery note and receipt", weight=2.0)
+        if "delivery note" in text and ("quantity" in text or "vehicle no" in text):
+            scores["SUPPORT_DELIVERY_NOTE"] += 2.0
+
+        add("SUPPORT_EMAIL", "subject:", "from:", "sent:", "agency | ofco", "outlook", weight=1.0)
+        if "subject:" in text and "from:" in text:
+            scores["SUPPORT_EMAIL"] += 2.5
+
+        add("SUPPORT_RATE_NOTICE", "revision of diesel", "diesel selling price", "petrol selling price", "adnoc", weight=2.0)
+        add("SUPPORT_PERMIT", "no objection certificate", "permit record no", "ptw applicant details", weight=2.0)
+
+        page_type = max(scores, key=scores.get)
+        confidence = scores[page_type]
+        if confidence <= 0:
+            page_type = "IGNORE"
+        return page_type, confidence
+
+    # ------------------------------------------------------------------ #
+    # field helpers
+    # ------------------------------------------------------------------ #
+    def extract_multiline_field(self, text: str, labels: Sequence[str]) -> Optional[str]:
+        lines = [clean_line(line) for line in text.splitlines() if clean_line(line)]
+        for i, line in enumerate(lines):
+            for label in labels:
+                m = re.search(label + r"\s*[:\-]?\s*(.*)$", line, re.IGNORECASE)
+                if m:
+                    value = clean_line(m.group(1))
+                    if value:
+                        return strip_trailing_labels(value)
+                    if i + 1 < len(lines):
+                        return strip_trailing_labels(lines[i + 1])
+        return None
+
+    # ------------------------------------------------------------------ #
+    # master parse (native text; current PDF pages 1-3)
+    # ------------------------------------------------------------------ #
+    def parse_master_page(self, payload: PagePayload) -> Dict[str, Any]:
+        page = self.doc[payload.page_no - 1]
+        text = payload.native_text or payload.best_text
+        data: Dict[str, Any] = {
+            "page_no": payload.page_no,
+            "header": {},
+            "rows": [],
+            "totals": {},
+            "vat_anchor": {},
+        }
+
+        header = {
+            "customer_name": search_value(text, [r"Name\s*:\s*(.+)"]),
+            "customer_address": search_value(text, [r"Address\s*:\s*(.+)"]),
+            "invoice_number": search_value(text, [r"Invoice number\s*:\s*(.+)"]),
+            "invoice_date": search_value(text, [r"Date\s*:\s*(.+)"]),
+            "project_ref": search_value(text, [r"Proj\.Ref/Contr\.No\s*:\s*(.+)"]),
+            "po_ref": search_value(text, [r"P\.O\./Ref\.No\.\s*:\s*(.+)"]),
+            "invoice_currency": search_value(text, [r"Invoice Currency\s*:\s*(.+)"]),
+            "vessel_name": search_value(text, [r"Vessel Name\s*:\s*(.+)"]),
+            "trn": search_value(text, [r"TRN\s*:\s*(.+)"]),
+        }
+        data["header"] = {k: v for k, v in header.items() if v}
+
+        totals_match = re.search(
+            rf"Grand Total\s+({NUM_RE})\s+({NUM_RE})\s+({NUM_RE})",
+            text,
+            re.IGNORECASE | re.MULTILINE,
+        )
+        if totals_match:
+            data["totals"] = {
+                "amount_excl_vat_usd": parse_number(totals_match.group(1)),
+                "vat_usd": parse_number(totals_match.group(2)),
+                "amount_incl_vat_usd": parse_number(totals_match.group(3)),
+            }
+
+        vat_anchor_match = re.search(
+            rf"For VAT Purpose\s*\(AED\).*?({NUM_RE})\s+({NUM_RE})\s+({NUM_RE})\s+({NUM_RE})",
+            text,
+            re.IGNORECASE | re.DOTALL,
+        )
+        if vat_anchor_match:
+            data["vat_anchor"] = {
+                "amount_excl_vat_aed": parse_number(vat_anchor_match.group(1)),
+                "exchange_rate": parse_number(vat_anchor_match.group(2)),
+                "vat_aed": parse_number(vat_anchor_match.group(3)),
+                "amount_incl_vat_aed": parse_number(vat_anchor_match.group(4)),
+            }
+
+        # page 3 is bank details only
+        if "bank details" in text.lower():
+            data["bank_details"] = {
+                "company_name": search_value(text, [r"Company Name\s*:\s*(.+)"]),
+                "bank_name": search_value(text, [r"Bank Name\s*:\s*(.+)"]),
+                "branch": search_value(text, [r"Branch\s*:\s*(.+)"]),
+                "aed_account": search_value(text, [r"AED A/C Number/IBAN\s*:\s*(.+)"]),
+                "usd_account": search_value(text, [r"USD A/C Number/IBAN\s*:\s*(.+)"]),
+                "swift_code": search_value(text, [r"Swift Code\s*:\s*(.+)"]),
+            }
+            return data
+
+        table_top = find_first_y(page, ["Description", "S N"])
+        table_bottom = find_first_y(page, ["Grand Total", "For VAT Purpose", "USD -", "Payment Terms"])
+        rows = self.extract_master_rows_from_native(page, table_top=table_top, table_bottom=table_bottom)
+        data["rows"] = rows
+        return data
+
+    def extract_master_rows_from_native(
+        self,
+        page: fitz.Page,
+        table_top: Optional[float],
+        table_bottom: Optional[float],
+    ) -> List[Dict[str, Any]]:
+        words = page.get_text("words", sort=True)
+        if table_top is None:
+            table_top = 250.0
+        if table_bottom is None:
+            table_bottom = page.rect.height - 20.0
+
+        # row anchors = integer in the far-left row-number column
+        anchors = []
+        for w in words:
+            x0, y0, x1, y1, token, *_ = w
+            if not (table_top <= y0 <= table_bottom):
+                continue
+            if x0 < 45 and re.fullmatch(r"\d{1,3}", token):
+                anchors.append((float(y0), token))
+
+        # dedupe near-identical y values
+        deduped: List[Tuple[float, str]] = []
+        for y0, token in sorted(anchors):
+            if deduped and abs(y0 - deduped[-1][0]) < 4:
+                continue
+            deduped.append((y0, token))
+
+        rows: List[Dict[str, Any]] = []
+        column_breaks = {
+            "sn": (0, 45),
+            "description": (45, 218),
+            "tax_rate": (218, 252),
+            "qty": (252, 292),
+            "unit_price": (292, 360),
+            "unit": (360, 395),
+            "amount_excl_vat": (395, 470),
+            "tax_amount": (470, 522),
+            "amount_incl_vat": (522, page.rect.width + 10),
+        }
+
+        for i, (y0, token) in enumerate(deduped):
+            prev_y = deduped[i - 1][0] if i > 0 else table_top
+            next_y = deduped[i + 1][0] if i + 1 < len(deduped) else table_bottom
+            band_top = max(table_top, (prev_y + y0) / 2.0)
+            band_bottom = min(table_bottom, (y0 + next_y) / 2.0)
+
+            band_words = [
+                w for w in words
+                if band_top <= float(w[1]) <= band_bottom and float(w[0]) <= page.rect.width
+            ]
+
+            def take_words(xmin: float, xmax: float) -> str:
+                selected = [(float(w[1]), float(w[0]), w[4]) for w in band_words if xmin <= float(w[0]) < xmax]
+                selected.sort()
+                return clean_line(" ".join(token for _, _, token in selected))
+
+            row = {
+                "page_no": page.number + 1,
+                "sn": take_words(*column_breaks["sn"]) or token,
+                "description": take_words(*column_breaks["description"]),
+                "tax_rate": take_words(*column_breaks["tax_rate"]),
+                "qty": parse_number(take_words(*column_breaks["qty"])),
+                "unit_price": parse_number(take_words(*column_breaks["unit_price"])),
+                "unit": take_words(*column_breaks["unit"]),
+                "amount_excl_vat": parse_number(take_words(*column_breaks["amount_excl_vat"])),
+                "tax_amount": parse_number(take_words(*column_breaks["tax_amount"])),
+                "amount_incl_vat": parse_number(take_words(*column_breaks["amount_incl_vat"])),
+            }
+
+            if row["description"]:
+                rows.append(row)
+
+        return rows
+
+    # ------------------------------------------------------------------ #
+    # OCR parsers for scanned vendor/support pages
+    # ------------------------------------------------------------------ #
+    def parse_safeen_ocr_page(self, payload: PagePayload) -> Dict[str, Any]:
+        text = payload.best_text
+        data: Dict[str, Any] = {
+            "page_no": payload.page_no,
+            "vendor": "SAFEEN",
+            "invoice_number": self.extract_multiline_field(text, [r"Tax Invoice Number"]),
+            "invoice_date": self.extract_multiline_field(text, [r"Tax Invoice Date"]),
+            "port": self.extract_multiline_field(text, [r"PORT"]),
+            "vessel_name": self.extract_multiline_field(text, [r"Vessel Name"]),
+            "arrival_date": self.extract_multiline_field(text, [r"Arrival Date"]),
+            "departure_date": self.extract_multiline_field(text, [r"Dep\. Date", r"Dep Date"]),
+            "rotation_no": self.extract_multiline_field(text, [r"Rotation No"]),
+            "voyage_no": self.extract_multiline_field(text, [r"Voyage No"]),
+            "invoice_total_aed": None,
+            "rows": [],
+        }
+
+        m_total = re.search(rf"Invoice Total \(AED\)\s+({NUM_RE})", text, re.IGNORECASE)
+        if m_total:
+            data["invoice_total_aed"] = parse_number(m_total.group(1))
+
+        section = self.slice_text(text, start_markers=["S No", "Tar. Code", "Description"], stop_markers=["Invoice Total", "Amount in Words"])
+        data["rows"] = self.parse_port_style_rows(section, vendor="SAFEEN")
+        return data
+
+    def parse_adp_ocr_page(self, payload: PagePayload) -> Dict[str, Any]:
+        text = payload.best_text
+        lower = text.lower()
+        is_direct = any(k in lower for k in ["tariff id", "tariff description", "amount excl tax", "amount excl", "unit 1", "unit 4"]) and ("port dues cargo" not in lower or "consignee/shipper" in lower)
+        data: Dict[str, Any] = {
+            "page_no": payload.page_no,
+            "vendor": "ADP",
+            "invoice_number": self.extract_multiline_field(text, [r"Invoice Number"]),
+            "invoice_issue_date": self.extract_multiline_field(text, [r"Invoice Issue Date"]),
+            "tax_registration_number": self.extract_multiline_field(text, [r"Tax Registration Number", r"Tax Registration"]),
+            "port": self.extract_multiline_field(text, [r"Port"]),
+            "vessel_name": self.extract_multiline_field(text, [r"Vessel Name"]),
+            "agent_voyage": self.extract_multiline_field(text, [r"Agent Voyage"]),
+            "rotation_no": self.extract_multiline_field(text, [r"Rotation"]),
+            "bol": self.extract_multiline_field(text, [r"BOL"]),
+            "invoice_total_aed": None,
+            "rows": [],
+            "subtype": "ADP_DIRECT_DELIVERY" if is_direct else "ADP_PORT_DUES",
+        }
+
+        m_total = re.search(rf"Invoice Total \(AED\)\s+({NUM_RE})", text, re.IGNORECASE)
+        if m_total:
+            data["invoice_total_aed"] = parse_number(m_total.group(1))
+
+        if is_direct:
+            section = self.slice_text(
+                text,
+                start_markers=["No", "Tariff ID", "Tariff Description"],
+                stop_markers=["Invoice Total", "Payment Terms"],
+            )
+            data["rows"] = self.parse_direct_delivery_rows(section)
+        else:
+            section = self.slice_text(
+                text,
+                start_markers=["S No", "Tar. Code", "Description"],
+                stop_markers=["Invoice Total", "Amount in Words"],
+            )
+            data["rows"] = self.parse_port_style_rows(section, vendor="ADP")
+        return data
+
+    def _append_continuation_before_numeric_tail(self, current: str, continuation: str) -> str:
+        current = clean_line(current)
+        continuation = clean_line(continuation)
+        if not current:
+            return continuation
+        tail_match = re.match(rf"^(?P<head>.*?)(?P<tail>(?:\s+{NUM_RE}){{2,6}})$", current)
+        if tail_match:
+            return clean_line(tail_match.group("head") + " " + continuation + tail_match.group("tail"))
+        return clean_line(current + " " + continuation)
+
+    def parse_port_style_rows(self, section_text: str, vendor: str) -> List[Dict[str, Any]]:
+        """
+        SAFEEN / ADP port-dues style OCR table parser.
+        Typical structure:
+            1 6.1 Administration ... 100.00 0 0.00 100.00
+        but OCR can also collapse VAT columns:
+            1 6.1 Administration ... 100.00 100.00
+        """
+        rows: List[str] = []
+        current = ""
+        for raw_line in section_text.splitlines():
+            line = clean_line(raw_line)
+            if not line:
+                continue
+            if re.match(r"^\d{1,2}\b", line):
+                if current:
+                    rows.append(current)
+                current = line
+            else:
+                if current:
+                    current = self._append_continuation_before_numeric_tail(current, line)
+        if current:
+            rows.append(current)
+
+        parsed_rows: List[Dict[str, Any]] = []
+        full_re = re.compile(
+            rf"^(?P<row_no>\d+)\s+"
+            rf"(?:(?P<tariff>\d+(?:\.\d+)?)\s+)?"
+            rf"(?P<description>.+?)\s+"
+            rf"(?P<amount>{NUM_RE})\s+"
+            rf"(?P<vat_pct>{NUM_RE})\s+"
+            rf"(?P<vat_amount>{NUM_RE})\s+"
+            rf"(?P<total>{NUM_RE})$"
+        )
+        collapsed_re = re.compile(
+            rf"^(?P<row_no>\d+)\s+"
+            rf"(?:(?P<tariff>\d+(?:\.\d+)?)\s+)?"
+            rf"(?P<description>.+?)\s+"
+            rf"(?P<amount>{NUM_RE})\s+"
+            rf"(?P<total>{NUM_RE})$"
+        )
+
+        for row_text in rows:
+            row_text = clean_line(row_text)
+            if "invoice total" in row_text.lower():
+                continue
+
+            m = full_re.match(row_text)
+            if not m:
+                m = collapsed_re.match(row_text)
+
+            if not m:
+                head_tail = re.match(rf"^(?P<head>.*?)(?P<tail>(?:\s+{NUM_RE}){{2,6}})$", row_text)
+                if not head_tail:
+                    parsed_rows.append({
+                        "raw": row_text,
+                        "row_no": None,
+                        "tariff_code_raw": None,
+                        "tariff_code_norm": None,
+                        "description": row_text,
+                        "amount": None,
+                        "vat_pct": None,
+                        "vat_amount": None,
+                        "total": None,
+                    })
+                    continue
+
+                head = clean_line(head_tail.group("head"))
+                tail_tokens = re.findall(NUM_RE, head_tail.group("tail"))
+                start_match = re.match(r"^(?P<row_no>\d+)\s+(?:(?P<tariff>\d+(?:\.\d+)?)\s+)?(?P<desc>.*)$", head)
+                row_no = start_match.group("row_no") if start_match else None
+                tariff = start_match.group("tariff") if start_match else None
+                desc = clean_line(start_match.group("desc")) if start_match else head
+
+                # if OCR pulled "3 Hours" into the numeric tail, push that first integer back into the description
+                if tail_tokens and "hour" in desc.lower() and "." not in tail_tokens[0]:
+                    desc = clean_line(desc + " " + tail_tokens[0])
+                    tail_tokens = tail_tokens[1:]
+
+                amount = vat_pct = vat_amount = total = None
+                if len(tail_tokens) == 2:
+                    amount, total = [parse_number(x) for x in tail_tokens]
+                elif len(tail_tokens) == 3:
+                    amount, vat_amount, total = [parse_number(x) for x in tail_tokens]
+                elif len(tail_tokens) >= 4:
+                    amount, vat_pct, vat_amount, total = [parse_number(x) for x in tail_tokens[-4:]]
+
+                parsed_rows.append({
+                    "raw": row_text,
+                    "row_no": row_no,
+                    "tariff_code_raw": tariff,
+                    "tariff_code_norm": normalize_ocr_code(tariff, vendor_hint=vendor),
+                    "description": desc,
+                    "amount": amount,
+                    "vat_pct": vat_pct,
+                    "vat_amount": vat_amount,
+                    "total": total,
+                })
+                continue
+
+            gd = m.groupdict()
+            parsed_rows.append({
+                "raw": row_text,
+                "row_no": gd.get("row_no"),
+                "tariff_code_raw": gd.get("tariff"),
+                "tariff_code_norm": normalize_ocr_code(gd.get("tariff"), vendor_hint=vendor),
+                "description": clean_line(gd.get("description", "")),
+                "amount": parse_number(gd.get("amount")),
+                "vat_pct": parse_number(gd.get("vat_pct")),
+                "vat_amount": parse_number(gd.get("vat_amount")),
+                "total": parse_number(gd.get("total")),
+            })
+
+        return parsed_rows
+
+    def parse_direct_delivery_rows(self, section_text: str) -> List[Dict[str, Any]]:
+        rows: List[str] = []
+        current = ""
+        for raw_line in section_text.splitlines():
+            line = clean_line(raw_line)
+            if not line:
+                continue
+            if re.match(r"^\d{1,2}\b", line):
+                if current:
+                    rows.append(current)
+                current = line
+            else:
+                if current:
+                    current = self._append_continuation_before_numeric_tail(current, line)
+        if current:
+            rows.append(current)
+
+        parsed_rows: List[Dict[str, Any]] = []
+        full_re = re.compile(
+            rf"^(?P<row_no>\d+)\s+"
+            rf"(?P<tariff_id>\d+(?:\.\d+)?)\s+"
+            rf"(?P<description>.+?)\s+"
+            rf"(?P<unit1>{NUM_RE})\s+"
+            rf"(?P<unit2>{NUM_RE})\s+"
+            rf"(?P<unit3>{NUM_RE})\s+"
+            rf"(?P<rate>{NUM_RE})\s+"
+            rf"(?P<amount_excl>{NUM_RE})\s+"
+            rf"(?P<tax_rate>{NUM_RE})\s+"
+            rf"(?P<tax_amount>{NUM_RE})\s+"
+            rf"(?P<total>{NUM_RE})$"
+        )
+        collapsed_re = re.compile(
+            rf"^(?P<row_no>\d+)\s+"
+            rf"(?P<tariff_id>\d+(?:\.\d+)?)\s+"
+            rf"(?P<description>.+?)\s+"
+            rf"(?P<unit1>{NUM_RE})\s+"
+            rf"(?P<unit2>{NUM_RE})\s+"
+            rf"(?P<unit3>{NUM_RE})\s+"
+            rf"(?P<amount_excl>{NUM_RE})\s+"
+            rf"(?P<total>{NUM_RE})$"
+        )
+
+        for row_text in rows:
+            row_text = clean_line(row_text)
+            if "invoice total" in row_text.lower():
+                continue
+            m = full_re.match(row_text) or collapsed_re.match(row_text)
+            if not m:
+                parsed_rows.append({"raw": row_text, "description": row_text})
+                continue
+            gd = m.groupdict()
+            parsed_rows.append({
+                "raw": row_text,
+                "row_no": gd.get("row_no"),
+                "tariff_id_raw": gd.get("tariff_id"),
+                "tariff_id_norm": normalize_ocr_code(gd.get("tariff_id"), vendor_hint="ADP"),
+                "description": clean_line(gd.get("description", "")),
+                "unit1": parse_number(gd.get("unit1")),
+                "unit2": parse_number(gd.get("unit2")),
+                "unit3": parse_number(gd.get("unit3")),
+                "rate": parse_number(gd.get("rate")),
+                "amount_excl_tax_aed": parse_number(gd.get("amount_excl")),
+                "tax_rate_pct": parse_number(gd.get("tax_rate")),
+                "tax_amount_aed": parse_number(gd.get("tax_amount")),
+                "total_amount_aed": parse_number(gd.get("total")),
+            })
+        return parsed_rows
+
+    def parse_manifest_support(self, payload: PagePayload) -> Dict[str, Any]:
+        text = payload.best_text
+        kind = "CARGO_MANIFEST" if "cargo manifest" in text.lower() else "SHIPPING_LIST"
+        return {
+            "page_no": payload.page_no,
+            "support_type": kind,
+            "shipment_no": self.extract_multiline_field(text, [r"Shipment No", r"Shipment No\."]),
+            "vessel_name": self.extract_multiline_field(text, [r"Vessel Name", r"Project/Vessel Name"]),
+            "date": self.extract_multiline_field(text, [r"Date"]),
+            "pol": self.extract_multiline_field(text, [r"POL", r"Cargo Dispatched From"]),
+            "pod": self.extract_multiline_field(text, [r"POD", r"Cargo Dispatched To"]),
+            "etd": self.extract_multiline_field(text, [r"ETD", r"Departure Date"]),
+            "eta": self.extract_multiline_field(text, [r"ETA", r"Arrival Date"]),
+            "vendor": self.extract_multiline_field(text, [r"Vendor"]),
+            "item": self.extract_multiline_field(text, [r"ITEM", r"Description"]),
+            "qty": self.extract_multiline_field(text, [r"QTY", r"Qty"]),
+            "net_weight_ton": self.extract_multiline_field(text, [r"NET WEIGHT", r"Unit Weight"]),
+            "gross_weight_ton": self.extract_multiline_field(text, [r"GROSS WEIGHT", r"Total Weight"]),
+            "raw_text_excerpt": text[:1200],
+        }
+
+    def parse_delivery_note_support(self, payload: PagePayload) -> Dict[str, Any]:
+        text = payload.best_text
+        lower = text.lower()
+
+        if "bunker delivery note and receipt" in lower:
+            return {
+                "page_no": payload.page_no,
+                "support_type": "BUNKER_RECEIPT",
+                "note_no": self.extract_multiline_field(text, [r"No\.", r"no\."]),
+                "date": self.extract_multiline_field(text, [r"Date"]),
+                "port": self.extract_multiline_field(text, [r"Port"]),
+                "delivery_location": self.extract_multiline_field(text, [r"Delivery Location"]),
+                "vessel_name": self.extract_multiline_field(text, [r"Vessel Name"]),
+                "imo_no": self.extract_multiline_field(text, [r"IMO No", r"IMO\.No"]),
+                "product_name": self.extract_multiline_field(text, [r"Product Name"]),
+                "quantity_ig": self.extract_multiline_field(text, [r"LTR USG / IG"]),
+                "quantity_metric_tons": self.extract_multiline_field(text, [r"Quantity \(Metric Tons\)"]),
+                "mode_of_delivery": self.extract_multiline_field(text, [r"Mode of Delivery"]),
+                "bunker_tanker_name": self.extract_multiline_field(text, [r"Bunker Tanker Name"]),
+                "raw_text_excerpt": text[:1200],
+            }
+
+        return {
+            "page_no": payload.page_no,
+            "support_type": "DELIVERY_NOTE",
+            "note_no": self.extract_multiline_field(text, [r"No\.", r"No", r"note no"]),
+            "date": self.extract_multiline_field(text, [r"Date"]),
+            "company_name": self.extract_multiline_field(text, [r"Name of Company"]),
+            "quantity": self.extract_multiline_field(text, [r"Quantity"]),
+            "delivered_at": self.extract_multiline_field(text, [r"Delivered at"]),
+            "vehicle_no": self.extract_multiline_field(text, [r"Vehicle No"]),
+            "material": self.extract_multiline_field(text, [r"Name of Material"]),
+            "raw_text_excerpt": text[:1200],
+        }
+
+    def parse_email_support(self, payload: PagePayload) -> Dict[str, Any]:
+        text = payload.best_text
+        rotation_no = search_value(
+            text,
+            [
+                r"Rotation(?: No\.?|:)\s*([0-9]{6,})",
+                r"Rotation\s+([0-9]{6,})",
+            ],
+        )
+        qty_ig = search_value(
+            text,
+            [
+                rf"([0-9,]+\s*IG)\b",
+                rf"([0-9,]+\s*Imp\.?\s*Gal)\b",
+            ],
+            flags=re.IGNORECASE,
+        )
+        return {
+            "page_no": payload.page_no,
+            "support_type": "EMAIL",
+            "from": self.extract_multiline_field(text, [r"From"]),
+            "sent": self.extract_multiline_field(text, [r"Sent", r"Date"]),
+            "to": self.extract_multiline_field(text, [r"To"]),
+            "cc": self.extract_multiline_field(text, [r"Cc"]),
+            "subject": self.extract_multiline_field(text, [r"Subject"]),
+            "attachments": self.extract_multiline_field(text, [r"Attachments"]),
+            "importance": self.extract_multiline_field(text, [r"Importance"]),
+            "rotation_no": rotation_no,
+            "qty_ig": qty_ig,
+            "reference_code": search_value(text, [r"Reference\s*:\s*([A-Z0-9\-\/]+)"]),
+            "raw_text_excerpt": text[:1500],
+        }
+
+    def parse_rate_notice(self, payload: PagePayload) -> Dict[str, Any]:
+        text = payload.native_text or payload.best_text
+        lines = [clean_line(line) for line in text.splitlines() if clean_line(line)]
+        rate_rows: List[Dict[str, Any]] = []
+        row_re = re.compile(
+            rf"^(?P<product>.+?)\s+Imp\. Gal\s+(?P<unit_price>{NUM_RE})\s+(?P<vat>{NUM_RE})\s+(?P<incl_vat>{NUM_RE})$",
+            re.IGNORECASE,
+        )
+        for line in lines:
+            m = row_re.match(line)
+            if m:
+                rate_rows.append({
+                    "product": clean_line(m.group("product")),
+                    "uom": "Imp. Gal",
+                    "unit_price_aed": parse_number(m.group("unit_price")),
+                    "vat_aed": parse_number(m.group("vat")),
+                    "unit_price_incl_vat_aed": parse_number(m.group("incl_vat")),
+                })
+        return {
+            "page_no": payload.page_no,
+            "support_type": "RATE_NOTICE",
+            "date": self.extract_multiline_field(text, [r"Date"]),
+            "our_ref": self.extract_multiline_field(text, [r"Our Ref"]),
+            "subject": self.extract_multiline_field(text, [r"Subject"]),
+            "rates": rate_rows,
+        }
+
+    def parse_permit_support(self, payload: PagePayload) -> Dict[str, Any]:
+        text = payload.best_text
+        return {
+            "page_no": payload.page_no,
+            "support_type": "PERMIT_NOC",
+            "permit_record_no": self.extract_multiline_field(text, [r"Permit Record No"]),
+            "permit_for": self.extract_multiline_field(text, [r"Permit For"]),
+            "job_start_date": self.extract_multiline_field(text, [r"Job Start"]),
+            "site_port": self.extract_multiline_field(text, [r"Site/ Port", r"Site / Port"]),
+            "work_location": self.extract_multiline_field(text, [r"Work Location"]),
+            "description_of_work": self.extract_multiline_field(text, [r"Description of Work"]),
+            "vessel_name": self.extract_multiline_field(text, [r"Vessel Name"]),
+            "imo_no": self.extract_multiline_field(text, [r"IMO No"]),
+            "contractor_company": self.extract_multiline_field(text, [r"Contractor Company"]),
+            "raw_text_excerpt": text[:1200],
+        }
+
+    def slice_text(self, text: str, start_markers: Sequence[str], stop_markers: Sequence[str]) -> str:
+        lower = text.lower()
+        start_idx = 0
+        for marker in start_markers:
+            pos = lower.find(marker.lower())
+            if pos >= 0:
+                start_idx = pos
+                break
+
+        stop_idx = len(text)
+        for marker in stop_markers:
+            pos = lower.find(marker.lower(), start_idx + 1)
+            if pos >= 0:
+                stop_idx = min(stop_idx, pos)
+        return text[start_idx:stop_idx]
+
+    # ------------------------------------------------------------------ #
+    # document orchestration
+    # ------------------------------------------------------------------ #
+    def parse_page(self, payload: PagePayload) -> Dict[str, Any]:
+        payload.page_type, payload.confidence = self.classify_page(payload)
+
+        if payload.page_type == "MASTER_OFCO":
+            payload.parsed = self.parse_master_page(payload)
+        elif payload.page_type == "VENDOR_SAFEEN":
+            payload.parsed = self.parse_safeen_ocr_page(payload)
+        elif payload.page_type == "VENDOR_ADP":
+            payload.parsed = self.parse_adp_ocr_page(payload)
+        elif payload.page_type in {"SUPPORT_MANIFEST", "SUPPORT_PACKING_LIST"}:
+            payload.parsed = self.parse_manifest_support(payload)
+        elif payload.page_type == "SUPPORT_DELIVERY_NOTE":
+            payload.parsed = self.parse_delivery_note_support(payload)
+        elif payload.page_type == "SUPPORT_EMAIL":
+            payload.parsed = self.parse_email_support(payload)
+        elif payload.page_type == "SUPPORT_RATE_NOTICE":
+            payload.parsed = self.parse_rate_notice(payload)
+        elif payload.page_type == "SUPPORT_PERMIT":
+            payload.parsed = self.parse_permit_support(payload)
+        else:
+            payload.parsed = {"page_no": payload.page_no}
+
+        return asdict(payload)
+
+    def link_to_master(self, master_rows: List[Dict[str, Any]], vendor_docs: List[Dict[str, Any]], support_docs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        links: List[Dict[str, Any]] = []
+        for row in master_rows:
+            description = row.get("description", "") or ""
+            row_refs = set(re.findall(r"(?:SAFEEN\s+INV-\d+|ADP\s+INV-\d+|ADP\s+INV\d+)", description, re.IGNORECASE))
+            row_rotation = search_value(description, [r"Rot#\s*([0-9]{6,})"], flags=re.IGNORECASE)
+
+            linked_vendor_pages = []
+            for doc in vendor_docs:
+                invoice_no = (doc.get("invoice_number") or "").strip()
+                rotation_no = (doc.get("rotation_no") or "").strip()
+                if invoice_no and any(invoice_no.lower() in ref.lower() for ref in row_refs):
+                    linked_vendor_pages.append(doc.get("page_no"))
+                    continue
+                if row_rotation and rotation_no and row_rotation in rotation_no:
+                    linked_vendor_pages.append(doc.get("page_no"))
+
+            linked_support_pages = []
+            for doc in support_docs:
+                rotation_no = (doc.get("rotation_no") or "").strip()
+                if row_rotation and rotation_no and row_rotation in rotation_no:
+                    linked_support_pages.append(doc.get("page_no"))
+                    continue
+                subject = (doc.get("subject") or "").lower()
+                if "fresh water" in description.lower() and "fresh water" in subject:
+                    linked_support_pages.append(doc.get("page_no"))
+                elif "mgo" in description.lower() and ("diesel" in subject or "fuel oil" in subject or doc.get("support_type") == "RATE_NOTICE"):
+                    linked_support_pages.append(doc.get("page_no"))
+
+            links.append({
+                "master_sn": row.get("sn"),
+                "master_description": description,
+                "vendor_pages": sorted(set(p for p in linked_vendor_pages if p)),
+                "support_pages": sorted(set(p for p in linked_support_pages if p)),
+            })
+
+        return links
+
+    def parse_document(self) -> DocumentResult:
+        page_results: List[Dict[str, Any]] = []
+        master_header: Dict[str, Any] = {}
+        master_rows: List[Dict[str, Any]] = []
+        vendor_docs: List[Dict[str, Any]] = []
+        support_docs: List[Dict[str, Any]] = []
+
+        page_numbers = self.pages if self.pages else list(range(1, len(self.doc) + 1))
+        for page_no in page_numbers:
+            payload = self.extract_page_payload(page_no)
+            result = self.parse_page(payload)
+            page_results.append(result)
+
+            page_type = result["page_type"]
+            parsed = result["parsed"]
+
+            if page_type == "MASTER_OFCO":
+                if parsed.get("header"):
+                    master_header.update(parsed["header"])
+                if parsed.get("totals"):
+                    master_header["grand_totals"] = parsed["totals"]
+                if parsed.get("vat_anchor"):
+                    master_header["vat_anchor"] = parsed["vat_anchor"]
+                if parsed.get("bank_details"):
+                    master_header["bank_details"] = parsed["bank_details"]
+                if parsed.get("rows"):
+                    master_rows.extend(parsed["rows"])
+            elif page_type.startswith("VENDOR_"):
+                vendor_docs.append(parsed)
+            elif page_type.startswith("SUPPORT_"):
+                support_docs.append(parsed)
+
+        linkages = self.link_to_master(master_rows, vendor_docs, support_docs)
+
+        page_summary = [
+            {
+                "page_no": row["page_no"],
+                "page_type": row["page_type"],
+                "confidence": row["confidence"],
+                "text_source": row["text_source"],
+                "rotation": row["rotation"],
+            }
+            for row in page_results
+        ]
+
+        return DocumentResult(
+            pdf_path=str(self.pdf_path),
+            page_count=len(self.doc),
+            page_summary=page_summary,
+            master_header=master_header,
+            master_rows=master_rows,
+            vendor_invoices=vendor_docs,
+            support_documents=support_docs,
+            linkages=linkages,
+        )
+
+    # ------------------------------------------------------------------ #
+    # exports
+    # ------------------------------------------------------------------ #
+    def export(self, result: DocumentResult) -> None:
+        self.out_dir.mkdir(parents=True, exist_ok=True)
+        json_path = self.out_dir / "parsed_document.json"
+        json_path.write_text(json.dumps(asdict(result), ensure_ascii=False, indent=2), encoding="utf-8")
+
+        self.write_csv(self.out_dir / "page_summary.csv", result.page_summary)
+        self.write_csv(self.out_dir / "master_rows.csv", result.master_rows)
+        self.write_csv(self.out_dir / "vendor_invoices.csv", flatten_dict_rows(result.vendor_invoices))
+        self.write_csv(self.out_dir / "support_documents.csv", flatten_dict_rows(result.support_documents))
+        self.write_csv(self.out_dir / "linkages.csv", flatten_dict_rows(result.linkages))
+
+    @staticmethod
+    def write_csv(path: Path, rows: List[Dict[str, Any]]) -> None:
+        if not rows:
+            path.write_text("", encoding="utf-8")
+            return
+
+        fieldnames: List[str] = []
+        seen = set()
+        for row in rows:
+            for key in row.keys():
+                if key not in seen:
+                    fieldnames.append(key)
+                    seen.add(key)
+
+        with path.open("w", encoding="utf-8-sig", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            for row in rows:
+                writer.writerow(row)
+
+
+
+def parse_page_range(expr: Optional[str], max_page: Optional[int] = None) -> List[int]:
+    if not expr:
+        return []
+    pages: List[int] = []
+    for chunk in expr.split(","):
+        chunk = chunk.strip()
+        if not chunk:
+            continue
+        if "-" in chunk:
+            a, b = chunk.split("-", 1)
+            start, end = int(a), int(b)
+            if start > end:
+                start, end = end, start
+            pages.extend(range(start, end + 1))
+        else:
+            pages.append(int(chunk))
+    pages = sorted(set(pages))
+    if max_page is not None:
+        pages = [p for p in pages if 1 <= p <= max_page]
+    return pages
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="OFCO monthly invoice PDF parser (local, ready to run).")
+    parser.add_argument("pdf", type=Path, help="Input PDF path")
+    parser.add_argument("--outdir", type=Path, default=Path("ofco_parse_out"), help="Output directory")
+    parser.add_argument("--ocr-dpi", type=int, default=220, help="OCR raster DPI for scanned pages")
+    parser.add_argument("--ocr-lang", type=str, default="eng", help="Tesseract language code(s), e.g. eng or eng+ara")
+    parser.add_argument("--no-ocr", action="store_true", help="Disable OCR fallback")
+    parser.add_argument("--pages", type=str, default="", help="Page subset, e.g. 1-3,40,44")
+    args = parser.parse_args()
+
+    page_subset = parse_page_range(args.pages)
+
+    parser_obj = OFCOPdfParser(
+        pdf_path=args.pdf,
+        out_dir=args.outdir,
+        ocr_dpi=args.ocr_dpi,
+        ocr_lang=args.ocr_lang,
+        enable_ocr=not args.no_ocr,
+        pages=page_subset,
+    )
+    result = parser_obj.parse_document()
+    parser_obj.export(result)
+
+    print(f"Parsed: {args.pdf}")
+    print(f"Pages: {result.page_count}")
+    print(f"Master rows: {len(result.master_rows)}")
+    print(f"Vendor docs: {len(result.vendor_invoices)}")
+    print(f"Support docs: {len(result.support_documents)}")
+    print(f"Saved to: {args.outdir}")
+
+
+if __name__ == "__main__":
+    main()
