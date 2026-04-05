@@ -1,0 +1,3819 @@
+{
+  "heatmap": [
+    {
+      "x": 0,
+      "y": 0,
+      "v": 500.0
+    },
+    {
+      "x": 3,
+      "y": 0,
+      "v": 3935.0
+    },
+    {
+      "x": 0,
+      "y": 1,
+      "v": 700.0
+    },
+    {
+      "x": 3,
+      "y": 1,
+      "v": 4084.5
+    },
+    {
+      "x": 4,
+      "y": 1,
+      "v": 454.6
+    },
+    {
+      "x": 0,
+      "y": 2,
+      "v": 3857.7
+    },
+    {
+      "x": 3,
+      "y": 2,
+      "v": 17227.5
+    },
+    {
+      "x": 4,
+      "y": 2,
+      "v": 14006.9
+    },
+    {
+      "x": 0,
+      "y": 3,
+      "v": 3376.2
+    },
+    {
+      "x": 3,
+      "y": 3,
+      "v": 13227.5
+    },
+    {
+      "x": 4,
+      "y": 3,
+      "v": 14173.0
+    },
+    {
+      "x": 0,
+      "y": 4,
+      "v": 4195.8
+    },
+    {
+      "x": 3,
+      "y": 4,
+      "v": 16177.5
+    },
+    {
+      "x": 4,
+      "y": 4,
+      "v": 14354.3
+    },
+    {
+      "x": 0,
+      "y": 5,
+      "v": 3709.3
+    },
+    {
+      "x": 3,
+      "y": 5,
+      "v": 12707.5
+    },
+    {
+      "x": 4,
+      "y": 5,
+      "v": 12672.7
+    },
+    {
+      "x": 0,
+      "y": 6,
+      "v": 89173.9
+    },
+    {
+      "x": 3,
+      "y": 6,
+      "v": 12967.5
+    },
+    {
+      "x": 4,
+      "y": 6,
+      "v": 14791.2
+    },
+    {
+      "x": 0,
+      "y": 7,
+      "v": 4061.3
+    },
+    {
+      "x": 3,
+      "y": 7,
+      "v": 15767.5
+    },
+    {
+      "x": 4,
+      "y": 7,
+      "v": 14493.7
+    },
+    {
+      "x": 0,
+      "y": 8,
+      "v": 3791.5
+    },
+    {
+      "x": 3,
+      "y": 8,
+      "v": 11717.5
+    },
+    {
+      "x": 4,
+      "y": 8,
+      "v": 13411.8
+    },
+    {
+      "x": 0,
+      "y": 9,
+      "v": 3835.8
+    },
+    {
+      "x": 3,
+      "y": 9,
+      "v": 17227.5
+    },
+    {
+      "x": 4,
+      "y": 9,
+      "v": 13809.6
+    },
+    {
+      "x": 0,
+      "y": 10,
+      "v": 4015.7
+    },
+    {
+      "x": 3,
+      "y": 10,
+      "v": 11977.5
+    },
+    {
+      "x": 4,
+      "y": 10,
+      "v": 14084.0
+    },
+    {
+      "x": 0,
+      "y": 11,
+      "v": 4329.8
+    },
+    {
+      "x": 3,
+      "y": 11,
+      "v": 15652.5
+    },
+    {
+      "x": 4,
+      "y": 11,
+      "v": 13755.7
+    },
+    {
+      "x": 0,
+      "y": 12,
+      "v": 3858.4
+    },
+    {
+      "x": 3,
+      "y": 12,
+      "v": 15577.5
+    },
+    {
+      "x": 4,
+      "y": 12,
+      "v": 26715.6
+    },
+    {
+      "x": 0,
+      "y": 13,
+      "v": 3904.2
+    },
+    {
+      "x": 3,
+      "y": 13,
+      "v": 13227.5
+    },
+    {
+      "x": 4,
+      "y": 13,
+      "v": 27091.2
+    },
+    {
+      "x": 0,
+      "y": 14,
+      "v": 3685.7
+    },
+    {
+      "x": 3,
+      "y": 14,
+      "v": 13377.5
+    },
+    {
+      "x": 4,
+      "y": 14,
+      "v": 26284.9
+    },
+    {
+      "x": 0,
+      "y": 15,
+      "v": 3667.3
+    },
+    {
+      "x": 3,
+      "y": 15,
+      "v": 13377.5
+    },
+    {
+      "x": 4,
+      "y": 15,
+      "v": 25936.5
+    },
+    {
+      "x": 0,
+      "y": 16,
+      "v": 3805.1
+    },
+    {
+      "x": 3,
+      "y": 16,
+      "v": 17227.5
+    },
+    {
+      "x": 4,
+      "y": 16,
+      "v": 25209.8
+    },
+    {
+      "x": 0,
+      "y": 17,
+      "v": 3639.4
+    },
+    {
+      "x": 3,
+      "y": 17,
+      "v": 13377.5
+    },
+    {
+      "x": 4,
+      "y": 17,
+      "v": 25406.7
+    },
+    {
+      "x": 0,
+      "y": 18,
+      "v": 3605.1
+    },
+    {
+      "x": 3,
+      "y": 18,
+      "v": 11977.5
+    },
+    {
+      "x": 4,
+      "y": 18,
+      "v": 24756.1
+    },
+    {
+      "x": 0,
+      "y": 19,
+      "v": 3891.4
+    },
+    {
+      "x": 3,
+      "y": 19,
+      "v": 11977.5
+    },
+    {
+      "x": 4,
+      "y": 19,
+      "v": 26846.9
+    },
+    {
+      "x": 0,
+      "y": 20,
+      "v": 3852.4
+    },
+    {
+      "x": 3,
+      "y": 20,
+      "v": 13577.5
+    },
+    {
+      "x": 4,
+      "y": 20,
+      "v": 26602.2
+    },
+    {
+      "x": 0,
+      "y": 21,
+      "v": 3698.4
+    },
+    {
+      "x": 3,
+      "y": 21,
+      "v": 13377.5
+    },
+    {
+      "x": 4,
+      "y": 21,
+      "v": 26526.7
+    },
+    {
+      "x": 0,
+      "y": 22,
+      "v": 3841.0
+    },
+    {
+      "x": 3,
+      "y": 22,
+      "v": 16740.6
+    },
+    {
+      "x": 4,
+      "y": 22,
+      "v": 17622.1
+    },
+    {
+      "x": 0,
+      "y": 23,
+      "v": 4775.5
+    },
+    {
+      "x": 3,
+      "y": 23,
+      "v": 13377.5
+    },
+    {
+      "x": 4,
+      "y": 23,
+      "v": 18399.6
+    },
+    {
+      "x": 0,
+      "y": 24,
+      "v": 4736.4
+    },
+    {
+      "x": 3,
+      "y": 24,
+      "v": 11977.5
+    },
+    {
+      "x": 4,
+      "y": 24,
+      "v": 18109.2
+    },
+    {
+      "x": 0,
+      "y": 25,
+      "v": 4962.1
+    },
+    {
+      "x": 3,
+      "y": 25,
+      "v": 11977.5
+    },
+    {
+      "x": 4,
+      "y": 25,
+      "v": 18754.4
+    },
+    {
+      "x": 0,
+      "y": 26,
+      "v": 5530.4
+    },
+    {
+      "x": 3,
+      "y": 26,
+      "v": 20139.1
+    },
+    {
+      "x": 4,
+      "y": 26,
+      "v": 25032.1
+    },
+    {
+      "x": 0,
+      "y": 27,
+      "v": 2984.3
+    },
+    {
+      "x": 3,
+      "y": 27,
+      "v": 11977.5
+    },
+    {
+      "x": 4,
+      "y": 27,
+      "v": 18465.1
+    },
+    {
+      "x": 0,
+      "y": 28,
+      "v": 4845.7
+    },
+    {
+      "x": 3,
+      "y": 28,
+      "v": 17057.5
+    },
+    {
+      "x": 4,
+      "y": 28,
+      "v": 16774.5
+    },
+    {
+      "x": 0,
+      "y": 29,
+      "v": 3930.4
+    },
+    {
+      "x": 3,
+      "y": 29,
+      "v": 28155.5
+    },
+    {
+      "x": 4,
+      "y": 29,
+      "v": 20636.6
+    },
+    {
+      "x": 0,
+      "y": 30,
+      "v": 11732.5
+    },
+    {
+      "x": 3,
+      "y": 30,
+      "v": 13377.5
+    },
+    {
+      "x": 0,
+      "y": 31,
+      "v": 2300.0
+    },
+    {
+      "x": 3,
+      "y": 31,
+      "v": 13497.0
+    },
+    {
+      "x": 0,
+      "y": 32,
+      "v": 2300.0
+    },
+    {
+      "x": 3,
+      "y": 32,
+      "v": 20277.5
+    },
+    {
+      "x": 0,
+      "y": 33,
+      "v": 2300.0
+    },
+    {
+      "x": 3,
+      "y": 33,
+      "v": 18561.1
+    },
+    {
+      "x": 4,
+      "y": 33,
+      "v": 23781.0
+    },
+    {
+      "x": 0,
+      "y": 34,
+      "v": 2650.0
+    },
+    {
+      "x": 3,
+      "y": 34,
+      "v": 12229.5
+    },
+    {
+      "x": 4,
+      "y": 34,
+      "v": 124342.8
+    },
+    {
+      "x": 0,
+      "y": 35,
+      "v": 2300.0
+    },
+    {
+      "x": 3,
+      "y": 35,
+      "v": 16377.5
+    },
+    {
+      "x": 0,
+      "y": 36,
+      "v": 13866.1
+    },
+    {
+      "x": 2,
+      "y": 36,
+      "v": 3451.2
+    },
+    {
+      "x": 3,
+      "y": 36,
+      "v": 12142.5
+    },
+    {
+      "x": 4,
+      "y": 36,
+      "v": 454.6
+    },
+    {
+      "x": 0,
+      "y": 37,
+      "v": 2500.0
+    },
+    {
+      "x": 2,
+      "y": 37,
+      "v": 3104.5
+    },
+    {
+      "x": 3,
+      "y": 37,
+      "v": 11587.5
+    },
+    {
+      "x": 4,
+      "y": 37,
+      "v": 454.6
+    },
+    {
+      "x": 0,
+      "y": 38,
+      "v": 2300.0
+    },
+    {
+      "x": 2,
+      "y": 38,
+      "v": 3455.6
+    },
+    {
+      "x": 3,
+      "y": 38,
+      "v": 17429.5
+    },
+    {
+      "x": 0,
+      "y": 39,
+      "v": 2300.0
+    },
+    {
+      "x": 2,
+      "y": 39,
+      "v": 3608.6
+    },
+    {
+      "x": 3,
+      "y": 39,
+      "v": 18929.5
+    },
+    {
+      "x": 4,
+      "y": 39,
+      "v": 124299.4
+    },
+    {
+      "x": 0,
+      "y": 40,
+      "v": 2300.0
+    },
+    {
+      "x": 2,
+      "y": 40,
+      "v": 3230.8
+    },
+    {
+      "x": 3,
+      "y": 40,
+      "v": 10582.5
+    },
+    {
+      "x": 0,
+      "y": 41,
+      "v": 2300.0
+    },
+    {
+      "x": 2,
+      "y": 41,
+      "v": 3255.8
+    },
+    {
+      "x": 3,
+      "y": 41,
+      "v": 15717.5
+    },
+    {
+      "x": 0,
+      "y": 42,
+      "v": 2300.0
+    },
+    {
+      "x": 2,
+      "y": 42,
+      "v": 3360.4
+    },
+    {
+      "x": 3,
+      "y": 42,
+      "v": 11717.5
+    },
+    {
+      "x": 0,
+      "y": 43,
+      "v": 2300.0
+    },
+    {
+      "x": 2,
+      "y": 43,
+      "v": 3168.4
+    },
+    {
+      "x": 3,
+      "y": 43,
+      "v": 11717.5
+    },
+    {
+      "x": 2,
+      "y": 44,
+      "v": 1245.0
+    },
+    {
+      "x": 0,
+      "y": 45,
+      "v": 5789.1
+    },
+    {
+      "x": 3,
+      "y": 45,
+      "v": 16896.3
+    },
+    {
+      "x": 4,
+      "y": 45,
+      "v": 142.0
+    },
+    {
+      "x": 0,
+      "y": 46,
+      "v": 5863.2
+    },
+    {
+      "x": 3,
+      "y": 46,
+      "v": 3191.3
+    },
+    {
+      "x": 4,
+      "y": 46,
+      "v": 165.4
+    },
+    {
+      "x": 0,
+      "y": 47,
+      "v": 26.0
+    },
+    {
+      "x": 4,
+      "y": 47,
+      "v": 53.8
+    },
+    {
+      "x": 0,
+      "y": 48,
+      "v": 2257.3
+    },
+    {
+      "x": 3,
+      "y": 48,
+      "v": 4372.1
+    },
+    {
+      "x": 4,
+      "y": 48,
+      "v": 93.3
+    },
+    {
+      "x": 0,
+      "y": 49,
+      "v": 73244.2
+    },
+    {
+      "x": 1,
+      "y": 49,
+      "v": 1984.0
+    },
+    {
+      "x": 2,
+      "y": 49,
+      "v": 6621.5
+    },
+    {
+      "x": 3,
+      "y": 49,
+      "v": 56711.2
+    },
+    {
+      "x": 4,
+      "y": 49,
+      "v": 99654.1
+    },
+    {
+      "x": 0,
+      "y": 50,
+      "v": 8112.0
+    },
+    {
+      "x": 1,
+      "y": 50,
+      "v": 16714.4
+    },
+    {
+      "x": 3,
+      "y": 50,
+      "v": 23232.4
+    },
+    {
+      "x": 4,
+      "y": 50,
+      "v": 6738.9
+    },
+    {
+      "x": 0,
+      "y": 51,
+      "v": 22335.9
+    },
+    {
+      "x": 1,
+      "y": 51,
+      "v": 13640.8
+    },
+    {
+      "x": 3,
+      "y": 51,
+      "v": 20940.4
+    },
+    {
+      "x": 4,
+      "y": 51,
+      "v": 28265.0
+    },
+    {
+      "x": 0,
+      "y": 52,
+      "v": 6561.5
+    },
+    {
+      "x": 1,
+      "y": 52,
+      "v": 15026.3
+    },
+    {
+      "x": 2,
+      "y": 52,
+      "v": 6417.8
+    },
+    {
+      "x": 3,
+      "y": 52,
+      "v": 17855.2
+    },
+    {
+      "x": 0,
+      "y": 53,
+      "v": 1379.2
+    },
+    {
+      "x": 3,
+      "y": 53,
+      "v": 2699.1
+    },
+    {
+      "x": 0,
+      "y": 54,
+      "v": 32987.4
+    },
+    {
+      "x": 1,
+      "y": 54,
+      "v": 11482.4
+    },
+    {
+      "x": 3,
+      "y": 54,
+      "v": 38967.8
+    },
+    {
+      "x": 0,
+      "y": 55,
+      "v": 61811.4
+    },
+    {
+      "x": 1,
+      "y": 55,
+      "v": 9943.9
+    },
+    {
+      "x": 3,
+      "y": 55,
+      "v": 42700.4
+    },
+    {
+      "x": 4,
+      "y": 55,
+      "v": 1954.6
+    },
+    {
+      "x": 0,
+      "y": 56,
+      "v": 3747.6
+    },
+    {
+      "x": 2,
+      "y": 56,
+      "v": 8123.7
+    },
+    {
+      "x": 3,
+      "y": 56,
+      "v": 4407.3
+    },
+    {
+      "x": 0,
+      "y": 57,
+      "v": 9400.3
+    },
+    {
+      "x": 2,
+      "y": 57,
+      "v": 16466.4
+    },
+    {
+      "x": 3,
+      "y": 57,
+      "v": 15313.1
+    },
+    {
+      "x": 4,
+      "y": 57,
+      "v": 124299.4
+    },
+    {
+      "x": 0,
+      "y": 58,
+      "v": 14004.2
+    },
+    {
+      "x": 2,
+      "y": 58,
+      "v": 15613.5
+    },
+    {
+      "x": 3,
+      "y": 58,
+      "v": 40988.1
+    },
+    {
+      "x": 4,
+      "y": 58,
+      "v": 909.2
+    },
+    {
+      "x": 0,
+      "y": 59,
+      "v": 15651.3
+    },
+    {
+      "x": 1,
+      "y": 59,
+      "v": 21646.4
+    },
+    {
+      "x": 2,
+      "y": 59,
+      "v": 15778.5
+    },
+    {
+      "x": 3,
+      "y": 59,
+      "v": 79375.6
+    },
+    {
+      "x": 4,
+      "y": 59,
+      "v": 1687.5
+    },
+    {
+      "x": 0,
+      "y": 60,
+      "v": 48253.5
+    },
+    {
+      "x": 1,
+      "y": 60,
+      "v": 26846.6
+    },
+    {
+      "x": 2,
+      "y": 60,
+      "v": 1152.0
+    },
+    {
+      "x": 3,
+      "y": 60,
+      "v": 46251.5
+    },
+    {
+      "x": 4,
+      "y": 60,
+      "v": 454.6
+    },
+    {
+      "x": 0,
+      "y": 61,
+      "v": 72160.9
+    },
+    {
+      "x": 1,
+      "y": 61,
+      "v": 2481.6
+    },
+    {
+      "x": 2,
+      "y": 61,
+      "v": 1167.0
+    },
+    {
+      "x": 3,
+      "y": 61,
+      "v": 25888.9
+    },
+    {
+      "x": 4,
+      "y": 61,
+      "v": 909.2
+    },
+    {
+      "x": 0,
+      "y": 62,
+      "v": 47916.0
+    },
+    {
+      "x": 1,
+      "y": 62,
+      "v": 2549.7
+    },
+    {
+      "x": 2,
+      "y": 62,
+      "v": 1199.0
+    },
+    {
+      "x": 3,
+      "y": 62,
+      "v": 30080.6
+    },
+    {
+      "x": 0,
+      "y": 63,
+      "v": 11195.4
+    },
+    {
+      "x": 1,
+      "y": 63,
+      "v": 2963.6
+    },
+    {
+      "x": 2,
+      "y": 63,
+      "v": 1393.9
+    },
+    {
+      "x": 3,
+      "y": 63,
+      "v": 4652.4
+    },
+    {
+      "x": 4,
+      "y": 63,
+      "v": 454.6
+    },
+    {
+      "x": 0,
+      "y": 64,
+      "v": 29446.1
+    },
+    {
+      "x": 1,
+      "y": 64,
+      "v": 2709.6
+    },
+    {
+      "x": 3,
+      "y": 64,
+      "v": 11147.9
+    },
+    {
+      "x": 0,
+      "y": 65,
+      "v": 29698.2
+    },
+    {
+      "x": 1,
+      "y": 65,
+      "v": 4839.1
+    },
+    {
+      "x": 3,
+      "y": 65,
+      "v": 19285.9
+    },
+    {
+      "x": 4,
+      "y": 65,
+      "v": 121927.0
+    },
+    {
+      "x": 0,
+      "y": 66,
+      "v": 31243.2
+    },
+    {
+      "x": 1,
+      "y": 66,
+      "v": 2817.1
+    },
+    {
+      "x": 3,
+      "y": 66,
+      "v": 11401.7
+    },
+    {
+      "x": 4,
+      "y": 66,
+      "v": 454.6
+    },
+    {
+      "x": 0,
+      "y": 67,
+      "v": 31930.8
+    },
+    {
+      "x": 1,
+      "y": 67,
+      "v": 2727.7
+    },
+    {
+      "x": 3,
+      "y": 67,
+      "v": 19400.3
+    },
+    {
+      "x": 0,
+      "y": 68,
+      "v": 22959.7
+    },
+    {
+      "x": 1,
+      "y": 68,
+      "v": 2024.9
+    },
+    {
+      "x": 3,
+      "y": 68,
+      "v": 12616.7
+    },
+    {
+      "x": 0,
+      "y": 69,
+      "v": 8327.8
+    },
+    {
+      "x": 1,
+      "y": 69,
+      "v": 27894.2
+    },
+    {
+      "x": 2,
+      "y": 69,
+      "v": 18299.9
+    },
+    {
+      "x": 3,
+      "y": 69,
+      "v": 31027.1
+    },
+    {
+      "x": 4,
+      "y": 69,
+      "v": 5142.1
+    },
+    {
+      "x": 0,
+      "y": 70,
+      "v": 10576.2
+    },
+    {
+      "x": 1,
+      "y": 70,
+      "v": 24918.6
+    },
+    {
+      "x": 2,
+      "y": 70,
+      "v": 12509.9
+    },
+    {
+      "x": 3,
+      "y": 70,
+      "v": 35451.4
+    },
+    {
+      "x": 4,
+      "y": 70,
+      "v": 454.6
+    },
+    {
+      "x": 0,
+      "y": 71,
+      "v": 8770.5
+    },
+    {
+      "x": 1,
+      "y": 71,
+      "v": 35550.5
+    },
+    {
+      "x": 3,
+      "y": 71,
+      "v": 48459.7
+    },
+    {
+      "x": 4,
+      "y": 71,
+      "v": 2409.2
+    },
+    {
+      "x": 0,
+      "y": 72,
+      "v": 11693.8
+    },
+    {
+      "x": 2,
+      "y": 72,
+      "v": 32887.3
+    },
+    {
+      "x": 3,
+      "y": 72,
+      "v": 49187.0
+    },
+    {
+      "x": 4,
+      "y": 72,
+      "v": 127141.1
+    },
+    {
+      "x": 0,
+      "y": 73,
+      "v": 5890.9
+    },
+    {
+      "x": 1,
+      "y": 73,
+      "v": 21325.8
+    },
+    {
+      "x": 2,
+      "y": 73,
+      "v": 3679.9
+    },
+    {
+      "x": 3,
+      "y": 73,
+      "v": 31978.9
+    },
+    {
+      "x": 4,
+      "y": 73,
+      "v": 7204.6
+    },
+    {
+      "x": 0,
+      "y": 74,
+      "v": 81305.8
+    },
+    {
+      "x": 3,
+      "y": 74,
+      "v": 21911.8
+    },
+    {
+      "x": 4,
+      "y": 74,
+      "v": 129359.3
+    },
+    {
+      "x": 0,
+      "y": 75,
+      "v": 6255.8
+    },
+    {
+      "x": 3,
+      "y": 75,
+      "v": 25940.0
+    },
+    {
+      "x": 4,
+      "y": 75,
+      "v": 454.6
+    },
+    {
+      "x": 0,
+      "y": 76,
+      "v": 6828.8
+    },
+    {
+      "x": 1,
+      "y": 76,
+      "v": 4463.3
+    },
+    {
+      "x": 3,
+      "y": 76,
+      "v": 59502.5
+    },
+    {
+      "x": 4,
+      "y": 76,
+      "v": 1500.0
+    },
+    {
+      "x": 0,
+      "y": 77,
+      "v": 6147.2
+    },
+    {
+      "x": 2,
+      "y": 77,
+      "v": 123546.0
+    },
+    {
+      "x": 3,
+      "y": 77,
+      "v": 26079.2
+    },
+    {
+      "x": 0,
+      "y": 78,
+      "v": 3725.8
+    },
+    {
+      "x": 2,
+      "y": 78,
+      "v": 300.0
+    },
+    {
+      "x": 3,
+      "y": 78,
+      "v": 13957.5
+    },
+    {
+      "x": 0,
+      "y": 79,
+      "v": 3597.9
+    },
+    {
+      "x": 3,
+      "y": 79,
+      "v": 12979.3
+    },
+    {
+      "x": 0,
+      "y": 80,
+      "v": 3887.2
+    },
+    {
+      "x": 3,
+      "y": 80,
+      "v": 13871.5
+    },
+    {
+      "x": 4,
+      "y": 80,
+      "v": 454.6
+    },
+    {
+      "x": 0,
+      "y": 81,
+      "v": 3455.6
+    },
+    {
+      "x": 3,
+      "y": 81,
+      "v": 9555.7
+    },
+    {
+      "x": 4,
+      "y": 81,
+      "v": 454.6
+    },
+    {
+      "x": 0,
+      "y": 82,
+      "v": 5444.1
+    },
+    {
+      "x": 3,
+      "y": 82,
+      "v": 11440.5
+    },
+    {
+      "x": 4,
+      "y": 82,
+      "v": 454.6
+    },
+    {
+      "x": 0,
+      "y": 83,
+      "v": 3560.2
+    },
+    {
+      "x": 3,
+      "y": 83,
+      "v": 12601.5
+    },
+    {
+      "x": 0,
+      "y": 84,
+      "v": 3561.5
+    },
+    {
+      "x": 3,
+      "y": 84,
+      "v": 12614.5
+    },
+    {
+      "x": 0,
+      "y": 85,
+      "v": 5084.5
+    },
+    {
+      "x": 3,
+      "y": 85,
+      "v": 9844.2
+    },
+    {
+      "x": 0,
+      "y": 86,
+      "v": 4051.8
+    },
+    {
+      "x": 3,
+      "y": 86,
+      "v": 16017.5
+    },
+    {
+      "x": 4,
+      "y": 86,
+      "v": 123447.4
+    },
+    {
+      "x": 0,
+      "y": 87,
+      "v": 3801.8
+    },
+    {
+      "x": 3,
+      "y": 87,
+      "v": 13017.5
+    },
+    {
+      "x": 4,
+      "y": 87,
+      "v": 454.6
+    },
+    {
+      "x": 0,
+      "y": 88,
+      "v": 5860.9
+    },
+    {
+      "x": 3,
+      "y": 88,
+      "v": 17608.8
+    },
+    {
+      "x": 0,
+      "y": 89,
+      "v": 5432.1
+    },
+    {
+      "x": 3,
+      "y": 89,
+      "v": 14784.0
+    },
+    {
+      "x": 4,
+      "y": 89,
+      "v": 909.2
+    },
+    {
+      "x": 0,
+      "y": 90,
+      "v": 2300.0
+    },
+    {
+      "x": 3,
+      "y": 90,
+      "v": 17596.6
+    },
+    {
+      "x": 0,
+      "y": 91,
+      "v": 4075.3
+    },
+    {
+      "x": 3,
+      "y": 91,
+      "v": 15752.5
+    },
+    {
+      "x": 4,
+      "y": 91,
+      "v": 454.6
+    },
+    {
+      "x": 0,
+      "y": 92,
+      "v": 4547.5
+    },
+    {
+      "x": 3,
+      "y": 92,
+      "v": 17475.0
+    },
+    {
+      "x": 0,
+      "y": 93,
+      "v": 1950.0
+    },
+    {
+      "x": 4,
+      "y": 93,
+      "v": 123763.2
+    },
+    {
+      "x": 3,
+      "y": 94,
+      "v": 18325.1
+    },
+    {
+      "x": 0,
+      "y": 95,
+      "v": 2129.1
+    },
+    {
+      "x": 3,
+      "y": 95,
+      "v": 3291.0
+    },
+    {
+      "x": 3,
+      "y": 96,
+      "v": 12792.5
+    },
+    {
+      "x": 3,
+      "y": 97,
+      "v": 11101.3
+    },
+    {
+      "x": 3,
+      "y": 98,
+      "v": 3184.2
+    },
+    {
+      "x": 0,
+      "y": 99,
+      "v": 3928.8
+    },
+    {
+      "x": 3,
+      "y": 99,
+      "v": 14287.5
+    },
+    {
+      "x": 4,
+      "y": 99,
+      "v": 506.0
+    },
+    {
+      "x": 0,
+      "y": 100,
+      "v": 4620.7
+    },
+    {
+      "x": 3,
+      "y": 100,
+      "v": 5105.0
+    },
+    {
+      "x": 4,
+      "y": 100,
+      "v": 506.0
+    },
+    {
+      "x": 0,
+      "y": 101,
+      "v": 11495.5
+    },
+    {
+      "x": 3,
+      "y": 101,
+      "v": 20977.0
+    },
+    {
+      "x": 4,
+      "y": 101,
+      "v": 134795.3
+    },
+    {
+      "x": 2,
+      "y": 102,
+      "v": 4582.2
+    },
+    {
+      "x": 3,
+      "y": 102,
+      "v": 13702.5
+    },
+    {
+      "x": 2,
+      "y": 103,
+      "v": 4582.2
+    },
+    {
+      "x": 3,
+      "y": 103,
+      "v": 12929.0
+    },
+    {
+      "x": 2,
+      "y": 104,
+      "v": 4582.2
+    },
+    {
+      "x": 3,
+      "y": 104,
+      "v": 22570.0
+    },
+    {
+      "x": 2,
+      "y": 105,
+      "v": 4582.2
+    },
+    {
+      "x": 3,
+      "y": 105,
+      "v": 9758.2
+    },
+    {
+      "x": 0,
+      "y": 106,
+      "v": 4674.1
+    },
+    {
+      "x": 2,
+      "y": 106,
+      "v": 6877.6
+    },
+    {
+      "x": 3,
+      "y": 106,
+      "v": 3038.0
+    },
+    {
+      "x": 4,
+      "y": 106,
+      "v": 500.1
+    },
+    {
+      "x": 0,
+      "y": 107,
+      "v": 4396.7
+    },
+    {
+      "x": 2,
+      "y": 107,
+      "v": 5696.0
+    },
+    {
+      "x": 3,
+      "y": 107,
+      "v": 3038.0
+    },
+    {
+      "x": 0,
+      "y": 108,
+      "v": 7860.8
+    },
+    {
+      "x": 2,
+      "y": 108,
+      "v": 6460.9
+    },
+    {
+      "x": 3,
+      "y": 108,
+      "v": 3038.0
+    },
+    {
+      "x": 4,
+      "y": 108,
+      "v": 120111.9
+    },
+    {
+      "x": 0,
+      "y": 109,
+      "v": 7241.1
+    },
+    {
+      "x": 2,
+      "y": 109,
+      "v": 7261.2
+    },
+    {
+      "x": 3,
+      "y": 109,
+      "v": 14652.8
+    },
+    {
+      "x": 4,
+      "y": 109,
+      "v": 500.1
+    },
+    {
+      "x": 0,
+      "y": 110,
+      "v": 2119.1
+    },
+    {
+      "x": 2,
+      "y": 110,
+      "v": 4293.3
+    },
+    {
+      "x": 3,
+      "y": 110,
+      "v": 3191.2
+    },
+    {
+      "x": 3,
+      "y": 111,
+      "v": 12792.5
+    },
+    {
+      "x": 0,
+      "y": 112,
+      "v": 4602.8
+    },
+    {
+      "x": 3,
+      "y": 112,
+      "v": 5235.0
+    }
+  ],
+  "voyages": [
+    "HVDC-AGI-GRM-71-001",
+    "HVDC-AGI-GRM-71-002",
+    "HVDC-AGI-GRM-71-003",
+    "HVDC-AGI-GRM-71-004",
+    "HVDC-AGI-GRM-71-005",
+    "HVDC-AGI-GRM-71-006",
+    "HVDC-AGI-GRM-71-007",
+    "HVDC-AGI-GRM-71-008",
+    "HVDC-AGI-GRM-71-009",
+    "HVDC-AGI-GRM-71-010",
+    "HVDC-AGI-GRM-71-011",
+    "HVDC-AGI-GRM-71-012",
+    "HVDC-AGI-GRM-71-013",
+    "HVDC-AGI-GRM-71-014",
+    "HVDC-AGI-GRM-71-015",
+    "HVDC-AGI-GRM-71-016",
+    "HVDC-AGI-GRM-71-017",
+    "HVDC-AGI-GRM-71-018",
+    "HVDC-AGI-GRM-71-019",
+    "HVDC-AGI-GRM-71-020",
+    "HVDC-AGI-GRM-71-021",
+    "HVDC-AGI-GRM-71-022",
+    "HVDC-AGI-GRM-71-023",
+    "HVDC-AGI-GRM-71-024",
+    "HVDC-AGI-GRM-71-025",
+    "HVDC-AGI-GRM-71-026",
+    "HVDC-AGI-GRM-71-027",
+    "HVDC-AGI-GRM-71-028",
+    "HVDC-AGI-GRM-71-029",
+    "HVDC-AGI-GRM-71-030",
+    "HVDC-AGI-GRM-71-031",
+    "HVDC-AGI-GRM-71-032",
+    "HVDC-AGI-GRM-71-033",
+    "HVDC-AGI-GRM-71-034",
+    "HVDC-AGI-GRM-71-035",
+    "HVDC-AGI-GRM-71-036",
+    "HVDC-AGI-GRM-71-037",
+    "HVDC-AGI-GRM-71-038",
+    "HVDC-AGI-GRM-71-039",
+    "HVDC-AGI-GRM-71-040",
+    "HVDC-AGI-GRM-71-041",
+    "HVDC-AGI-GRM-71-042",
+    "HVDC-AGI-GRM-71-043",
+    "HVDC-AGI-GRM-71-044",
+    "HVDC-DAS-J71-001",
+    "HVDC-AGI-GRM-71-045",
+    "HVDC-AGI-GRM-71-046",
+    "HVDC-DAS-J71-002",
+    "HVDC-DAS-J71-003",
+    "HVDC-AGI-GRM-J71-047",
+    "HVDC-AGI-J71-001",
+    "HVDC-AGI-J71-002",
+    "HVDC-AGI-J71-005",
+    "HVDC-DAS-J71-004",
+    "HVDC-AGI-J71-003",
+    "HVDC-AGI-J71-004",
+    "HVDC-AGI-006",
+    "HVDC-AGI-GRM-J71-048",
+    "HVDC-AGI-GRM-J71-049",
+    "HVDC-AGI-GRM-J71-050",
+    "HVDC-AGI-GRM-J71-051",
+    "HVDC-AGI-GRM-J71-052",
+    "HVDC-AGI-GRM-J71-053",
+    "HVDC-AGI-GRM-J71-054",
+    "HVDC-AGI-GRM-J71-055",
+    "HVDC-AGI-GRM-J71-056",
+    "HVDC-AGI-GRM-J71-057",
+    "HVDC-AGI-GRM-J71-058",
+    "HVDC-AGI-GRM-J71-059",
+    "HVDC-AGI-009",
+    "HVDC-AGI-010",
+    "HVDC-AGI-GRM-J71-060",
+    "HVDC-AGI-GRM-J71-061",
+    "HVDC-DAS-J71",
+    "HVDC-AGI-GRM-J71-062",
+    "HVDC-AGI-GRM-J71-063",
+    "HVDC-AGI-GRM-J71-064",
+    "HVDC-AGI-GRM-J71-065",
+    "HVDC-AGI-GRM-J71-066",
+    "HVDC-AGI-GRM-J71-067",
+    "HVDC-AGI-GRM-J71-068",
+    "HVDC-AGI-GRM-J71-069",
+    "HVDC-AGI-GRM-J71-070",
+    "HVDC-AGI-GRM-J71-071",
+    "HVDC-AGI-GRM-J71-072",
+    "HVDC-AGI-GRM-J71-073",
+    "HVDC-AGI-GRM-J71-074",
+    "HVDC-AGI-GRM-J71-075",
+    "HVDC-AGI-GRM-J71-076",
+    "HVDC-AGI-GRM-J71-077",
+    "HVDC-AGI-GRM-J71-078",
+    "HVDC-AGI-GRM-J71-079",
+    "HVDC-AGI-GRM-J71-080",
+    "HVDC-AGI-GRM-J71-081",
+    "HVDC-AGI-GRM-J71-082",
+    "HVDC-AGI-GRM-J71-083",
+    "HVDC-AGI-DEBRIS-005",
+    "HVDC-AGI-DEBRIS-006",
+    "HVDC-AGI-DEBRIS-008",
+    "HVDC-AGI-GRM-J71-084",
+    "HVDC-AGI-GRM-J71-086",
+    "HVDC-AGI-GRM-J71-087",
+    "HVDC-AGI-DEBRIS-009",
+    "HVDC-AGI-DEBRIS-010",
+    "HVDC-AGI-DEBRIS-011",
+    "HVDC-AGI-DEBRIS-012",
+    "HVDC-AGI-GRM-J71-089",
+    "HVDC-AGI-GRM-J71-090",
+    "HVDC-AGI-GRM-J71-091",
+    "HVDC-AGI-GRM-J71-092",
+    "HVDC-AGI-GRM-J71-093",
+    "HVDC-AGI-DEBRIS-007",
+    "HVDC-AGI-GRM-J71-085"
+  ],
+  "cost_types": [
+    "Agency/Admin",
+    "Cargo Handling",
+    "Other",
+    "Port Charges",
+    "Supplies/Waste"
+  ],
+  "alloc_voyages": [
+    {
+      "Agency/Admin": 500.0,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 3935.0,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 700.0,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 4084.5,
+      "Supplies/Waste": 454.6
+    },
+    {
+      "Agency/Admin": 3857.7,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 17227.5,
+      "Supplies/Waste": 14006.9
+    },
+    {
+      "Agency/Admin": 3376.2,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 13227.5,
+      "Supplies/Waste": 14173.0
+    },
+    {
+      "Agency/Admin": 4195.8,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 16177.5,
+      "Supplies/Waste": 14354.3
+    },
+    {
+      "Agency/Admin": 3709.3,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 12707.5,
+      "Supplies/Waste": 12672.7
+    },
+    {
+      "Agency/Admin": 89173.9,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 12967.5,
+      "Supplies/Waste": 14791.2
+    },
+    {
+      "Agency/Admin": 4061.3,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 15767.5,
+      "Supplies/Waste": 14493.7
+    },
+    {
+      "Agency/Admin": 3791.5,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 11717.5,
+      "Supplies/Waste": 13411.8
+    },
+    {
+      "Agency/Admin": 3835.8,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 17227.5,
+      "Supplies/Waste": 13809.6
+    },
+    {
+      "Agency/Admin": 4015.7,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 11977.5,
+      "Supplies/Waste": 14084.0
+    },
+    {
+      "Agency/Admin": 4329.8,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 15652.5,
+      "Supplies/Waste": 13755.7
+    },
+    {
+      "Agency/Admin": 3858.4,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 15577.5,
+      "Supplies/Waste": 26715.6
+    },
+    {
+      "Agency/Admin": 3904.2,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 13227.5,
+      "Supplies/Waste": 27091.2
+    },
+    {
+      "Agency/Admin": 3685.7,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 13377.5,
+      "Supplies/Waste": 26284.9
+    },
+    {
+      "Agency/Admin": 3667.3,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 13377.5,
+      "Supplies/Waste": 25936.5
+    },
+    {
+      "Agency/Admin": 3805.1,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 17227.5,
+      "Supplies/Waste": 25209.8
+    },
+    {
+      "Agency/Admin": 3639.4,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 13377.5,
+      "Supplies/Waste": 25406.7
+    },
+    {
+      "Agency/Admin": 3605.1,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 11977.5,
+      "Supplies/Waste": 24756.1
+    },
+    {
+      "Agency/Admin": 3891.4,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 11977.5,
+      "Supplies/Waste": 26846.9
+    },
+    {
+      "Agency/Admin": 3852.4,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 13577.5,
+      "Supplies/Waste": 26602.2
+    },
+    {
+      "Agency/Admin": 3698.4,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 13377.5,
+      "Supplies/Waste": 26526.7
+    },
+    {
+      "Agency/Admin": 3841.0,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 16740.6,
+      "Supplies/Waste": 17622.1
+    },
+    {
+      "Agency/Admin": 4775.5,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 13377.5,
+      "Supplies/Waste": 18399.6
+    },
+    {
+      "Agency/Admin": 4736.4,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 11977.5,
+      "Supplies/Waste": 18109.2
+    },
+    {
+      "Agency/Admin": 4962.1,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 11977.5,
+      "Supplies/Waste": 18754.4
+    },
+    {
+      "Agency/Admin": 5530.4,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 20139.1,
+      "Supplies/Waste": 25032.1
+    },
+    {
+      "Agency/Admin": 2984.3,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 11977.5,
+      "Supplies/Waste": 18465.1
+    },
+    {
+      "Agency/Admin": 4845.7,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 17057.5,
+      "Supplies/Waste": 16774.5
+    },
+    {
+      "Agency/Admin": 3930.4,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 28155.5,
+      "Supplies/Waste": 20636.6
+    },
+    {
+      "Agency/Admin": 11732.5,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 13377.5,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 2300.0,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 13497.0,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 2300.0,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 20277.5,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 2300.0,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 18561.1,
+      "Supplies/Waste": 23781.0
+    },
+    {
+      "Agency/Admin": 2650.0,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 12229.5,
+      "Supplies/Waste": 124342.8
+    },
+    {
+      "Agency/Admin": 2300.0,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 16377.5,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 13866.1,
+      "Cargo Handling": 0.0,
+      "Other": 3451.2,
+      "Port Charges": 12142.5,
+      "Supplies/Waste": 454.6
+    },
+    {
+      "Agency/Admin": 2500.0,
+      "Cargo Handling": 0.0,
+      "Other": 3104.5,
+      "Port Charges": 11587.5,
+      "Supplies/Waste": 454.6
+    },
+    {
+      "Agency/Admin": 2300.0,
+      "Cargo Handling": 0.0,
+      "Other": 3455.6,
+      "Port Charges": 17429.5,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 2300.0,
+      "Cargo Handling": 0.0,
+      "Other": 3608.6,
+      "Port Charges": 18929.5,
+      "Supplies/Waste": 124299.4
+    },
+    {
+      "Agency/Admin": 2300.0,
+      "Cargo Handling": 0.0,
+      "Other": 3230.8,
+      "Port Charges": 10582.5,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 2300.0,
+      "Cargo Handling": 0.0,
+      "Other": 3255.8,
+      "Port Charges": 15717.5,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 2300.0,
+      "Cargo Handling": 0.0,
+      "Other": 3360.4,
+      "Port Charges": 11717.5,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 2300.0,
+      "Cargo Handling": 0.0,
+      "Other": 3168.4,
+      "Port Charges": 11717.5,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 0.0,
+      "Cargo Handling": 0.0,
+      "Other": 1245.0,
+      "Port Charges": 0.0,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 5789.1,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 16896.3,
+      "Supplies/Waste": 142.0
+    },
+    {
+      "Agency/Admin": 5863.2,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 3191.3,
+      "Supplies/Waste": 165.4
+    },
+    {
+      "Agency/Admin": 26.0,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 0.0,
+      "Supplies/Waste": 53.8
+    },
+    {
+      "Agency/Admin": 2257.3,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 4372.1,
+      "Supplies/Waste": 93.3
+    },
+    {
+      "Agency/Admin": 73244.2,
+      "Cargo Handling": 1984.0,
+      "Other": 6621.5,
+      "Port Charges": 56711.2,
+      "Supplies/Waste": 99654.1
+    },
+    {
+      "Agency/Admin": 8112.0,
+      "Cargo Handling": 16714.4,
+      "Other": 0.0,
+      "Port Charges": 23232.4,
+      "Supplies/Waste": 6738.9
+    },
+    {
+      "Agency/Admin": 22335.9,
+      "Cargo Handling": 13640.8,
+      "Other": 0.0,
+      "Port Charges": 20940.4,
+      "Supplies/Waste": 28265.0
+    },
+    {
+      "Agency/Admin": 6561.5,
+      "Cargo Handling": 15026.3,
+      "Other": 6417.8,
+      "Port Charges": 17855.2,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 1379.2,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 2699.1,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 32987.4,
+      "Cargo Handling": 11482.4,
+      "Other": 0.0,
+      "Port Charges": 38967.8,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 61811.4,
+      "Cargo Handling": 9943.9,
+      "Other": 0.0,
+      "Port Charges": 42700.4,
+      "Supplies/Waste": 1954.6
+    },
+    {
+      "Agency/Admin": 3747.6,
+      "Cargo Handling": 0.0,
+      "Other": 8123.7,
+      "Port Charges": 4407.3,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 9400.3,
+      "Cargo Handling": 0.0,
+      "Other": 16466.4,
+      "Port Charges": 15313.1,
+      "Supplies/Waste": 124299.4
+    },
+    {
+      "Agency/Admin": 14004.2,
+      "Cargo Handling": 0.0,
+      "Other": 15613.5,
+      "Port Charges": 40988.1,
+      "Supplies/Waste": 909.2
+    },
+    {
+      "Agency/Admin": 15651.3,
+      "Cargo Handling": 21646.4,
+      "Other": 15778.5,
+      "Port Charges": 79375.6,
+      "Supplies/Waste": 1687.5
+    },
+    {
+      "Agency/Admin": 48253.5,
+      "Cargo Handling": 26846.6,
+      "Other": 1152.0,
+      "Port Charges": 46251.5,
+      "Supplies/Waste": 454.6
+    },
+    {
+      "Agency/Admin": 72160.9,
+      "Cargo Handling": 2481.6,
+      "Other": 1167.0,
+      "Port Charges": 25888.9,
+      "Supplies/Waste": 909.2
+    },
+    {
+      "Agency/Admin": 47916.0,
+      "Cargo Handling": 2549.7,
+      "Other": 1199.0,
+      "Port Charges": 30080.6,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 11195.4,
+      "Cargo Handling": 2963.6,
+      "Other": 1393.9,
+      "Port Charges": 4652.4,
+      "Supplies/Waste": 454.6
+    },
+    {
+      "Agency/Admin": 29446.1,
+      "Cargo Handling": 2709.6,
+      "Other": 0.0,
+      "Port Charges": 11147.9,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 29698.2,
+      "Cargo Handling": 4839.1,
+      "Other": 0.0,
+      "Port Charges": 19285.9,
+      "Supplies/Waste": 121927.0
+    },
+    {
+      "Agency/Admin": 31243.2,
+      "Cargo Handling": 2817.1,
+      "Other": 0.0,
+      "Port Charges": 11401.7,
+      "Supplies/Waste": 454.6
+    },
+    {
+      "Agency/Admin": 31930.8,
+      "Cargo Handling": 2727.7,
+      "Other": 0.0,
+      "Port Charges": 19400.3,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 22959.7,
+      "Cargo Handling": 2024.9,
+      "Other": 0.0,
+      "Port Charges": 12616.7,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 8327.8,
+      "Cargo Handling": 27894.2,
+      "Other": 18299.9,
+      "Port Charges": 31027.1,
+      "Supplies/Waste": 5142.1
+    },
+    {
+      "Agency/Admin": 10576.2,
+      "Cargo Handling": 24918.6,
+      "Other": 12509.9,
+      "Port Charges": 35451.4,
+      "Supplies/Waste": 454.6
+    },
+    {
+      "Agency/Admin": 8770.5,
+      "Cargo Handling": 35550.5,
+      "Other": 0.0,
+      "Port Charges": 48459.7,
+      "Supplies/Waste": 2409.2
+    },
+    {
+      "Agency/Admin": 11693.8,
+      "Cargo Handling": 0.0,
+      "Other": 32887.3,
+      "Port Charges": 49187.0,
+      "Supplies/Waste": 127141.1
+    },
+    {
+      "Agency/Admin": 5890.9,
+      "Cargo Handling": 21325.8,
+      "Other": 3679.9,
+      "Port Charges": 31978.9,
+      "Supplies/Waste": 7204.6
+    },
+    {
+      "Agency/Admin": 81305.8,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 21911.8,
+      "Supplies/Waste": 129359.3
+    },
+    {
+      "Agency/Admin": 6255.8,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 25940.0,
+      "Supplies/Waste": 454.6
+    },
+    {
+      "Agency/Admin": 6828.8,
+      "Cargo Handling": 4463.3,
+      "Other": 0.0,
+      "Port Charges": 59502.5,
+      "Supplies/Waste": 1500.0
+    },
+    {
+      "Agency/Admin": 6147.2,
+      "Cargo Handling": 0.0,
+      "Other": 123546.0,
+      "Port Charges": 26079.2,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 3725.8,
+      "Cargo Handling": 0.0,
+      "Other": 300.0,
+      "Port Charges": 13957.5,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 3597.9,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 12979.3,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 3887.2,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 13871.5,
+      "Supplies/Waste": 454.6
+    },
+    {
+      "Agency/Admin": 3455.6,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 9555.7,
+      "Supplies/Waste": 454.6
+    },
+    {
+      "Agency/Admin": 5444.1,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 11440.5,
+      "Supplies/Waste": 454.6
+    },
+    {
+      "Agency/Admin": 3560.2,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 12601.5,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 3561.5,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 12614.5,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 5084.5,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 9844.2,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 4051.8,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 16017.5,
+      "Supplies/Waste": 123447.4
+    },
+    {
+      "Agency/Admin": 3801.8,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 13017.5,
+      "Supplies/Waste": 454.6
+    },
+    {
+      "Agency/Admin": 5860.9,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 17608.8,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 5432.1,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 14784.0,
+      "Supplies/Waste": 909.2
+    },
+    {
+      "Agency/Admin": 2300.0,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 17596.6,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 4075.3,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 15752.5,
+      "Supplies/Waste": 454.6
+    },
+    {
+      "Agency/Admin": 4547.5,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 17475.0,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 1950.0,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 0.0,
+      "Supplies/Waste": 123763.2
+    },
+    {
+      "Agency/Admin": 0.0,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 18325.1,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 2129.1,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 3291.0,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 0.0,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 12792.5,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 0.0,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 11101.3,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 0.0,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 3184.2,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 3928.8,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 14287.5,
+      "Supplies/Waste": 506.0
+    },
+    {
+      "Agency/Admin": 4620.7,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 5105.0,
+      "Supplies/Waste": 506.0
+    },
+    {
+      "Agency/Admin": 11495.5,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 20977.0,
+      "Supplies/Waste": 134795.3
+    },
+    {
+      "Agency/Admin": 0.0,
+      "Cargo Handling": 0.0,
+      "Other": 4582.2,
+      "Port Charges": 13702.5,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 0.0,
+      "Cargo Handling": 0.0,
+      "Other": 4582.2,
+      "Port Charges": 12929.0,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 0.0,
+      "Cargo Handling": 0.0,
+      "Other": 4582.2,
+      "Port Charges": 22570.0,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 0.0,
+      "Cargo Handling": 0.0,
+      "Other": 4582.2,
+      "Port Charges": 9758.2,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 4674.1,
+      "Cargo Handling": 0.0,
+      "Other": 6877.6,
+      "Port Charges": 3038.0,
+      "Supplies/Waste": 500.1
+    },
+    {
+      "Agency/Admin": 4396.7,
+      "Cargo Handling": 0.0,
+      "Other": 5696.0,
+      "Port Charges": 3038.0,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 7860.8,
+      "Cargo Handling": 0.0,
+      "Other": 6460.9,
+      "Port Charges": 3038.0,
+      "Supplies/Waste": 120111.9
+    },
+    {
+      "Agency/Admin": 7241.1,
+      "Cargo Handling": 0.0,
+      "Other": 7261.2,
+      "Port Charges": 14652.8,
+      "Supplies/Waste": 500.1
+    },
+    {
+      "Agency/Admin": 2119.1,
+      "Cargo Handling": 0.0,
+      "Other": 4293.3,
+      "Port Charges": 3191.2,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 0.0,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 12792.5,
+      "Supplies/Waste": 0.0
+    },
+    {
+      "Agency/Admin": 4602.8,
+      "Cargo Handling": 0.0,
+      "Other": 0.0,
+      "Port Charges": 5235.0,
+      "Supplies/Waste": 0.0
+    }
+  ],
+  "monthly_labels": [
+    "2024-07",
+    "2024-08",
+    "2024-09",
+    "2024-10",
+    "2024-11",
+    "2024-12",
+    "2025-01",
+    "2025-02",
+    "2025-03",
+    "2025-04",
+    "2025-05",
+    "2025-07",
+    "2025-08",
+    "2025-09",
+    "2025-10",
+    "2025-11",
+    "2025-12",
+    "2026-01",
+    "2026-12"
+  ],
+  "monthly_data": {
+    "Agency/Admin": [
+      1200.0,
+      124347.0,
+      37607.5,
+      35606.0,
+      23582.5,
+      30166.2,
+      13935.6,
+      111632.6,
+      94798.7,
+      42803.4,
+      179525.9,
+      145278.0,
+      45259.2,
+      115203.9,
+      39096.7,
+      12701.8,
+      20044.9,
+      26291.9,
+      4602.8
+    ],
+    "Cargo Handling": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      47365.5,
+      21426.3,
+      21646.4,
+      34841.5,
+      15118.4,
+      109689.2,
+      4463.3,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "Other": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      27880.5,
+      0.0,
+      13039.3,
+      0.0,
+      55982.1,
+      4911.8,
+      0.0,
+      67377.1,
+      123846.0,
+      0.0,
+      0.0,
+      0.0,
+      48917.7,
+      0.0
+    ],
+    "Port Charges": [
+      8019.5,
+      144650.0,
+      137075.0,
+      131402.8,
+      94320.1,
+      109824.0,
+      24459.7,
+      121438.2,
+      81668.2,
+      140084.0,
+      106873.4,
+      73852.6,
+      196104.2,
+      183797.6,
+      125525.2,
+      54843.7,
+      67447.5,
+      85917.8,
+      18027.5
+    ],
+    "Supplies/Waste": [
+      454.6,
+      139552.9,
+      261376.7,
+      153793.6,
+      148123.8,
+      125208.5,
+      454.6,
+      134657.9,
+      1954.6,
+      126896.1,
+      1818.3,
+      122381.6,
+      142351.5,
+      132223.1,
+      125265.7,
+      124217.8,
+      135807.3,
+      121112.0,
+      0.0
+    ]
+  },
+  "multi_list": [
+    {
+      "idx": 279,
+      "ym": "2025-01",
+      "aed": 200.0,
+      "subject": "Agency fee: Arranging FW Supply on 02-JAN-2024",
+      "method": "PRORATE_CANDIDATES",
+      "conf": 0.6,
+      "candidates": "HVDC-AGI-GRM-71-045|HVDC-AGI-GRM-71-046|HVDC-DAS-J71-002|HVDC-DAS-J71-003",
+      "note": "HVDC-AGI-GRM-71-045:70|HVDC-AGI-GRM-71-046:81|HVDC-DAS-J71-002:26|HVDC-DAS-J71-003:23"
+    },
+    {
+      "idx": 444,
+      "ym": "2025-02",
+      "aed": 7140.0,
+      "subject": "SAFEEN INV- 36030- berthing unberthing & Pilotage - Rot# 2503121295",
+      "method": "ROT_CLUSTER",
+      "conf": 0.7,
+      "candidates": "HVDC-DAS-J71-003|HVDC-AGI-J71-001|HVDC-DAS-J71-004|HVDC-AGI-GRM-J71-047|HVDC-AGI-J71-002",
+      "note": "Rot#2503121295|HVDC-DAS-J71-003:1889|HVDC-AGI-J71-001:207|HVDC-DAS-J71-004:1166|HVDC-AGI-GRM-J71-047:3007|HVDC-AGI-J71-002:870"
+    },
+    {
+      "idx": 445,
+      "ym": "2025-02",
+      "aed": 2800.0,
+      "subject": "ADP INV-34778- Port Dues & Services",
+      "method": "PRORATE_CANDIDATES",
+      "conf": 0.6,
+      "candidates": "HVDC-DAS-J71-003|HVDC-AGI-J71-001|HVDC-DAS-J71-004|HVDC-AGI-GRM-J71-047|HVDC-AGI-J71-002",
+      "note": "HVDC-DAS-J71-003:741|HVDC-AGI-J71-001:81|HVDC-DAS-J71-004:457|HVDC-AGI-GRM-J71-047:1179|HVDC-AGI-J71-002:341"
+    },
+    {
+      "idx": 446,
+      "ym": "2025-02",
+      "aed": 7340.9,
+      "subject": "ADP INV04250302511-PHC- 57th Trip",
+      "method": "PRORATE_CANDIDATES",
+      "conf": 0.6,
+      "candidates": "HVDC-DAS-J71-003|HVDC-AGI-J71-001|HVDC-DAS-J71-004|HVDC-AGI-GRM-J71-047|HVDC-AGI-J71-002",
+      "note": "HVDC-DAS-J71-003:1942|HVDC-AGI-J71-001:213|HVDC-DAS-J71-004:1199|HVDC-AGI-GRM-J71-047:3092|HVDC-AGI-J71-002:895"
+    },
+    {
+      "idx": 447,
+      "ym": "2025-02",
+      "aed": 500.0,
+      "subject": "Agency fee: Cargo Clearnace - 57th Trip",
+      "method": "PRORATE_CANDIDATES",
+      "conf": 0.6,
+      "candidates": "HVDC-DAS-J71-003|HVDC-AGI-J71-001|HVDC-DAS-J71-004|HVDC-AGI-GRM-J71-047|HVDC-AGI-J71-002",
+      "note": "HVDC-DAS-J71-003:132|HVDC-AGI-J71-001:15|HVDC-DAS-J71-004:82|HVDC-AGI-GRM-J71-047:211|HVDC-AGI-J71-002:61"
+    },
+    {
+      "idx": 454,
+      "ym": "2025-02",
+      "aed": 460.0,
+      "subject": "OFCO 10% Handling Fees",
+      "method": "PRORATE_CANDIDATES",
+      "conf": 0.6,
+      "candidates": "HVDC-DAS-J71-003|HVDC-AGI-J71-001|HVDC-DAS-J71-004|HVDC-AGI-GRM-J71-047|HVDC-AGI-J71-002",
+      "note": "HVDC-DAS-J71-003:122|HVDC-AGI-J71-001:13|HVDC-DAS-J71-004:75|HVDC-AGI-GRM-J71-047:194|HVDC-AGI-J71-002:56"
+    },
+    {
+      "idx": 463,
+      "ym": "2025-02",
+      "aed": 345.0,
+      "subject": "OFCO 10% Handling Fees",
+      "method": "PRORATE_CANDIDATES",
+      "conf": 0.6,
+      "candidates": "HVDC-DAS-J71-003|HVDC-AGI-J71-001|HVDC-DAS-J71-004|HVDC-AGI-GRM-J71-047|HVDC-AGI-J71-002",
+      "note": "HVDC-DAS-J71-003:91|HVDC-AGI-J71-001:10|HVDC-DAS-J71-004:56|HVDC-AGI-GRM-J71-047:145|HVDC-AGI-J71-002:42"
+    },
+    {
+      "idx": 465,
+      "ym": "2025-02",
+      "aed": 6382.5,
+      "subject": "SAFEEN INV- 36624- Channel Charges - Rot# 2503122021",
+      "method": "ROT_CLUSTER",
+      "conf": 0.7,
+      "candidates": "HVDC-DAS-J71-003|HVDC-AGI-J71-001|HVDC-DAS-J71-004|HVDC-AGI-GRM-J71-047|HVDC-AGI-J71-002",
+      "note": "Rot#2503122021|HVDC-DAS-J71-003:1689|HVDC-AGI-J71-001:185|HVDC-DAS-J71-004:1043|HVDC-AGI-GRM-J71-047:2688|HVDC-AGI-J71-002:778"
+    },
+    {
+      "idx": 645,
+      "ym": "2025-04",
+      "aed": 1800.0,
+      "subject": "Agency fee: Berthing Arrangement / Channel Transit Permission / Pilot Arrangement",
+      "method": "PRORATE_CANDIDATES",
+      "conf": 0.6,
+      "candidates": "HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71-050|HVDC-AGI-006",
+      "note": "HVDC-AGI-J71-005:185|HVDC-AGI-GRM-J71-048:475|HVDC-AGI-GRM-J71-049:450|HVDC-AGI-GRM-J71-050:455|HVDC-AGI-006:234"
+    },
+    {
+      "idx": 646,
+      "ym": "2025-04",
+      "aed": 3931.3,
+      "subject": "SAFEEN INV-49127 – Berthing & Unberthing / Channel Crossing – Rot# 2503123598",
+      "method": "ROT_CLUSTER",
+      "conf": 0.7,
+      "candidates": "HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71-050|HVDC-AGI-006",
+      "note": "Rot#2503123598|HVDC-AGI-J71-005:404|HVDC-AGI-GRM-J71-048:1037|HVDC-AGI-GRM-J71-049:984|HVDC-AGI-GRM-J71-050:994|HVDC-AGI-006:512"
+    },
+    {
+      "idx": 647,
+      "ym": "2025-04",
+      "aed": 100.0,
+      "subject": "SAFEEN INV-49128 – Channel Crossing – Rot# 2503123598",
+      "method": "ROT_CLUSTER",
+      "conf": 0.7,
+      "candidates": "HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71-050|HVDC-AGI-006",
+      "note": "Rot#2503123598|HVDC-AGI-J71-005:10|HVDC-AGI-GRM-J71-048:26|HVDC-AGI-GRM-J71-049:25|HVDC-AGI-GRM-J71-050:25|HVDC-AGI-006:13"
+    },
+    {
+      "idx": 648,
+      "ym": "2025-04",
+      "aed": 2800.0,
+      "subject": "ADP INV-49597 – Port Dues & Services",
+      "method": "PRORATE_CANDIDATES",
+      "conf": 0.6,
+      "candidates": "HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71-050|HVDC-AGI-006",
+      "note": "HVDC-AGI-J71-005:288|HVDC-AGI-GRM-J71-048:739|HVDC-AGI-GRM-J71-049:701|HVDC-AGI-GRM-J71-050:708|HVDC-AGI-006:365"
+    },
+    {
+      "idx": 649,
+      "ym": "2025-04",
+      "aed": 6611.9,
+      "subject": "ADP INV03250400326 – PHC – 1st Trip",
+      "method": "PRORATE_CANDIDATES",
+      "conf": 0.6,
+      "candidates": "HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71-050|HVDC-AGI-006",
+      "note": "HVDC-AGI-J71-005:680|HVDC-AGI-GRM-J71-048:1745|HVDC-AGI-GRM-J71-049:1654|HVDC-AGI-GRM-J71-050:1672|HVDC-AGI-006:861"
+    },
+    {
+      "idx": 650,
+      "ym": "2025-04",
+      "aed": 21770.0,
+      "subject": "ADP INV03250400325 – PHC – 1st Trip",
+      "method": "PRORATE_CANDIDATES",
+      "conf": 0.6,
+      "candidates": "HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71-050|HVDC-AGI-006",
+      "note": "HVDC-AGI-J71-005:2239|HVDC-AGI-GRM-J71-048:5745|HVDC-AGI-GRM-J71-049:5447|HVDC-AGI-GRM-J71-050:5505|HVDC-AGI-006:2834"
+    },
+    {
+      "idx": 651,
+      "ym": "2025-04",
+      "aed": 400.0,
+      "subject": "Agency fee: Port Crane Arrangement",
+      "method": "PRORATE_CANDIDATES",
+      "conf": 0.6,
+      "candidates": "HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71-050|HVDC-AGI-006",
+      "note": "HVDC-AGI-J71-005:41|HVDC-AGI-GRM-J71-048:106|HVDC-AGI-GRM-J71-049:100|HVDC-AGI-GRM-J71-050:101|HVDC-AGI-006:52"
+    },
+    {
+      "idx": 652,
+      "ym": "2025-04",
+      "aed": 500.0,
+      "subject": "Agency fee: Cargo Clearance – Trip",
+      "method": "PRORATE_CANDIDATES",
+      "conf": 0.6,
+      "candidates": "HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71-050|HVDC-AGI-006",
+      "note": "HVDC-AGI-J71-005:51|HVDC-AGI-GRM-J71-048:132|HVDC-AGI-GRM-J71-049:125|HVDC-AGI-GRM-J71-050:126|HVDC-AGI-006:65"
+    },
+    {
+      "idx": 655,
+      "ym": "2025-04",
+      "aed": 1800.0,
+      "subject": "Agency fee: Berthing Arrangement / Channel Transit Permission / Pilot Arrangement",
+      "method": "PRORATE_CANDIDATES",
+      "conf": 0.6,
+      "candidates": "HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71-050|HVDC-AGI-006",
+      "note": "HVDC-AGI-J71-005:185|HVDC-AGI-GRM-J71-048:475|HVDC-AGI-GRM-J71-049:450|HVDC-AGI-GRM-J71-050:455|HVDC-AGI-006:234"
+    },
+    {
+      "idx": 656,
+      "ym": "2025-04",
+      "aed": 3931.3,
+      "subject": "SAFEEN INV-48158 – Channel Crossing – Rot# 2503123786",
+      "method": "ROT_CLUSTER",
+      "conf": 0.7,
+      "candidates": "HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71-050|HVDC-AGI-006",
+      "note": "Rot#2503123786|HVDC-AGI-J71-005:404|HVDC-AGI-GRM-J71-048:1037|HVDC-AGI-GRM-J71-049:984|HVDC-AGI-GRM-J71-050:994|HVDC-AGI-006:512"
+    },
+    {
+      "idx": 657,
+      "ym": "2025-04",
+      "aed": 4200.0,
+      "subject": "ADP INV-48302 – Port Dues & Services",
+      "method": "PRORATE_CANDIDATES",
+      "conf": 0.6,
+      "candidates": "HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71-050|HVDC-AGI-006",
+      "note": "HVDC-AGI-J71-005:432|HVDC-AGI-GRM-J71-048:1108|HVDC-AGI-GRM-J71-049:1051|HVDC-AGI-GRM-J71-050:1062|HVDC-AGI-006:547"
+    },
+    {
+      "idx": 658,
+      "ym": "2025-04",
+      "aed": 3500.0,
+      "subject": "ADP INV03250400343 – Port Crane – 1st Trip",
+      "method": "PRORATE_CANDIDATES",
+      "conf": 0.6,
+      "candidates": "HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71-050|HVDC-AGI-006",
+      "note": "HVDC-AGI-J71-005:360|HVDC-AGI-GRM-J71-048:924|HVDC-AGI-GRM-J71-049:876|HVDC-AGI-GRM-J71-050:885|HVDC-AGI-006:456"
+    },
+    {
+      "idx": 659,
+      "ym": "2025-04",
+      "aed": 200.0,
+      "subject": "Agency fee: Port Crane Arrangement",
+      "method": "PRORATE_CANDIDATES",
+      "conf": 0.6,
+      "candidates": "HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71-050|HVDC-AGI-006",
+      "note": "HVDC-AGI-J71-005:21|HVDC-AGI-GRM-J71-048:53|HVDC-AGI-GRM-J71-049:50|HVDC-AGI-GRM-J71-050:51|HVDC-AGI-006:26"
+    },
+    {
+      "idx": 660,
+      "ym": "2025-04",
+      "aed": 37129.9,
+      "subject": "ADP INV03250500398 – PHC & Port Mobile Crane – 1st Trip",
+      "method": "PRORATE_CANDIDATES",
+      "conf": 0.6,
+      "candidates": "HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71-050|HVDC-AGI-006",
+      "note": "HVDC-AGI-J71-005:3819|HVDC-AGI-GRM-J71-048:9798|HVDC-AGI-GRM-J71-049:9291|HVDC-AGI-GRM-J71-050:9389|HVDC-AGI-006:4834"
+    },
+    {
+      "idx": 661,
+      "ym": "2025-04",
+      "aed": 600.0,
+      "subject": "Agency fee: Port Crane Arrangement",
+      "method": "PRORATE_CANDIDATES",
+      "conf": 0.6,
+      "candidates": "HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71-050|HVDC-AGI-006",
+      "note": "HVDC-AGI-J71-005:62|HVDC-AGI-GRM-J71-048:158|HVDC-AGI-GRM-J71-049:150|HVDC-AGI-GRM-J71-050:152|HVDC-AGI-006:78"
+    },
+    {
+      "idx": 662,
+      "ym": "2025-04",
+      "aed": 9081.5,
+      "subject": "ADP INV032500397 – PHC & Port Mobile Crane – 1st Trip",
+      "method": "PRORATE_CANDIDATES",
+      "conf": 0.6,
+      "candidates": "HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71-050|HVDC-AGI-006",
+      "note": "HVDC-AGI-J71-005:934|HVDC-AGI-GRM-J71-048:2396|HVDC-AGI-GRM-J71-049:2272|HVDC-AGI-GRM-J71-050:2296|HVDC-AGI-006:1182"
+    },
+    {
+      "idx": 663,
+      "ym": "2025-04",
+      "aed": 500.0,
+      "subject": "Agency fee: Cargo Clearance – Trip",
+      "method": "PRORATE_CANDIDATES",
+      "conf": 0.6,
+      "candidates": "HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71-050|HVDC-AGI-006",
+      "note": "HVDC-AGI-J71-005:51|HVDC-AGI-GRM-J71-048:132|HVDC-AGI-GRM-J71-049:125|HVDC-AGI-GRM-J71-050:126|HVDC-AGI-006:65"
+    },
+    {
+      "idx": 665,
+      "ym": "2025-04",
+      "aed": 1800.0,
+      "subject": "Agency fee: Berthing Arrangement / Channel Transit Permission / Pilot Arrangement",
+      "method": "PRORATE_CANDIDATES",
+      "conf": 0.6,
+      "candidates": "HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71-050|HVDC-AGI-006",
+      "note": "HVDC-AGI-J71-005:185|HVDC-AGI-GRM-J71-048:475|HVDC-AGI-GRM-J71-049:450|HVDC-AGI-GRM-J71-050:455|HVDC-AGI-006:234"
+    },
+    {
+      "idx": 666,
+      "ym": "2025-04",
+      "aed": 3091.2,
+      "subject": "SAFEEN INV-48147 – Channel Crossing – Rot# 2503124026",
+      "method": "ROT_CLUSTER",
+      "conf": 0.7,
+      "candidates": "HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71-050|HVDC-AGI-006",
+      "note": "Rot#2503124026|HVDC-AGI-J71-005:318|HVDC-AGI-GRM-J71-048:816|HVDC-AGI-GRM-J71-049:774|HVDC-AGI-GRM-J71-050:782|HVDC-AGI-006:402"
+    },
+    {
+      "idx": 667,
+      "ym": "2025-04",
+      "aed": 100.0,
+      "subject": "SAFEEN INV-48148 – Administration – Rot# 2503124026",
+      "method": "ROT_CLUSTER",
+      "conf": 0.7,
+      "candidates": "HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71-050|HVDC-AGI-006",
+      "note": "Rot#2503124026|HVDC-AGI-J71-005:10|HVDC-AGI-GRM-J71-048:26|HVDC-AGI-GRM-J71-049:25|HVDC-AGI-GRM-J71-050:25|HVDC-AGI-006:13"
+    },
+    {
+      "idx": 669,
+      "ym": "2025-04",
+      "aed": 21194.8,
+      "subject": "OFCO Handling Fees – Port Charges Trip",
+      "method": "PRORATE_CANDIDATES",
+      "conf": 0.6,
+      "candidates": "HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71-050|HVDC-AGI-006",
+      "note": "HVDC-AGI-J71-005:2180|HVDC-AGI-GRM-J71-048:5593|HVDC-AGI-GRM-J71-049:5303|HVDC-AGI-GRM-J71-050:5359|HVDC-AGI-006:2759"
+    },
+    {
+      "idx": 775,
+      "ym": "2025-05",
+      "aed": 1800.0,
+      "subject": "Agency fee: Berthing Arrangement / Channel Transit Permission / Pilot Arrangement",
+      "method": "PRORATE_CANDIDATES",
+      "conf": 0.6,
+      "candidates": "HVDC-AGI-GRM-J71-051|HVDC-AGI-GRM-J71-052|HVDC-AGI-GRM-J71-053|HVDC-AGI-GRM-J71-054",
+      "note": "HVDC-AGI-GRM-J71-051:422|HVDC-AGI-GRM-J71-052:428|HVDC-AGI-GRM-J71-053:439|HVDC-AGI-GRM-J71-054:511"
+    },
+    {
+      "idx": 776,
+      "ym": "2025-05",
+      "aed": 6482.5,
+      "subject": "SAFEEN INV-51457 – Channel Crossing – Rot#2503124553",
+      "method": "ROT_CLUSTER",
+      "conf": 0.7,
+      "candidates": "HVDC-AGI-GRM-J71-051|HVDC-AGI-GRM-J71-052|HVDC-AGI-GRM-J71-053|HVDC-AGI-GRM-J71-054",
+      "note": "Rot#2503124553|HVDC-AGI-GRM-J71-051:1520|HVDC-AGI-GRM-J71-052:1540|HVDC-AGI-GRM-J71-053:1583|HVDC-AGI-GRM-J71-054:1840"
+    },
+    {
+      "idx": 777,
+      "ym": "2025-05",
+      "aed": 4200.0,
+      "subject": "ADP INV-51853 – Port Dues & Services",
+      "method": "PRORATE_CANDIDATES",
+      "conf": 0.6,
+      "candidates": "HVDC-AGI-GRM-J71-051|HVDC-AGI-GRM-J71-052|HVDC-AGI-GRM-J71-053|HVDC-AGI-GRM-J71-054",
+      "note": "HVDC-AGI-GRM-J71-051:985|HVDC-AGI-GRM-J71-052:998|HVDC-AGI-GRM-J71-053:1025|HVDC-AGI-GRM-J71-054:1192"
+    },
+    {
+      "idx": 778,
+      "ym": "2025-05",
+      "aed": 4911.8,
+      "subject": "ADP INV03250500459 – PHC – 1st Trip",
+      "method": "PRORATE_CANDIDATES",
+      "conf": 0.6,
+      "candidates": "HVDC-AGI-GRM-J71-051|HVDC-AGI-GRM-J71-052|HVDC-AGI-GRM-J71-053|HVDC-AGI-GRM-J71-054",
+      "note": "HVDC-AGI-GRM-J71-051:1152|HVDC-AGI-GRM-J71-052:1167|HVDC-AGI-GRM-J71-053:1199|HVDC-AGI-GRM-J71-054:1394"
+    },
+    {
+      "idx": 779,
+      "ym": "2025-05",
+      "aed": 500.0,
+      "subject": "Agency fee: Cargo Clearance – (Trip)",
+      "method": "PRORATE_CANDIDATES",
+      "conf": 0.6,
+      "candidates": "HVDC-AGI-GRM-J71-051|HVDC-AGI-GRM-J71-052|HVDC-AGI-GRM-J71-053|HVDC-AGI-GRM-J71-054",
+      "note": "HVDC-AGI-GRM-J71-051:117|HVDC-AGI-GRM-J71-052:119|HVDC-AGI-GRM-J71-053:122|HVDC-AGI-GRM-J71-054:142"
+    }
+  ],
+  "voy_kpi": {
+    "HVDC-AGI-006": {
+      "ton": 345.6,
+      "aed_v4": 16278.6,
+      "aed_per_ton": 47.1,
+      "month": "2025-04"
+    },
+    "HVDC-AGI-009": {
+      "ton": 405.0,
+      "aed_v4": 90691.1,
+      "aed_per_ton": 223.9,
+      "month": "2025-08"
+    },
+    "HVDC-AGI-010": {
+      "ton": 248.7,
+      "aed_v4": 83910.8,
+      "aed_per_ton": 337.5,
+      "month": "2025-08"
+    },
+    "HVDC-AGI-DEBRIS-005": {
+      "ton": 550.0,
+      "aed_v4": 12792.5,
+      "aed_per_ton": 23.3,
+      "month": "2025-12"
+    },
+    "HVDC-AGI-DEBRIS-006": {
+      "ton": 550.0,
+      "aed_v4": 11101.3,
+      "aed_per_ton": 20.2,
+      "month": "2025-12"
+    },
+    "HVDC-AGI-DEBRIS-007": {
+      "ton": 550.0,
+      "aed_v4": 12792.5,
+      "aed_per_ton": 23.3,
+      "month": "2026-12"
+    },
+    "HVDC-AGI-DEBRIS-008": {
+      "ton": 484.5,
+      "aed_v4": 3184.2,
+      "aed_per_ton": 6.6,
+      "month": "2025-12"
+    },
+    "HVDC-AGI-DEBRIS-009": {
+      "ton": 460.0,
+      "aed_v4": 18284.7,
+      "aed_per_ton": 39.7,
+      "month": "2026-01"
+    },
+    "HVDC-AGI-DEBRIS-010": {
+      "ton": 460.0,
+      "aed_v4": 17511.2,
+      "aed_per_ton": 38.1,
+      "month": "2026-01"
+    },
+    "HVDC-AGI-DEBRIS-011": {
+      "ton": 460.0,
+      "aed_v4": 27152.2,
+      "aed_per_ton": 59.0,
+      "month": "2026-01"
+    },
+    "HVDC-AGI-DEBRIS-012": {
+      "ton": 460.0,
+      "aed_v4": 14340.4,
+      "aed_per_ton": 31.2,
+      "month": "2026-01"
+    },
+    "HVDC-AGI-GRM-71-001": {
+      "ton": 600.0,
+      "aed_v4": 4435.0,
+      "aed_per_ton": 7.4,
+      "month": "2024-07"
+    },
+    "HVDC-AGI-GRM-71-002": {
+      "ton": 623.0,
+      "aed_v4": 5239.1,
+      "aed_per_ton": 8.4,
+      "month": "2024-07"
+    },
+    "HVDC-AGI-GRM-71-003": {
+      "ton": 619.0,
+      "aed_v4": 35092.2,
+      "aed_per_ton": 56.7,
+      "month": "2024-08"
+    },
+    "HVDC-AGI-GRM-71-004": {
+      "ton": 626.3,
+      "aed_v4": 30776.7,
+      "aed_per_ton": 49.1,
+      "month": "2024-08"
+    },
+    "HVDC-AGI-GRM-71-005": {
+      "ton": 614.2,
+      "aed_v4": 34727.6,
+      "aed_per_ton": 56.5,
+      "month": "2024-08"
+    },
+    "HVDC-AGI-GRM-71-006": {
+      "ton": 560.0,
+      "aed_v4": 29089.5,
+      "aed_per_ton": 51.9,
+      "month": "2024-08"
+    },
+    "HVDC-AGI-GRM-71-007": {
+      "ton": 613.4,
+      "aed_v4": 116932.6,
+      "aed_per_ton": 190.6,
+      "month": "2024-08"
+    },
+    "HVDC-AGI-GRM-71-008": {
+      "ton": 620.4,
+      "aed_v4": 34322.5,
+      "aed_per_ton": 55.3,
+      "month": "2024-08"
+    },
+    "HVDC-AGI-GRM-71-009": {
+      "ton": 592.7,
+      "aed_v4": 28920.8,
+      "aed_per_ton": 48.8,
+      "month": "2024-08"
+    },
+    "HVDC-AGI-GRM-71-010": {
+      "ton": 610.2,
+      "aed_v4": 34872.9,
+      "aed_per_ton": 57.1,
+      "month": "2024-08"
+    },
+    "HVDC-AGI-GRM-71-011": {
+      "ton": 602.3,
+      "aed_v4": 30077.2,
+      "aed_per_ton": 49.9,
+      "month": "2024-08"
+    },
+    "HVDC-AGI-GRM-71-012": {
+      "ton": 607.9,
+      "aed_v4": 33738.0,
+      "aed_per_ton": 55.5,
+      "month": "2024-08"
+    },
+    "HVDC-AGI-GRM-71-013": {
+      "ton": 636.4,
+      "aed_v4": 46151.5,
+      "aed_per_ton": 72.5,
+      "month": "2024-09"
+    },
+    "HVDC-AGI-GRM-71-014": {
+      "ton": 634.6,
+      "aed_v4": 44223.0,
+      "aed_per_ton": 69.7,
+      "month": "2024-09"
+    },
+    "HVDC-AGI-GRM-71-015": {
+      "ton": 626.2,
+      "aed_v4": 43348.1,
+      "aed_per_ton": 69.2,
+      "month": "2024-09"
+    },
+    "HVDC-AGI-GRM-71-016": {
+      "ton": 617.9,
+      "aed_v4": 42981.3,
+      "aed_per_ton": 69.6,
+      "month": "2024-09"
+    },
+    "HVDC-AGI-GRM-71-017": {
+      "ton": 589.7,
+      "aed_v4": 46242.4,
+      "aed_per_ton": 78.4,
+      "month": "2024-09"
+    },
+    "HVDC-AGI-GRM-71-018": {
+      "ton": 605.3,
+      "aed_v4": 42423.6,
+      "aed_per_ton": 70.1,
+      "month": "2024-09"
+    },
+    "HVDC-AGI-GRM-71-019": {
+      "ton": 589.8,
+      "aed_v4": 40338.7,
+      "aed_per_ton": 68.4,
+      "month": "2024-09"
+    },
+    "HVDC-AGI-GRM-71-020": {
+      "ton": 628.7,
+      "aed_v4": 42715.8,
+      "aed_per_ton": 67.9,
+      "month": "2024-09"
+    },
+    "HVDC-AGI-GRM-71-021": {
+      "ton": 633.7,
+      "aed_v4": 44032.2,
+      "aed_per_ton": 69.5,
+      "month": "2024-09"
+    },
+    "HVDC-AGI-GRM-71-022": {
+      "ton": 631.9,
+      "aed_v4": 43602.6,
+      "aed_per_ton": 69.0,
+      "month": "2024-09"
+    },
+    "HVDC-AGI-GRM-71-023": {
+      "ton": 337.8,
+      "aed_v4": 38203.8,
+      "aed_per_ton": 113.1,
+      "month": "2024-10"
+    },
+    "HVDC-AGI-GRM-71-024": {
+      "ton": 623.6,
+      "aed_v4": 36552.6,
+      "aed_per_ton": 58.6,
+      "month": "2024-10"
+    },
+    "HVDC-AGI-GRM-71-025": {
+      "ton": 613.7,
+      "aed_v4": 34823.1,
+      "aed_per_ton": 56.7,
+      "month": "2024-10"
+    },
+    "HVDC-AGI-GRM-71-026": {
+      "ton": 620.2,
+      "aed_v4": 35694.0,
+      "aed_per_ton": 57.6,
+      "month": "2024-10"
+    },
+    "HVDC-AGI-GRM-71-027": {
+      "ton": 360.3,
+      "aed_v4": 50701.6,
+      "aed_per_ton": 140.7,
+      "month": "2024-10"
+    },
+    "HVDC-AGI-GRM-71-028": {
+      "ton": 625.8,
+      "aed_v4": 33426.9,
+      "aed_per_ton": 53.4,
+      "month": "2024-10"
+    },
+    "HVDC-AGI-GRM-71-029": {
+      "ton": 553.1,
+      "aed_v4": 38677.7,
+      "aed_per_ton": 69.9,
+      "month": "2024-10"
+    },
+    "HVDC-AGI-GRM-71-030": {
+      "ton": 360.3,
+      "aed_v4": 52722.6,
+      "aed_per_ton": 146.3,
+      "month": "2024-10"
+    },
+    "HVDC-AGI-GRM-71-031": {
+      "ton": 612.8,
+      "aed_v4": 25110.0,
+      "aed_per_ton": 41.0,
+      "month": "2024-11"
+    },
+    "HVDC-AGI-GRM-71-032": {
+      "ton": 604.4,
+      "aed_v4": 15797.0,
+      "aed_per_ton": 26.1,
+      "month": "2024-11"
+    },
+    "HVDC-AGI-GRM-71-033": {
+      "ton": 599.0,
+      "aed_v4": 22577.5,
+      "aed_per_ton": 37.7,
+      "month": "2024-11"
+    },
+    "HVDC-AGI-GRM-71-034": {
+      "ton": 351.0,
+      "aed_v4": 44642.1,
+      "aed_per_ton": 127.2,
+      "month": "2024-11"
+    },
+    "HVDC-AGI-GRM-71-035": {
+      "ton": 611.6,
+      "aed_v4": 139222.3,
+      "aed_per_ton": 227.6,
+      "month": "2024-11"
+    },
+    "HVDC-AGI-GRM-71-036": {
+      "ton": 581.9,
+      "aed_v4": 18677.5,
+      "aed_per_ton": 32.1,
+      "month": "2024-11"
+    },
+    "HVDC-AGI-GRM-71-037": {
+      "ton": 651.9,
+      "aed_v4": 29914.4,
+      "aed_per_ton": 45.9,
+      "month": "2024-12"
+    },
+    "HVDC-AGI-GRM-71-038": {
+      "ton": 586.4,
+      "aed_v4": 17646.6,
+      "aed_per_ton": 30.1,
+      "month": "2024-12"
+    },
+    "HVDC-AGI-GRM-71-039": {
+      "ton": 652.7,
+      "aed_v4": 23185.1,
+      "aed_per_ton": 35.5,
+      "month": "2024-12"
+    },
+    "HVDC-AGI-GRM-71-040": {
+      "ton": 681.6,
+      "aed_v4": 149137.6,
+      "aed_per_ton": 218.8,
+      "month": "2024-12"
+    },
+    "HVDC-AGI-GRM-71-041": {
+      "ton": 610.3,
+      "aed_v4": 16113.3,
+      "aed_per_ton": 26.4,
+      "month": "2024-12"
+    },
+    "HVDC-AGI-GRM-71-042": {
+      "ton": 615.0,
+      "aed_v4": 21273.3,
+      "aed_per_ton": 34.6,
+      "month": "2024-12"
+    },
+    "HVDC-AGI-GRM-71-043": {
+      "ton": 634.7,
+      "aed_v4": 17377.9,
+      "aed_per_ton": 27.4,
+      "month": "2024-12"
+    },
+    "HVDC-AGI-GRM-71-044": {
+      "ton": 598.5,
+      "aed_v4": 17185.9,
+      "aed_per_ton": 28.7,
+      "month": "2024-12"
+    },
+    "HVDC-AGI-GRM-71-045": {
+      "ton": 671.8,
+      "aed_v4": 22827.4,
+      "aed_per_ton": 34.0,
+      "month": "2025-01"
+    },
+    "HVDC-AGI-GRM-71-046": {
+      "ton": 782.5,
+      "aed_v4": 9219.9,
+      "aed_per_ton": 11.8,
+      "month": "2025-01"
+    },
+    "HVDC-AGI-GRM-J71-047": {
+      "ton": 347.7,
+      "aed_v4": 238214.9,
+      "aed_per_ton": 685.2,
+      "month": "2025-02"
+    },
+    "HVDC-AGI-GRM-J71-048": {
+      "ton": 700.4,
+      "aed_v4": 165479.2,
+      "aed_per_ton": 236.3,
+      "month": "2025-04"
+    },
+    "HVDC-AGI-GRM-J71-049": {
+      "ton": 664.1,
+      "aed_v4": 71514.9,
+      "aed_per_ton": 107.7,
+      "month": "2025-04"
+    },
+    "HVDC-AGI-GRM-J71-050": {
+      "ton": 671.1,
+      "aed_v4": 134139.2,
+      "aed_per_ton": 199.9,
+      "month": "2025-04"
+    },
+    "HVDC-AGI-GRM-J71-051": {
+      "ton": 687.3,
+      "aed_v4": 122958.1,
+      "aed_per_ton": 178.9,
+      "month": "2025-05"
+    },
+    "HVDC-AGI-GRM-J71-052": {
+      "ton": 696.6,
+      "aed_v4": 102607.5,
+      "aed_per_ton": 147.3,
+      "month": "2025-05"
+    },
+    "HVDC-AGI-GRM-J71-053": {
+      "ton": 715.7,
+      "aed_v4": 81745.2,
+      "aed_per_ton": 114.2,
+      "month": "2025-05"
+    },
+    "HVDC-AGI-GRM-J71-054": {
+      "ton": 831.9,
+      "aed_v4": 20660.0,
+      "aed_per_ton": 24.8,
+      "month": "2025-05"
+    },
+    "HVDC-AGI-GRM-J71-055": {
+      "ton": 760.6,
+      "aed_v4": 43303.7,
+      "aed_per_ton": 56.9,
+      "month": "2025-07"
+    },
+    "HVDC-AGI-GRM-J71-056": {
+      "ton": 753.7,
+      "aed_v4": 175750.2,
+      "aed_per_ton": 233.2,
+      "month": "2025-07"
+    },
+    "HVDC-AGI-GRM-J71-057": {
+      "ton": 790.7,
+      "aed_v4": 45916.6,
+      "aed_per_ton": 58.1,
+      "month": "2025-07"
+    },
+    "HVDC-AGI-GRM-J71-058": {
+      "ton": 765.6,
+      "aed_v4": 54058.8,
+      "aed_per_ton": 70.6,
+      "month": "2025-07"
+    },
+    "HVDC-AGI-GRM-J71-059": {
+      "ton": 568.4,
+      "aed_v4": 37601.3,
+      "aed_per_ton": 66.2,
+      "month": "2025-07"
+    },
+    "HVDC-AGI-GRM-J71-060": {
+      "ton": 716.7,
+      "aed_v4": 95189.9,
+      "aed_per_ton": 132.8,
+      "month": "2025-08"
+    },
+    "HVDC-AGI-GRM-J71-061": {
+      "ton": 817.6,
+      "aed_v4": 220909.2,
+      "aed_per_ton": 270.2,
+      "month": "2025-08"
+    },
+    "HVDC-AGI-GRM-J71-062": {
+      "ton": 745.3,
+      "aed_v4": 232576.9,
+      "aed_per_ton": 312.0,
+      "month": "2025-09"
+    },
+    "HVDC-AGI-GRM-J71-063": {
+      "ton": 732.7,
+      "aed_v4": 32650.4,
+      "aed_per_ton": 44.6,
+      "month": "2025-09"
+    },
+    "HVDC-AGI-GRM-J71-064": {
+      "ton": 840.9,
+      "aed_v4": 72294.6,
+      "aed_per_ton": 86.0,
+      "month": "2025-09"
+    },
+    "HVDC-AGI-GRM-J71-065": {
+      "ton": 716.4,
+      "aed_v4": 155772.4,
+      "aed_per_ton": 217.4,
+      "month": "2025-09"
+    },
+    "HVDC-AGI-GRM-J71-066": {
+      "ton": 743.9,
+      "aed_v4": 17983.3,
+      "aed_per_ton": 24.2,
+      "month": "2025-09"
+    },
+    "HVDC-AGI-GRM-J71-067": {
+      "ton": 794.1,
+      "aed_v4": 16577.2,
+      "aed_per_ton": 20.9,
+      "month": "2025-09"
+    },
+    "HVDC-AGI-GRM-J71-068": {
+      "ton": 778.7,
+      "aed_v4": 18213.2,
+      "aed_per_ton": 23.4,
+      "month": "2025-09"
+    },
+    "HVDC-AGI-GRM-J71-069": {
+      "ton": 743.0,
+      "aed_v4": 13465.9,
+      "aed_per_ton": 18.1,
+      "month": "2025-09"
+    },
+    "HVDC-AGI-GRM-J71-070": {
+      "ton": 542.2,
+      "aed_v4": 17339.1,
+      "aed_per_ton": 32.0,
+      "month": "2025-10"
+    },
+    "HVDC-AGI-GRM-J71-071": {
+      "ton": 736.8,
+      "aed_v4": 16161.7,
+      "aed_per_ton": 21.9,
+      "month": "2025-10"
+    },
+    "HVDC-AGI-GRM-J71-072": {
+      "ton": 740.0,
+      "aed_v4": 16176.0,
+      "aed_per_ton": 21.9,
+      "month": "2025-10"
+    },
+    "HVDC-AGI-GRM-J71-073": {
+      "ton": 772.5,
+      "aed_v4": 14928.7,
+      "aed_per_ton": 19.3,
+      "month": "2025-10"
+    },
+    "HVDC-AGI-GRM-J71-074": {
+      "ton": 755.5,
+      "aed_v4": 143516.7,
+      "aed_per_ton": 190.0,
+      "month": "2025-10"
+    },
+    "HVDC-AGI-GRM-J71-075": {
+      "ton": 807.5,
+      "aed_v4": 17273.8,
+      "aed_per_ton": 21.4,
+      "month": "2025-10"
+    },
+    "HVDC-AGI-GRM-J71-076": {
+      "ton": 694.7,
+      "aed_v4": 23469.7,
+      "aed_per_ton": 33.8,
+      "month": "2025-10"
+    },
+    "HVDC-AGI-GRM-J71-077": {
+      "ton": 641.6,
+      "aed_v4": 21125.3,
+      "aed_per_ton": 32.9,
+      "month": "2025-10"
+    },
+    "HVDC-AGI-GRM-J71-078": {
+      "ton": 738.7,
+      "aed_v4": 19896.6,
+      "aed_per_ton": 26.9,
+      "month": "2025-10"
+    },
+    "HVDC-AGI-GRM-J71-079": {
+      "ton": 785.0,
+      "aed_v4": 20282.4,
+      "aed_per_ton": 25.8,
+      "month": "2025-11"
+    },
+    "HVDC-AGI-GRM-J71-080": {
+      "ton": 758.6,
+      "aed_v4": 22022.5,
+      "aed_per_ton": 29.0,
+      "month": "2025-11"
+    },
+    "HVDC-AGI-GRM-J71-081": {
+      "ton": 715.5,
+      "aed_v4": 125713.2,
+      "aed_per_ton": 175.7,
+      "month": "2025-11"
+    },
+    "HVDC-AGI-GRM-J71-082": {
+      "ton": 735.6,
+      "aed_v4": 18325.1,
+      "aed_per_ton": 24.9,
+      "month": "2025-11"
+    },
+    "HVDC-AGI-GRM-J71-083": {
+      "ton": 615.7,
+      "aed_v4": 5420.1,
+      "aed_per_ton": 8.8,
+      "month": "2025-11"
+    },
+    "HVDC-AGI-GRM-J71-084": {
+      "ton": 662.0,
+      "aed_v4": 18722.3,
+      "aed_per_ton": 28.3,
+      "month": "2025-12"
+    },
+    "HVDC-AGI-GRM-J71-085": {
+      "ton": 748.6,
+      "aed_v4": 9837.8,
+      "aed_per_ton": 13.1,
+      "month": "2026-12"
+    },
+    "HVDC-AGI-GRM-J71-086": {
+      "ton": 734.1,
+      "aed_v4": 10231.7,
+      "aed_per_ton": 13.9,
+      "month": "2025-12"
+    },
+    "HVDC-AGI-GRM-J71-087": {
+      "ton": 760.1,
+      "aed_v4": 167267.8,
+      "aed_per_ton": 220.0,
+      "month": "2025-12"
+    },
+    "HVDC-AGI-GRM-J71-089": {
+      "ton": 690.4,
+      "aed_v4": 15089.8,
+      "aed_per_ton": 21.9,
+      "month": "2026-01"
+    },
+    "HVDC-AGI-GRM-J71-090": {
+      "ton": 571.8,
+      "aed_v4": 13130.8,
+      "aed_per_ton": 23.0,
+      "month": "2026-01"
+    },
+    "HVDC-AGI-GRM-J71-091": {
+      "ton": 648.6,
+      "aed_v4": 137471.6,
+      "aed_per_ton": 212.0,
+      "month": "2026-01"
+    },
+    "HVDC-AGI-GRM-J71-092": {
+      "ton": 728.9,
+      "aed_v4": 29655.1,
+      "aed_per_ton": 40.7,
+      "month": "2026-01"
+    },
+    "HVDC-AGI-GRM-J71-093": {
+      "ton": 431.0,
+      "aed_v4": 9603.7,
+      "aed_per_ton": 22.3,
+      "month": "2026-01"
+    },
+    "HVDC-AGI-J71-001": {
+      "ton": 24.0,
+      "aed_v4": 54797.6,
+      "aed_per_ton": 2285.1,
+      "month": "2025-02"
+    },
+    "HVDC-AGI-J71-002": {
+      "ton": 100.6,
+      "aed_v4": 85182.0,
+      "aed_per_ton": 846.9,
+      "month": "2025-02"
+    },
+    "HVDC-AGI-J71-003": {
+      "ton": 170.5,
+      "aed_v4": 83437.6,
+      "aed_per_ton": 489.4,
+      "month": "2025-03"
+    },
+    "HVDC-AGI-J71-004": {
+      "ton": 324.0,
+      "aed_v4": 116410.3,
+      "aed_per_ton": 359.3,
+      "month": "2025-03"
+    },
+    "HVDC-AGI-J71-005": {
+      "ton": 729.6,
+      "aed_v4": 45860.8,
+      "aed_per_ton": 62.9,
+      "month": "2025-02"
+    },
+    "HVDC-DAS-J71": {
+      "ton": 202.2,
+      "aed_v4": 70080.2,
+      "aed_per_ton": 346.6,
+      "month": "2025-08"
+    },
+    "HVDC-DAS-J71-001": {
+      "ton": 235.2,
+      "aed_v4": 1245.0,
+      "aed_per_ton": 5.3,
+      "month": "2024-12"
+    },
+    "HVDC-DAS-J71-002": {
+      "ton": 254.4,
+      "aed_v4": 79.8,
+      "aed_per_ton": 0.3,
+      "month": "2025-01"
+    },
+    "HVDC-DAS-J71-003": {
+      "ton": 441.4,
+      "aed_v4": 6722.7,
+      "aed_per_ton": 15.2,
+      "month": "2025-01"
+    },
+    "HVDC-DAS-J71-004": {
+      "ton": 134.8,
+      "aed_v4": 4078.2,
+      "aed_per_ton": 30.2,
+      "month": "2025-02"
+    }
+  },
+  "alloc_donut": {
+    "DIRECT": {
+      "aed": 4134598.4,
+      "count": 1038
+    },
+    "PRORATE_APPLIED": {
+      "aed": 1071661.2,
+      "count": 37
+    },
+    "MULTI_PRORATED": {
+      "aed": 168104.7,
+      "count": 34
+    },
+    "DATE_INFER": {
+      "aed": 28335.1,
+      "count": 2
+    },
+    "MANUAL_REVIEW": {
+      "aed": 200471.7,
+      "count": 54
+    },
+    "SEPARATE_OPS": {
+      "aed": 42884.5,
+      "count": 22
+    },
+    "NEW_TYPE": {
+      "aed": 110271.1,
+      "count": 39
+    },
+    "EXCLUDED": {
+      "aed": 273581.8,
+      "count": 77
+    }
+  },
+  "delta": {
+    "v3_resolved_rows": 1111,
+    "v4_resolved_rows": 1165,
+    "v3_coverage_aed": 93.9,
+    "v4_coverage_aed": 97.3,
+    "v3_manual": 115,
+    "v4_manual": 61,
+    "v3_blended": 79.9,
+    "v4_blended": 82.9,
+    "multi_resolved": 34,
+    "multi_aed": 168104.7,
+    "excluded_rows": 77,
+    "excluded_aed": 273581.8
+  },
+  "total_aed": 6029908.5,
+  "total_rows": 1303
+}

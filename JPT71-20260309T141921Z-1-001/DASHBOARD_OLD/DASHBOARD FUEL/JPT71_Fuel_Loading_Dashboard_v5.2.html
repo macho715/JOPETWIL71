@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<title>JPT71 Fuel & Loading Dashboard v5.2</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;color:#333}
+.header{background:linear-gradient(135deg,#1a5276,#2e86c1);color:#fff;padding:20px 30px}
+.header h1{font-size:1.6em} .header p{opacity:0.85;margin-top:4px}
+.banner{background:#fdebd0;border-left:4px solid #e67e22;padding:12px 20px;margin:15px 20px;border-radius:4px;font-size:0.9em}
+.banner b{color:#e67e22}
+.tabs{display:flex;gap:0;margin:15px 20px 0;border-bottom:2px solid #ddd}
+.tab{padding:10px 24px;cursor:pointer;border:1px solid transparent;border-bottom:none;border-radius:6px 6px 0 0;background:#e8e8e8;font-weight:500}
+.tab.active{background:#fff;border-color:#ddd;border-bottom:1px solid #fff;margin-bottom:-2px;color:#1a5276}
+.panel{display:none;padding:20px;background:#fff;margin:0 20px 20px;border-radius:0 0 8px 8px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.panel.active{display:block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.card{background:#f8f9fa;border-radius:8px;padding:16px;text-align:center}
+.card .val{font-size:1.8em;font-weight:700;color:#1a5276} .card .lbl{font-size:0.85em;color:#666;margin-top:4px}
+.chart-box{background:#fff;border:1px solid #eee;border-radius:8px;padding:16px}
+table{width:100%;border-collapse:collapse;font-size:0.85em}
+th{background:#1a5276;color:#fff;padding:8px;text-align:left}
+td{padding:6px 8px;border-bottom:1px solid #eee}
+tr:hover{background:#f0f7ff}
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:0.8em;font-weight:600}
+.tag-fix{background:#fadbd8;color:#c0392b}
+</style></head><body>
+
+<div class="header">
+<h1>JPT71 Fuel & Loading Dashboard v5.2</h1>
+<p>JOPETWIL71 &middot; Nov 2024 &ndash; Mar 2026 &middot; ADNOC 225 Excluded &middot; 382 decklog days</p>
+</div>
+<div class="banner">
+<b>v5.2 FIX:</b> ADNOC 225 (non-project vessel) 31 rows removed from Jan 2026. 
+Jan 2026 fuel corrected: 65,754 &rarr; 154 L (-99.8%). Period total: 179,525 &rarr; 113,925 L.
+JOPETWIL71 was at berth (CCTC Jetty, Musaffah) with minimal consumption (77 L/day).
+</div>
+
+<div class="tabs">
+<div class="tab active" onclick="showTab(0)">Monthly Fuel</div>
+<div class="tab" onclick="showTab(1)">Activity Analysis</div>
+<div class="tab" onclick="showTab(2)">Trip Table</div>
+</div>
+<div class="panel active" id="p0">
+<div class="grid3" style="margin-bottom:20px">
+<div class="card"><div class="val">113,925</div><div class="lbl">Total Fuel (L)</div></div>
+<div class="card"><div class="val">298</div><div class="lbl">Avg L/day</div></div>
+<div class="card"><div class="val">2024-12</div><div class="lbl">Peak Month</div></div>
+</div>
+<div class="grid2">
+<div class="chart-box"><canvas id="c1"></canvas></div>
+<div class="chart-box"><canvas id="c2"></canvas></div>
+</div></div>
+<div class="panel" id="p1">
+<div class="grid2">
+<div class="chart-box"><canvas id="c3"></canvas></div>
+<div class="chart-box"><canvas id="c4"></canvas></div>
+</div></div>
+<div class="panel" id="p2"><table><thead><tr>
+<th>trip_id</th>
+<th>month</th>
+<th>total_days</th>
+<th>total_fuel</th>
+<th>load_days</th>
+<th>disc_days</th>
+<th>sail_days</th>
+<th>anchor_days</th>
+<th>dest</th>
+</tr></thead><tbody>
+<tr>
+<td>57</td>
+<td>2026-01</td>
+<td>19</td>
+<td>37,512.0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>17</td>
+<td>JPW_BASE|OTHER</td>
+</tr>
+<tr>
+<td>58</td>
+<td>2026-01</td>
+<td>18</td>
+<td>29,612.0</td>
+<td>2</td>
+<td>1</td>
+<td>1</td>
+<td>11</td>
+<td>AGI_FIELD</td>
+</tr>
+<tr>
+<td>18</td>
+<td>2025-02</td>
+<td>22</td>
+<td>5,695.0</td>
+<td>1</td>
+<td>3</td>
+<td>9</td>
+<td>2</td>
+<td>DAS_ISLAND|AGI_FIELD</td>
+</tr>
+<tr>
+<td>36</td>
+<td>2025-08</td>
+<td>12</td>
+<td>4,446.0</td>
+<td>1</td>
+<td>7</td>
+<td>0</td>
+<td>3</td>
+<td>AGI_FIELD|DAS_ISLAND</td>
+</tr>
+<tr>
+<td>1</td>
+<td>2024-11</td>
+<td>10</td>
+<td>4,249.0</td>
+<td>8</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>AGI_FIELD</td>
+</tr>
+<tr>
+<td>10</td>
+<td>2024-12</td>
+<td>8</td>
+<td>4,231.0</td>
+<td>1</td>
+<td>4</td>
+<td>2</td>
+<td>0</td>
+<td>AGI_FIELD</td>
+</tr>
+<tr>
+<td>14</td>
+<td>2025-02</td>
+<td>14</td>
+<td>4,220.0</td>
+<td>1</td>
+<td>1</td>
+<td>4</td>
+<td>5</td>
+<td>DAS_ISLAND</td>
+</tr>
+<tr>
+<td>48</td>
+<td>2025-11</td>
+<td>12</td>
+<td>3,470.0</td>
+<td>3</td>
+<td>9</td>
+<td>0</td>
+<td>0</td>
+<td>AGI_FIELD</td>
+</tr>
+<tr>
+<td>12</td>
+<td>2025-01</td>
+<td>8</td>
+<td>3,142.0</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>0</td>
+<td>AGI_FIELD</td>
+</tr>
+<tr>
+<td>38</td>
+<td>2025-08</td>
+<td>9</td>
+<td>3,097.0</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+<td>2</td>
+<td>AGI_FIELD</td>
+</tr>
+<tr>
+<td>54</td>
+<td>2025-12</td>
+<td>12</td>
+<td>2,915.0</td>
+<td>1</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>AGI_FIELD</td>
+</tr>
+<tr>
+<td>32</td>
+<td>2025-07</td>
+<td>8</td>
+<td>2,858.0</td>
+<td>1</td>
+<td>5</td>
+<td>0</td>
+<td>0</td>
+<td>AGI_FIELD</td>
+</tr>
+<tr>
+<td>53</td>
+<td>2025-12</td>
+<td>7</td>
+<td>2,850.0</td>
+<td>1</td>
+<td>6</td>
+<td>0</td>
+<td>0</td>
+<td>AGI_FIELD</td>
+</tr>
+<tr>
+<td>5</td>
+<td>2024-12</td>
+<td>5</td>
+<td>2,829.0</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>0</td>
+<td>AGI_FIELD</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2024-11</td>
+<td>7</td>
+<td>2,655.0</td>
+<td>5</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>AGI_FIELD</td>
+</tr>
+<tr>
+<td>11</td>
+<td>2025-01</td>
+<td>13</td>
+<td>2,563.0</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>AGI_FIELD</td>
+</tr>
+<tr>
+<td>64</td>
+<td>2026-02</td>
+<td>6</td>
+<td>2,550.0</td>
+<td>3</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+<td>MW4_MUSAFFAH|JPW_BASE|OTHER</td>
+</tr>
+<tr>
+<td>22</td>
+<td>2025-04</td>
+<td>10</td>
+<td>2,491.0</td>
+<td>9</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>AGI_FIELD</td>
+</tr>
+<tr>
+<td>65</td>
+<td>2026-03</td>
+<td>11</td>
+<td>2,369.0</td>
+<td>1</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>AGI_FIELD</td>
+</tr>
+<tr>
+<td>13</td>
+<td>2025-01</td>
+<td>5</td>
+<td>2,339.0</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>1</td>
+<td>DAS_ISLAND</td>
+</tr>
+<tr>
+<td>20</td>
+<td>2025-03</td>
+<td>14</td>
+<td>2,302.0</td>
+<td>5</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>AGI_FIELD</td>
+</tr>
+<tr>
+<td>7</td>
+<td>2024-12</td>
+<td>4</td>
+<td>2,022.0</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+<td>1</td>
+<td>DAS_ISLAND|AGI_FIELD</td>
+</tr>
+<tr>
+<td>51</td>
+<td>2025-11</td>
+<td>8</td>
+<td>1,899.0</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>AGI_FIELD</td>
+</tr>
+<tr>
+<td>21</td>
+<td>2025-04</td>
+<td>8</td>
+<td>1,840.0</td>
+<td>7</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>AGI_FIELD</td>
+</tr>
+<tr>
+<td>6</td>
+<td>2024-12</td>
+<td>3</td>
+<td>1,703.0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>AGI_FIELD</td>
+</tr>
+<tr>
+<td>46</td>
+<td>2025-10</td>
+<td>5</td>
+<td>1,653.0</td>
+<td>3</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>AGI_FIELD</td>
+</tr>
+<tr>
+<td>49</td>
+<td>2025-11</td>
+<td>6</td>
+<td>1,612.0</td>
+<td>1</td>
+<td>3</td>
+<td>1</td>
+<td>0</td>
+<td>AGI_FIELD</td>
+</tr>
+<tr>
+<td>35</td>
+<td>2025-08</td>
+<td>9</td>
+<td>1,593.0</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+<td>1</td>
+<td>AGI_FIELD</td>
+</tr>
+<tr>
+<td>8</td>
+<td>2024-12</td>
+<td>7</td>
+<td>1,544.0</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+<td>AGI_FIELD</td>
+</tr>
+<tr>
+<td>50</td>
+<td>2025-11</td>
+<td>5</td>
+<td>1,441.0</td>
+<td>1</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>JPW_BASE</td>
+</tr>
+</tbody></table></div>
+<script>
+function showTab(i){
+  document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
+  document.querySelectorAll('.panel').forEach((p,j)=>p.classList.toggle('active',j===i));
+}
+
+var months=["2024-11", "2024-12", "2025-01", "2025-02", "2025-03", "2025-04", "2025-05", "2025-07", "2025-08", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03"];
+var fuelTotal=[9267.0, 13345.2, 8784.2, 10045.6, 6414.0, 6019.0, 3514.0, 6512.4, 9230.0, 10812.0, 8645.0, 9702.0, 154.0, 10219.5, 1261.0];
+var fuelAvg=[331.0, 430.5, 283.4, 358.8, 206.9, 200.6, 152.8, 361.8, 297.7, 348.8, 288.2, 313.0, 77.0, 378.5, 157.6];
+var opDays=[30, 31, 31, 28, 31, 30, 23, 18, 31, 31, 30, 31, 2, 27, 8];
+var fuelLaden=[9044.0, 12973.4, 5365.8, 7381.4, 5022.0, 5657.0, 3164.0, 5878.2, 7160.0, 9852.0, 7887.0, 7785.0, 0.0, 8994.5, 0.0];
+var fuelBallast=[145.0, 198.0, 1342.0, 1445.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 636.0];
+var fuelPort=[8600.0, 9160.8, 3839.0, 3335.2, 2921.0, 4974.0, 2702.0, 5878.2, 4842.0, 9395.0, 7436.0, 7785.0, 0.0, 6880.5, 0.0];
+var fuelUnk=[78.0, 173.8, 2076.4, 1218.8, 1392.0, 362.0, 350.0, 634.2, 2070.0, 960.0, 758.0, 1917.0, 154.0, 1225.0, 625.0];
+var actLabels=["SAILING_LADEN", "DISCHARGING", "SAILING", "LOADING", "AT_ANCHOR", "OTHER", "BUNKERING", "MAINTENANCE", "AT_BERTH"];
+var actFpd=[506.4, 440.3, 376.0, 299.5, 258.6, 150.1, 126.9, 112.0, 93.5];
+var actDays=[9, 97, 33, 117, 26, 47, 7, 13, 33];
+
+// C1: Monthly fuel bar + line
+new Chart(document.getElementById('c1'),{
+  type:'bar',
+  data:{labels:months,datasets:[
+    {label:'Fuel Total (L)',data:fuelTotal,backgroundColor:'rgba(41,128,185,0.7)',yAxisID:'y'},
+    {label:'Avg L/day',data:fuelAvg,type:'line',borderColor:'#e74c3c',yAxisID:'y1',tension:0.3,pointRadius:3}
+  ]},
+  options:{responsive:true,plugins:{title:{display:true,text:'Monthly Fuel Consumption'}},
+    scales:{y:{position:'left',title:{display:true,text:'Total L'}},
+            y1:{position:'right',grid:{drawOnChartArea:false},title:{display:true,text:'Avg L/day'}}}}
+});
+
+// C2: Stacked breakdown
+new Chart(document.getElementById('c2'),{
+  type:'bar',
+  data:{labels:months,datasets:[
+    {label:'Laden',data:fuelLaden,backgroundColor:'#27ae60'},
+    {label:'Ballast',data:fuelBallast,backgroundColor:'#3498db'},
+    {label:'Port Ops',data:fuelPort,backgroundColor:'#f39c12'},
+    {label:'Other',data:fuelUnk,backgroundColor:'#95a5a6'}
+  ]},
+  options:{responsive:true,plugins:{title:{display:true,text:'Fuel by Cargo State'}},
+    scales:{x:{stacked:true},y:{stacked:true,title:{display:true,text:'Litres'}}}}
+});
+
+// C3: Activity fuel/day horizontal bar
+new Chart(document.getElementById('c3'),{
+  type:'bar',
+  data:{labels:actLabels,datasets:[{label:'Fuel/Day (L)',data:actFpd,backgroundColor:'rgba(41,128,185,0.7)'}]},
+  options:{indexAxis:'y',responsive:true,plugins:{title:{display:true,text:'Activity: Fuel per Day'}}}
+});
+
+// C4: Activity days pie
+new Chart(document.getElementById('c4'),{
+  type:'doughnut',
+  data:{labels:actLabels,datasets:[{data:actDays,backgroundColor:['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#1abc9c','#e67e22','#34495e','#95a5a6','#c0392b']}]},
+  options:{responsive:true,plugins:{title:{display:true,text:'Activity: Days Distribution'}}}
+});
+</script></body></html>

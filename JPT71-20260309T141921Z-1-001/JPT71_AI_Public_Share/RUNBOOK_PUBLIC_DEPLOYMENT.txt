@@ -1,0 +1,80 @@
+JPT71 Public Deployment Runbook
+
+목표 구조
+- Dashboard: `https://<your-vercel-project>.vercel.app`
+- Proxy: `https://api.<your-domain>`
+- Browser -> Vercel -> `x-ai-proxy-token` 포함 HTTPS 호출 -> standalone proxy
+
+사전 입력값
+- `Vercel 프로젝트명`
+- `공개 API 도메인`
+- `Linux 서버 접속 정보`
+- `강한 shared secret`
+- `허용 origin 목록`
+
+1. 대시보드 준비
+1. `dashboard-vercel\` 폴더를 별도 작업 디렉터리로 복사합니다.
+2. 아래 파일이 있는지 확인합니다.
+   - `index.html`
+   - `JPT71_Voyage_Command_Center_Merged.html`
+   - `JPT71_Voyage_KPI_Dashboard_v4.html`
+   - `JPT71_Voyage_Cost_Heatmap_v4.html`
+   - `JPT71_Voyage_Cost_Heatmap_v53_data.js`
+   - `vercel.json`
+   - `api\runtime-config.js`
+3. `JPT71_Voyage_Command_Center_Merged.html` 상단에 `jpt71-runtime-config.js` 가 먼저 로드되는지 확인합니다.
+
+2. Vercel 배포
+1. 새 Vercel 프로젝트를 만듭니다.
+2. Root Directory 를 `dashboard-vercel` 로 설정합니다.
+3. Build Command 는 비워 둡니다.
+4. Output Directory 는 비워 둡니다.
+5. Vercel 환경변수를 설정합니다.
+   - `JPT71_AI_ENDPOINT=https://api.<your-domain>/api/ai/chat`
+   - `JPT71_AI_PROXY_TOKEN=<strong-shared-secret>`
+6. 첫 배포 후 기본 URL 을 확보합니다.
+   - 예: `https://<your-vercel-project>.vercel.app`
+7. 이 URL 을 프록시 허용 origin 목록에 넣습니다.
+
+3. Linux 서버 준비
+1. Ubuntu 22.04 LTS 이상 또는 동급 Linux 서버를 준비합니다.
+2. Node.js 22.12.0 이상과 `pnpm` 을 설치합니다.
+3. `proxy-release\myagent-copilot-standalone-v0.1.0.zip` 를 서버에 업로드합니다.
+4. 서버에서 작업 폴더를 만들고 압축을 해제합니다.
+5. release 폴더 안에서 아래를 실행합니다.
+   - `pnpm install --frozen-lockfile`
+   - `pnpm build`
+   - `pnpm login`
+
+4. 프록시 env 설정
+1. `.env.public.example` 를 참고해 실제 env 파일 또는 systemd Environment 로 설정합니다.
+2. 기준값은 아래와 같습니다.
+   - `MYAGENT_PROXY_HOST=0.0.0.0`
+   - `MYAGENT_PROXY_PORT=3010`
+   - `MYAGENT_PROXY_AUTH_TOKEN=<strong-shared-secret>`
+   - `MYAGENT_PROXY_CORS_ORIGINS=https://<your-vercel-project>.vercel.app`
+   - `MYAGENT_PROXY_ALLOW_SANITIZED_TO_COPILOT=0`
+
+5. standalone proxy 실행
+1. 수동 실행 기준:
+   - `node dist/cli.js serve --host 0.0.0.0 --port 3010`
+2. 상시 운영은 `systemd` 사용을 권장합니다.
+3. 예시는 `proxy-release\myagent-copilot-standalone.service.example` 를 사용합니다.
+
+6. Caddy HTTPS 연결
+1. 서버에 `Caddy` 를 설치합니다.
+2. `proxy-release\Caddyfile.example` 를 실제 도메인에 맞게 수정합니다.
+3. `api.<your-domain>` 를 `127.0.0.1:3010` 으로 reverse proxy 합니다.
+4. Caddy reload 후 `https://api.<your-domain>/api/ai/health` 를 확인합니다.
+
+7. 검증 순서
+1. 서버에서 `GET /api/ai/health`
+2. 허용 origin 으로 `OPTIONS /api/ai/chat`
+3. 정상 토큰으로 `POST /api/ai/chat`
+4. 잘못된 토큰으로 `401`
+5. 비허용 origin 차단
+6. Vercel 대시보드에서 실제 preset 호출
+
+8. 공유
+1. 초기 공유 URL 은 `https://<your-vercel-project>.vercel.app/` 로 통일합니다.
+2. 이후 커스텀 대시보드 도메인을 붙이면 `MYAGENT_PROXY_CORS_ORIGINS` 를 함께 갱신합니다.

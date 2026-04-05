@@ -1,0 +1,490 @@
+# Flow Code v3.5 Ontology Schema
+# Generated: 2025-11-01
+# Purpose: Complete TTL schema for Flow Code v3.5 properties and constraints across all HVDC domains
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Core HVDC Ontology Prefixes
+@prefix hvdc: <https://hvdc-project.com/ontology/core/> .
+@prefix mh: <https://hvdc-project.com/ontology/material-handling/> .
+@prefix debulk: <https://hvdc-project.com/ontology/bulk-cargo/> .
+@prefix port: <https://hvdc-project.com/ontology/port-operations/> .
+@prefix ldg: <https://hvdc-project.com/ontology/document-guardian/> .
+
+# ============================================================================
+# Part 1: Core Flow Code Properties (Universal across all domains)
+# ============================================================================
+
+hvdc:hasLogisticsFlowCode a owl:DatatypeProperty ;
+    rdfs:label "Logistics Flow Code" ;
+    rdfs:comment "Flow Code v3.5 classification (0-5): 0=Pre Arrival, 1=Direct, 2=WH, 3=MOSB, 4=Full, 5=Mixed/Incomplete" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range xsd:integer ;
+    rdfs:subPropertyOf hvdc:hasOperationalMetric .
+
+hvdc:hasFlowCodeOriginal a owl:DatatypeProperty ;
+    rdfs:label "Original Flow Code" ;
+    rdfs:comment "Flow Code before AGI/DAS mandatory upgrade (preserved for audit)" ;
+    rdfs:domain hvdc:Case ;
+    rdfs:range xsd:integer .
+
+hvdc:hasFlowOverrideReason a owl:DatatypeProperty ;
+    rdfs:label "Flow Code Override Reason" ;
+    rdfs:comment "Explanation for Flow Code upgrade (e.g., AGI/DAS mandatory MOSB leg)" ;
+    rdfs:domain hvdc:Case ;
+    rdfs:range xsd:string .
+
+hvdc:hasFlowDescription a owl:DatatypeProperty ;
+    rdfs:label "Flow Code Description" ;
+    rdfs:comment "Human-readable Flow Code pattern description" ;
+    rdfs:domain hvdc:Case ;
+    rdfs:range xsd:string .
+
+hvdc:requiresMOSBLeg a owl:DatatypeProperty ;
+    rdfs:label "Requires MOSB Transit" ;
+    rdfs:comment "Boolean flag indicating MOSB leg mandatory (for AGI/DAS offshore sites)" ;
+    rdfs:domain hvdc:Case ;
+    rdfs:range xsd:boolean .
+
+hvdc:hasFinalLocation a owl:DatatypeProperty ;
+    rdfs:label "Final Destination Location" ;
+    rdfs:comment "Final delivery site: MIR/SHU (onshore) or AGI/DAS (offshore)" ;
+    rdfs:domain hvdc:Case ;
+    rdfs:range xsd:string .
+
+hvdc:hasWarehouseCount a owl:DatatypeProperty ;
+    rdfs:label "Warehouse Transit Count" ;
+    rdfs:comment "Number of warehouses transited (0-4)" ;
+    rdfs:domain hvdc:Case ;
+    rdfs:range xsd:integer .
+
+hvdc:hasMOSBLeg a owl:DatatypeProperty ;
+    rdfs:label "Has MOSB Transit" ;
+    rdfs:comment "Boolean flag indicating MOSB transit occurred" ;
+    rdfs:domain hvdc:Case ;
+    rdfs:range xsd:boolean .
+
+hvdc:hasSiteArrival a owl:DatatypeProperty ;
+    rdfs:label "Site Arrival Status" ;
+    rdfs:comment "Boolean flag indicating final site arrival completed" ;
+    rdfs:domain hvdc:Case ;
+    rdfs:range xsd:boolean .
+
+# ============================================================================
+# Part 2: Domain-Specific Flow Code Extensions
+# ============================================================================
+
+# Material Handling Domain
+mh:hasLogisticsFlowCode a owl:DatatypeProperty ;
+    rdfs:label "Material Flow Code" ;
+    rdfs:comment "Flow Code for material handling operations" ;
+    rdfs:domain mh:Cargo ;
+    rdfs:range xsd:integer ;
+    owl:equivalentProperty hvdc:hasLogisticsFlowCode .
+
+mh:hasDestinationSite a owl:ObjectProperty ;
+    rdfs:label "Material Destination Site" ;
+    rdfs:comment "Final delivery site for material" ;
+    rdfs:domain mh:Cargo ;
+    rdfs:range mh:Site .
+
+mh:hasTransportPhase a owl:ObjectProperty ;
+    rdfs:label "Transport Phase" ;
+    rdfs:comment "Phase A (Import) or Phase B (Offshore)" ;
+    rdfs:domain mh:Cargo ;
+    rdfs:range mh:Phase .
+
+# Bulk Cargo Domain
+debulk:hasLogisticsFlowCode a owl:DatatypeProperty ;
+    rdfs:label "Bulk Cargo Flow Code" ;
+    rdfs:comment "Flow Code for bulk cargo operations (typically 3-5)" ;
+    rdfs:domain debulk:Cargo ;
+    rdfs:range xsd:integer ;
+    owl:equivalentProperty hvdc:hasLogisticsFlowCode .
+
+debulk:requiresMOSBStaging a owl:DatatypeProperty ;
+    rdfs:label "Requires MOSB Staging" ;
+    rdfs:comment "Boolean flag for MOSB staging requirement (AGI/DAS bulk cargo)" ;
+    rdfs:domain debulk:Cargo ;
+    rdfs:range xsd:boolean .
+
+debulk:hasLCTTransport a owl:ObjectProperty ;
+    rdfs:label "Has LCT Transport" ;
+    rdfs:comment "Links bulk cargo to LCT/barge transport event" ;
+    rdfs:domain debulk:Cargo ;
+    rdfs:range debulk:TransportEvent .
+
+debulk:mosbArrivalDate a owl:DatatypeProperty ;
+    rdfs:label "MOSB Arrival Date" ;
+    rdfs:comment "Date cargo arrived at MOSB for staging" ;
+    rdfs:domain debulk:Cargo ;
+    rdfs:range xsd:date .
+
+debulk:mosbDepartureDate a owl:DatatypeProperty ;
+    rdfs:label "MOSB Departure Date" ;
+    rdfs:comment "Date LCT departed MOSB with cargo" ;
+    rdfs:domain debulk:Cargo ;
+    rdfs:range xsd:date .
+
+# Port Operations Domain
+port:assignedFlowCode a owl:DatatypeProperty ;
+    rdfs:label "Port-Assigned Flow Code" ;
+    rdfs:comment "Initial Flow Code determined at port customs clearance" ;
+    rdfs:domain port:PortCall ;
+    rdfs:range xsd:integer ;
+    owl:equivalentProperty hvdc:hasLogisticsFlowCode .
+
+port:flowCodeAssignmentDate a owl:DatatypeProperty ;
+    rdfs:label "Flow Code Assignment Date" ;
+    rdfs:comment "Date when Flow Code was determined at port" ;
+    rdfs:domain port:PortCall ;
+    rdfs:range xsd:dateTime .
+
+port:finalDestinationDeclared a owl:DatatypeProperty ;
+    rdfs:label "Final Destination Declared" ;
+    rdfs:comment "Destination declared at port (MIR/SHU/AGI/DAS)" ;
+    rdfs:domain port:PortCall ;
+    rdfs:range xsd:string .
+
+port:requiresMOSBTransit a owl:DatatypeProperty ;
+    rdfs:label "Requires MOSB Transit (Port)" ;
+    rdfs:comment "Boolean flag set at port for MOSB requirement" ;
+    rdfs:domain port:PortCall ;
+    rdfs:range xsd:boolean .
+
+port:portOfEntry a owl:ObjectProperty ;
+    rdfs:label "Port of Entry" ;
+    rdfs:comment "Entry port (Khalifa/Zayed/Jebel Ali)" ;
+    rdfs:domain port:PortCall ;
+    rdfs:range port:Port .
+
+# Document/LDG Domain
+ldg:extractedFlowCode a owl:DatatypeProperty ;
+    rdfs:label "Extracted Flow Code from Document" ;
+    rdfs:comment "Flow Code value extracted via OCR from shipping documents" ;
+    rdfs:domain ldg:Document ;
+    rdfs:range xsd:integer ;
+    owl:equivalentProperty hvdc:hasLogisticsFlowCode .
+
+ldg:flowCodeConfidence a owl:DatatypeProperty ;
+    rdfs:label "Flow Code Extraction Confidence" ;
+    rdfs:comment "OCR confidence for Flow Code field (0-1)" ;
+    rdfs:domain ldg:Document ;
+    rdfs:range xsd:decimal .
+
+ldg:destinationExtracted a owl:DatatypeProperty ;
+    rdfs:label "Extracted Destination" ;
+    rdfs:comment "Final destination extracted from document" ;
+    rdfs:domain ldg:Document ;
+    rdfs:range xsd:string .
+
+ldg:mosbTransitFlag a owl:DatatypeProperty ;
+    rdfs:label "MOSB Transit Flag Extracted" ;
+    rdfs:comment "Boolean MOSB transit indicator from document" ;
+    rdfs:domain ldg:Document ;
+    rdfs:range xsd:boolean .
+
+# ============================================================================
+# Part 3: SHACL Constraints for Flow Code Validation
+# ============================================================================
+
+# Constraint 1: Flow Code Range Validation (0-5)
+hvdc:FlowCodeRangeConstraint a sh:NodeShape ;
+    sh:targetClass hvdc:Case ;
+    sh:property [
+        sh:path hvdc:hasLogisticsFlowCode ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 5 ;
+        sh:message "Flow Code must be between 0 and 5 (inclusive)" ;
+    ] .
+
+# Constraint 2: AGI/DAS Mandatory Flow ≥ 3
+hvdc:AGIDASFlowConstraint a sh:NodeShape ;
+    sh:targetClass hvdc:Case ;
+    sh:sparql [
+        sh:message "AGI/DAS destinations must have Flow Code >= 3 (MOSB leg mandatory)" ;
+        sh:select """
+            PREFIX hvdc: <https://hvdc-project.com/ontology/core/>
+            PREFIX sh: <http://www.w3.org/ns/shacl#>
+            SELECT $this
+            WHERE {
+                $this hvdc:hasFinalLocation ?dest ;
+                      hvdc:hasLogisticsFlowCode ?flowCode .
+                FILTER(?dest IN ("AGI", "DAS") && ?flowCode < 3)
+            }
+        """ ;
+    ] .
+
+# Constraint 3: Flow 5 Requires Review Flag
+hvdc:Flow5RequiresReviewConstraint a sh:NodeShape ;
+    sh:targetClass hvdc:Case ;
+    sh:sparql [
+        sh:message "Flow Code 5 (mixed/incomplete) cases must have requiresReview flag" ;
+        sh:select """
+            PREFIX hvdc: <https://hvdc-project.com/ontology/core/>
+            SELECT $this
+            WHERE {
+                $this hvdc:hasLogisticsFlowCode 5 .
+                FILTER NOT EXISTS {
+                    $this hvdc:requiresReview ?flag .
+                }
+            }
+        """ ;
+    ] .
+
+# Constraint 4: Override Reason Required When Original Code Changed
+hvdc:FlowOverrideReasonConstraint a sh:NodeShape ;
+    sh:targetClass hvdc:Case ;
+    sh:sparql [
+        sh:message "If FLOW_CODE_ORIG exists, FLOW_OVERRIDE_REASON must be provided" ;
+        sh:select """
+            PREFIX hvdc: <https://hvdc-project.com/ontology/core/>
+            SELECT $this
+            WHERE {
+                $this hvdc:hasFlowCodeOriginal ?original .
+                FILTER NOT EXISTS {
+                    $this hvdc:hasFlowOverrideReason ?reason .
+                }
+            }
+        """ ;
+    ] .
+
+# Constraint 5: Material Handling - AGI/DAS Compliance
+mh:AGIDASSiteConstraint a sh:NodeShape ;
+    sh:targetClass mh:Cargo ;
+    sh:sparql [
+        sh:message "AGI/DAS materials must have Flow Code >= 3 (MOSB leg required)" ;
+        sh:select """
+            PREFIX mh: <https://hvdc-project.com/ontology/material-handling/>
+            SELECT $this
+            WHERE {
+                $this mh:hasDestinationSite ?site ;
+                      mh:hasLogisticsFlowCode ?flowCode .
+                ?site mh:siteCode ?siteCode .
+                FILTER(?siteCode IN ("AGI", "DAS") && ?flowCode < 3)
+            }
+        """ ;
+    ] .
+
+# Constraint 6: Bulk Cargo - AGI/DAS Compliance
+debulk:AGIDASBulkConstraint a sh:NodeShape ;
+    sh:targetClass debulk:Cargo ;
+    sh:sparql [
+        sh:message "AGI/DAS bulk cargo must transit through MOSB (Flow >= 3)" ;
+        sh:select """
+            PREFIX debulk: <https://hvdc-project.com/ontology/bulk-cargo/>
+            SELECT $this
+            WHERE {
+                $this debulk:finalDestination ?dest ;
+                      debulk:hasLogisticsFlowCode ?flowCode .
+                FILTER(?dest IN ("AGI", "DAS") && ?flowCode < 3)
+            }
+        """ ;
+    ] .
+
+# Constraint 7: Port Operations - AGI/DAS Flow Code Assignment
+port:FlowCodeDestinationConstraint a sh:NodeShape ;
+    sh:targetClass port:PortCall ;
+    sh:sparql [
+        sh:message "AGI/DAS destination must have Flow Code >= 3 at port assignment" ;
+        sh:select """
+            PREFIX port: <https://hvdc-project.com/ontology/port-operations/>
+            SELECT $this
+            WHERE {
+                $this port:finalDestinationDeclared ?dest ;
+                      port:assignedFlowCode ?flowCode .
+                FILTER(?dest IN ("AGI", "DAS") && ?flowCode < 3)
+            }
+        """ ;
+    ] .
+
+# Constraint 8: Document OCR - AGI/DAS Compliance
+ldg:DocumentFlowCodeConstraint a sh:NodeShape ;
+    sh:targetClass ldg:Document ;
+    sh:sparql [
+        sh:message "Documents for AGI/DAS must indicate Flow Code >= 3" ;
+        sh:select """
+            PREFIX ldg: <https://hvdc-project.com/ontology/document-guardian/>
+            SELECT $this
+            WHERE {
+                $this ldg:destinationExtracted ?dest ;
+                      ldg:extractedFlowCode ?flowCode .
+                FILTER(?dest IN ("AGI", "DAS") && ?flowCode < 3)
+            }
+        """ ;
+    ] .
+
+# ============================================================================
+# Part 4: Flow Code Classification Rules (OWL SubPropertyOf)
+# ============================================================================
+
+# Flow Code Definitions as Data Properties
+hvdc:FlowCodePreArrival a owl:DatatypeProperty ;
+    rdfs:subPropertyOf hvdc:hasLogisticsFlowCode ;
+    rdfs:label "Flow Code 0 - Pre Arrival" ;
+    rdfs:comment "Cargo awaiting port clearance" .
+
+hvdc:FlowCodeDirect a owl:DatatypeProperty ;
+    rdfs:subPropertyOf hvdc:hasLogisticsFlowCode ;
+    rdfs:label "Flow Code 1 - Direct to Site" ;
+    rdfs:comment "Port → Site (no warehouse, no MOSB)" .
+
+hvdc:FlowCodeWarehouse a owl:DatatypeProperty ;
+    rdfs:subPropertyOf hvdc:hasLogisticsFlowCode ;
+    rdfs:label "Flow Code 2 - Warehouse" ;
+    rdfs:comment "Port → WH → Site" .
+
+hvdc:FlowCodeMOSB a owl:DatatypeProperty ;
+    rdfs:subPropertyOf hvdc:hasLogisticsFlowCode ;
+    rdfs:label "Flow Code 3 - MOSB" ;
+    rdfs:comment "Port → MOSB → Site (AGI/DAS mandatory)" .
+
+hvdc:FlowCodeFull a owl:DatatypeProperty ;
+    rdfs:subPropertyOf hvdc:hasLogisticsFlowCode ;
+    rdfs:label "Flow Code 4 - Full Chain" ;
+    rdfs:comment "Port → WH → MOSB → Site" .
+
+hvdc:FlowCodeMixed a owl:DatatypeProperty ;
+    rdfs:subPropertyOf hvdc:hasLogisticsFlowCode ;
+    rdfs:label "Flow Code 5 - Mixed/Incomplete" ;
+    rdfs:comment "Abnormal pattern, requires review" .
+
+# ============================================================================
+# Part 5: Instance Examples
+# ============================================================================
+
+# Example 1: Flow 3 (AGI Offshore)
+hvdc:case/FLOW3_AGI_001 a hvdc:Case ;
+    hvdc:caseCode "FLOW3_AGI_001" ;
+    hvdc:hasFinalLocation "AGI" ;
+    hvdc:hasLogisticsFlowCode 3 ;
+    hvdc:hasFlowCodeOriginal 1 ;
+    hvdc:hasFlowOverrideReason "AGI offshore - mandatory MOSB leg" ;
+    hvdc:hasFlowDescription "Port → MOSB → AGI (LCT transport)" ;
+    hvdc:requiresMOSBLeg true ;
+    hvdc:hasWarehouseCount 0 ;
+    hvdc:hasMOSBLeg true ;
+    hvdc:hasSiteArrival true .
+
+# Example 2: Flow 5 (Incomplete)
+hvdc:case/FLOW5_INCOMPLETE_001 a hvdc:Case ;
+    hvdc:caseCode "FLOW5_INCOMPLETE_001" ;
+    hvdc:hasLogisticsFlowCode 5 ;
+    hvdc:hasFlowDescription "Mixed/Waiting/Incomplete" ;
+    hvdc:hasWarehouseCount 2 ;
+    hvdc:hasMOSBLeg false ;
+    hvdc:hasSiteArrival false ;
+    hvdc:requiresReview true .
+
+# Example 3: Material Flow 3 (Transformer to AGI)
+mh:cargo/TRANSFORMER_AGI_001 a mh:Cargo ;
+    mh:cargoId "TRANSFORMER_AGI_001" ;
+    mh:cargoType "Transformer" ;
+    mh:weight 85000 ;
+    mh:hasDestinationSite mh:site/AGI ;
+    mh:hasTransportPhase mh:phase/PHASE_B ;
+    mh:requiresMOSBLeg true ;
+    mh:hasLogisticsFlowCode 3 ;
+    mh:hasFlowDescription "Port → MOSB → AGI (LCT direct)" .
+
+# Example 4: Bulk Cargo Flow 3 (MOSB Staging)
+debulk:cargo/BULK_AGI_001 a debulk:Cargo ;
+    debulk:cargoId "BULK_AGI_001" ;
+    debulk:cargoType "Bulk Transformer" ;
+    debulk:weight 85000 ;
+    debulk:finalDestination "AGI" ;
+    debulk:hasLogisticsFlowCode 3 ;
+    debulk:hasFlowDescription "Port → MOSB → AGI (LCT direct)" ;
+    debulk:requiresMOSBStaging true ;
+    debulk:mosbArrivalDate "2024-11-10"^^xsd:date ;
+    debulk:mosbDepartureDate "2024-11-12"^^xsd:date ;
+    debulk:hasLCTTransport debulk:transport/LCT_AGI_2024_11 .
+
+# Example 5: Port Call Flow Code Assignment
+port:portcall/ROT_2504053298 a port:PortCall ;
+    port:rotationNumber "2504053298" ;
+    port:vesselName "MSC MAGNOLIA" ;
+    port:portOfEntry port:port/KHALIFA ;
+    port:arrivalDate "2024-11-10T08:00:00"^^xsd:dateTime ;
+    port:clearanceDate "2024-11-11T14:00:00"^^xsd:dateTime ;
+    port:departureDate "2024-11-12T06:00:00"^^xsd:dateTime ;
+    port:finalDestinationDeclared "AGI" ;
+    port:requiresMOSBTransit true ;
+    port:assignedFlowCode 3 ;
+    port:flowCodeAssignmentDate "2024-11-11T14:30:00"^^xsd:dateTime .
+
+# Example 6: Document OCR Flow Code Extraction
+ldg:document/INVOICE_AGI_001 a ldg:Document ;
+    ldg:docId "INVOICE_AGI_001" ;
+    ldg:docType "Commercial Invoice" ;
+    ldg:extractedFlowCode 3 ;
+    ldg:flowCodeConfidence 0.98 ;
+    ldg:destinationExtracted "AGI" ;
+    ldg:mosbTransitFlag true .
+
+# ============================================================================
+# Part 6: Flow Code Transition Rules (OWL Object Properties)
+# ============================================================================
+
+hvdc:hasFlowCodeTransition a owl:ObjectProperty ;
+    rdfs:label "Has Flow Code Transition" ;
+    rdfs:comment "Records transitions between Flow Codes (e.g., 1 → 3 upgrade)" ;
+    rdfs:domain hvdc:Case ;
+    rdfs:range hvdc:FlowCodeTransition .
+
+hvdc:FlowCodeTransition a owl:Class ;
+    rdfs:label "Flow Code Transition" ;
+    rdfs:comment "Represents a change in Flow Code classification" .
+
+hvdc:fromFlowCode a owl:DatatypeProperty ;
+    rdfs:label "From Flow Code" ;
+    rdfs:comment "Original Flow Code before transition" ;
+    rdfs:domain hvdc:FlowCodeTransition ;
+    rdfs:range xsd:integer .
+
+hvdc:toFlowCode a owl:DatatypeProperty ;
+    rdfs:label "To Flow Code" ;
+    rdfs:comment "Final Flow Code after transition" ;
+    rdfs:domain hvdc:FlowCodeTransition ;
+    rdfs:range xsd:integer .
+
+hvdc:transitionReason a owl:DatatypeProperty ;
+    rdfs:label "Transition Reason" ;
+    rdfs:comment "Explanation for Flow Code change" ;
+    rdfs:domain hvdc:FlowCodeTransition ;
+    rdfs:range xsd:string .
+
+hvdc:transitionDate a owl:DatatypeProperty ;
+    rdfs:label "Transition Date" ;
+    rdfs:comment "Date when Flow Code transition occurred" ;
+    rdfs:domain hvdc:FlowCodeTransition ;
+    rdfs:range xsd:dateTime .
+
+# ============================================================================
+# Part 7: Flow Code KPI Metrics
+# ============================================================================
+
+hvdc:flowCodeDistribution a owl:DatatypeProperty ;
+    rdfs:label "Flow Code Distribution" ;
+    rdfs:comment "Percentage distribution by Flow Code (0-5)" ;
+    rdfs:range rdf:Bag .
+
+hvdc:averageFlowCode a owl:DatatypeProperty ;
+    rdfs:label "Average Flow Code" ;
+    rdfs:comment "Calculated average Flow Code for a set of cases" ;
+    rdfs:range xsd:decimal .
+
+hvdc:flowCodeEfficiency a owl:DatatypeProperty ;
+    rdfs:label "Flow Code Efficiency" ;
+    rdfs:comment "Efficiency metric based on Flow Code distribution" ;
+    rdfs:range xsd:decimal .
+
+# ============================================================================
+# End of Flow Code v3.5 Ontology Schema
+# ============================================================================
+

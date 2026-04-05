@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COST-GUARD | Lay-Up Reduced Hire Rate Scenario Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
+    <style>
+        :root {
+            --bg: #0f1923;
+            --bg2: #162230;
+            --bg3: #1d2e3f;
+            --card: #1a2d40;
+            --accent: #00d4aa;
+            --accent2: #00b4d8;
+            --warn: #ff6b6b;
+            --gold: #ffd166;
+            --purple: #a78bfa;
+            --orange: #fb923c;
+            --text: #e8edf2;
+            --text2: #8899aa;
+            --border: #2a3f55;
+            --green: #34d399;
+            --red: #f87171;
+            --radius: 10px;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+        .container { max-width: 1500px; margin: 0 auto; padding: 16px; }
+
+        /* Header */
+        .header { background: linear-gradient(135deg, #0a2540 0%, #1a3a5c 100%); padding: 20px 28px; border-radius: var(--radius); margin-bottom: 16px; border-left: 4px solid var(--accent); }
+        .header h1 { font-size: 20px; font-weight: 700; color: var(--accent); letter-spacing: 0.5px; }
+        .header .sub { font-size: 13px; color: var(--text2); margin-top: 4px; }
+        .mode-badge { display: inline-block; background: var(--accent); color: #0a2540; font-size: 11px; font-weight: 700; padding: 2px 10px; border-radius: 12px; margin-right: 8px; }
+
+        /* Controls */
+        .controls { background: var(--card); padding: 18px 24px; border-radius: var(--radius); margin-bottom: 16px; display: flex; flex-wrap: wrap; gap: 20px; align-items: end; border: 1px solid var(--border); }
+        .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+        .ctrl-group label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text2); font-weight: 600; }
+        .ctrl-group input, .ctrl-group select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg2); color: var(--text); font-size: 13px; min-width: 140px; }
+        .ctrl-group input:focus, .ctrl-group select:focus { outline: none; border-color: var(--accent); }
+        .ctrl-group select option { background: var(--bg2); }
+        .btn-recalc { padding: 8px 20px; background: var(--accent); color: #0a2540; border: none; border-radius: 6px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
+        .btn-recalc:hover { background: #00eabb; transform: translateY(-1px); }
+
+        /* KPI Row */
+        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
+        .kpi { background: var(--card); border-radius: var(--radius); padding: 16px 20px; border: 1px solid var(--border); position: relative; overflow: hidden; }
+        .kpi::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .kpi.green::before { background: var(--green); }
+        .kpi.gold::before { background: var(--gold); }
+        .kpi.purple::before { background: var(--purple); }
+        .kpi.accent::before { background: var(--accent); }
+        .kpi.red::before { background: var(--red); }
+        .kpi.orange::before { background: var(--orange); }
+        .kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text2); margin-bottom: 4px; }
+        .kpi-val { font-size: 24px; font-weight: 700; }
+        .kpi-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+        /* Charts */
+        .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        .chart-full { grid-column: 1 / -1; }
+        .chart-box { background: var(--card); border-radius: var(--radius); padding: 20px; border: 1px solid var(--border); }
+        .chart-box h3 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 12px; }
+        .chart-box canvas { max-height: 320px; }
+
+        /* Scenario Table */
+        .table-wrap { background: var(--card); border-radius: var(--radius); padding: 20px; border: 1px solid var(--border); margin-bottom: 16px; overflow-x: auto; }
+        .table-wrap h3 { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        thead th { text-align: left; padding: 10px 12px; border-bottom: 2px solid var(--border); color: var(--text2); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+        tbody td { padding: 10px 12px; border-bottom: 1px solid rgba(42,63,85,0.5); }
+        tbody tr:hover { background: rgba(0,212,170,0.05); }
+        .best { background: rgba(0,212,170,0.1) !important; }
+        .best td { font-weight: 600; }
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .tag-best { background: rgba(0,212,170,0.2); color: var(--accent); }
+        .tag-good { background: rgba(255,209,102,0.2); color: var(--gold); }
+        .tag-base { background: rgba(136,153,170,0.2); color: var(--text2); }
+        .tag-risky { background: rgba(248,113,113,0.2); color: var(--red); }
+
+        /* Decision Box */
+        .decision { background: linear-gradient(135deg, #0a3530 0%, #0a2540 100%); border: 1px solid var(--accent); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+        .decision h3 { color: var(--accent); font-size: 16px; margin-bottom: 12px; }
+        .decision p { color: var(--text); font-size: 14px; line-height: 1.7; }
+        .decision .highlight { color: var(--accent); font-weight: 700; }
+        .decision .amount { color: var(--gold); font-weight: 700; font-size: 16px; }
+
+        /* Sensitivity Matrix */
+        .matrix { border-collapse: collapse; font-size: 12px; width: 100%; }
+        .matrix th, .matrix td { padding: 8px 10px; text-align: center; border: 1px solid var(--border); }
+        .matrix th { background: var(--bg3); color: var(--text2); font-size: 11px; }
+        .matrix .cell-high { background: rgba(0,212,170,0.25); color: var(--accent); font-weight: 600; }
+        .matrix .cell-mid { background: rgba(255,209,102,0.15); color: var(--gold); }
+        .matrix .cell-low { background: rgba(248,113,113,0.1); color: var(--text2); }
+        .matrix .cell-neg { background: rgba(248,113,113,0.25); color: var(--red); font-weight: 600; }
+
+        .footer { text-align: center; color: var(--text2); font-size: 11px; padding: 16px; }
+
+        @media (max-width: 900px) {
+            .chart-grid { grid-template-columns: 1fr; }
+            .kpi-row { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Header -->
+    <div class="header">
+        <div><span class="mode-badge">COST-GUARD</span> <span style="font-size:12px;color:var(--text2)">MODULE</span></div>
+        <h1>Lay-Up Reduced Hire Rate \u2014 Scenario Comparison</h1>
+        <div class="sub">JOPETWIL 71 (IMO: 9582829) | Contract SCT-19LT-PJC-LA-007 | SUPPLYTIME 2017 Clause 33 | Daily Rate US$ 12,000</div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <div class="ctrl-group">
+            <label>Standby Start Date</label>
+            <input type="date" id="startDate" value="2026-02-28">
+        </div>
+        <div class="ctrl-group">
+            <label>Charter Expiry Date</label>
+            <input type="date" id="endDate" value="2026-03-31">
+        </div>
+        <div class="ctrl-group">
+            <label>Lay-Up Lead Time (days)</label>
+            <select id="leadTime">
+                <option value="5">5 days</option>
+                <option value="7" selected>7 days (Cl.33(b) + confirmation)</option>
+                <option value="10">10 days</option>
+                <option value="14">14 days (conservative)</option>
+            </select>
+        </div>
+        <div class="ctrl-group">
+            <label>Setup Cost (US$)</label>
+            <input type="number" id="setupCost" value="15000" step="1000" min="0">
+        </div>
+        <div class="ctrl-group">
+            <label>Reactivation Cost (US$)</label>
+            <input type="number" id="reactivationCost" value="15000" step="1000" min="0">
+        </div>
+        <div class="ctrl-group">
+            <label>VAT Rate</label>
+            <select id="vatRate">
+                <option value="0">0%</option>
+                <option value="5" selected>5% (UAE Standard)</option>
+            </select>
+        </div>
+        <button class="btn-recalc" onclick="recalculate()">Recalculate</button>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-row" id="kpiRow"></div>
+
+    <!-- Charts -->
+    <div class="chart-grid">
+        <div class="chart-box chart-full">
+            <h3>Cumulative Cost by Scenario (US$)</h3>
+            <canvas id="cumulativeChart"></canvas>
+        </div>
+        <div class="chart-box">
+            <h3>Total Cost Comparison (US$ incl. VAT)</h3>
+            <canvas id="barChart"></canvas>
+        </div>
+        <div class="chart-box">
+            <h3>Net Savings vs Standby (US$)</h3>
+            <canvas id="savingsChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Scenario Table -->
+    <div class="table-wrap">
+        <h3>Scenario Breakdown</h3>
+        <table id="scenarioTable">
+            <thead>
+                <tr>
+                    <th>Scenario</th>
+                    <th>Discount Rate</th>
+                    <th>Reduced Daily Hire</th>
+                    <th>Lead Time Days</th>
+                    <th>Lay-Up Days</th>
+                    <th>Hire (Lead)</th>
+                    <th>Hire (Lay-Up)</th>
+                    <th>Setup + React.</th>
+                    <th>Total (excl. VAT)</th>
+                    <th>VAT</th>
+                    <th>Total (incl. VAT)</th>
+                    <th>Savings vs Standby</th>
+                    <th>Rating</th>
+                </tr>
+            </thead>
+            <tbody id="scenarioBody"></tbody>
+        </table>
+    </div>
+
+    <!-- Sensitivity Matrix -->
+    <div class="table-wrap">
+        <h3>Sensitivity Matrix: Net Savings (US$) by Discount Rate vs Lead Time</h3>
+        <table class="matrix" id="sensitivityTable"></table>
+    </div>
+
+    <!-- Decision -->
+    <div class="decision" id="decisionBox"></div>
+
+    <!-- Break-Even Analysis -->
+    <div class="chart-grid">
+        <div class="chart-box chart-full">
+            <h3>Break-Even Analysis: Minimum Lay-Up Days Required by Discount Rate</h3>
+            <canvas id="breakEvenChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Daily Detail -->
+    <div class="table-wrap">
+        <h3>Daily Cost Timeline (Best Scenario)</h3>
+        <table id="dailyTable">
+            <thead>
+                <tr>
+                    <th>Day</th>
+                    <th>Date</th>
+                    <th>Phase</th>
+                    <th>Standby Daily</th>
+                    <th>Standby Cumul.</th>
+                    <th>Lay-Up Daily</th>
+                    <th>Lay-Up Cumul.</th>
+                    <th>Daily Saving</th>
+                    <th>Cumul. Saving</th>
+                </tr>
+            </thead>
+            <tbody id="dailyBody"></tbody>
+        </table>
+    </div>
+
+    <div class="footer">
+        COST-GUARD Module | Samsung C&T \u00D7 ADNOC L&S | JOPETWIL 71 | Generated: 2026-03-09<br>
+        Disclaimer: Estimates subject to Owner response per Clause 33(b). Actual reduced hire rate to be confirmed by ALS.
+    </div>
+</div>
+
+<script>
+const FULL_RATE = 12000;
+const DISCOUNT_RATES = [0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70];
+const COLORS = ['#f87171','#fb923c','#fbbf24','#fcd34d','#a3e635','#34d399','#22d3ee','#818cf8','#a78bfa'];
+
+let charts = {};
+
+function daysBetween(d1, d2) {
+    return Math.round((new Date(d2) - new Date(d1)) / 86400000);
+}
+
+function fmt(n) { return '$' + n.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0}); }
+function fmtK(n) { return n >= 1000 ? '$' + (n/1000).toFixed(1) + 'K' : fmt(n); }
+function pct(n) { return (n * 100).toFixed(0) + '%'; }
+
+function calculate() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    const leadTime = parseInt(document.getElementById('leadTime').value);
+    const setupCost = parseFloat(document.getElementById('setupCost').value) || 0;
+    const reactivationCost = parseFloat(document.getElementById('reactivationCost').value) || 0;
+    const vatRate = parseFloat(document.getElementById('vatRate').value) / 100;
+
+    const totalDays = daysBetween(startDate, endDate);
+    const layUpDays = Math.max(0, totalDays - leadTime);
+
+    // Standby baseline
+    const standbyHire = FULL_RATE * totalDays;
+    const standbyVAT = standbyHire * vatRate;
+    const standbyTotal = standbyHire + standbyVAT;
+
+    // Scenarios
+    const scenarios = DISCOUNT_RATES.map((disc, i) => {
+        const reducedRate = FULL_RATE * (1 - disc);
+        const hireLeadTime = FULL_RATE * leadTime;
+        const hireLayUp = reducedRate * layUpDays;
+        const fixedCosts = setupCost + reactivationCost;
+        const totalExVAT = hireLeadTime + hireLayUp + fixedCosts;
+        const vat = totalExVAT * vatRate;
+        const totalInclVAT = totalExVAT + vat;
+        const savings = standbyTotal - totalInclVAT;
+        const savingsPct = standbyTotal > 0 ? savings / standbyTotal : 0;
+
+        return {
+            id: i,
+            discountRate: disc,
+            reducedRate,
+            leadTime,
+            layUpDays,
+            hireLeadTime,
+            hireLayUp,
+            fixedCosts,
+            totalExVAT,
+            vat,
+            totalInclVAT,
+            savings,
+            savingsPct,
+            label: `${pct(disc)} Discount`
+        };
+    });
+
+    // Find best
+    const best = scenarios.reduce((a, b) => a.savings > b.savings ? a : b);
+
+    return { totalDays, leadTime, layUpDays, standbyHire, standbyVAT, standbyTotal, scenarios, best, startDate, endDate, setupCost, reactivationCost, vatRate };
+}
+
+function renderKPIs(data) {
+    const { totalDays, layUpDays, standbyTotal, best, scenarios } = data;
+    const midScenario = scenarios[Math.floor(scenarios.length / 2)];
+
+    const kpis = [
+        { label: 'Total Period', value: `${totalDays} days`, sub: `Lead: ${data.leadTime}d | Lay-Up: ${layUpDays}d`, cls: 'accent' },
+        { label: 'Standby Baseline', value: fmtK(standbyTotal), sub: `${fmt(FULL_RATE)}/day \u00D7 ${totalDays}d + VAT`, cls: 'red' },
+        { label: 'Best Scenario Cost', value: fmtK(best.totalInclVAT), sub: `${pct(best.discountRate)} discount rate`, cls: 'green' },
+        { label: 'Maximum Savings', value: fmtK(best.savings), sub: `${(best.savingsPct * 100).toFixed(1)}% reduction`, cls: 'gold' },
+        { label: 'Mid-Range (50%)', value: fmtK(midScenario.totalInclVAT), sub: `Saves ${fmtK(midScenario.savings)}`, cls: 'purple' },
+        { label: 'Daily Saving (Best)', value: fmtK(best.savings / totalDays), sub: `Per day over ${totalDays} days`, cls: 'orange' },
+    ];
+
+    document.getElementById('kpiRow').innerHTML = kpis.map(k =>
+        `<div class="kpi ${k.cls}"><div class="kpi-label">${k.label}</div><div class="kpi-val">${k.value}</div><div class="kpi-sub">${k.sub}</div></div>`
+    ).join('');
+}
+
+function renderCharts(data) {
+    const { scenarios, standbyTotal, totalDays, leadTime, best, startDate } = data;
+    const labels = scenarios.map(s => pct(s.discountRate));
+
+    // Destroy existing
+    Object.values(charts).forEach(c => c.destroy());
+
+    // 1. Cumulative Cost Chart
+    const days = Array.from({length: totalDays}, (_, i) => i + 1);
+    const dateLabels = days.map(d => {
+        const dt = new Date(startDate);
+        dt.setDate(dt.getDate() + d);
+        return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
+
+    const standbyLine = days.map(d => FULL_RATE * d * (1 + data.vatRate));
+
+    // Show 3 representative scenarios: 30%, 50%, 70%
+    const selectedIdx = [0, 4, 8]; // 30%, 50%, 70%
+    const layUpLines = selectedIdx.map(idx => {
+        const s = scenarios[idx];
+        return days.map(d => {
+            let cost;
+            if (d <= leadTime) {
+                cost = FULL_RATE * d;
+            } else {
+                cost = FULL_RATE * leadTime + s.reducedRate * (d - leadTime) + data.setupCost;
+            }
+            return cost * (1 + data.vatRate);
+        });
+    });
+
+    charts.cumulative = new Chart(document.getElementById('cumulativeChart'), {
+        type: 'line',
+        data: {
+            labels: dateLabels,
+            datasets: [
+                { label: 'Standby (Full Rate)', data: standbyLine, borderColor: '#f87171', borderWidth: 2.5, borderDash: [6,3], pointRadius: 0, fill: false },
+                ...selectedIdx.map((idx, i) => ({
+                    label: `Lay-Up ${pct(scenarios[idx].discountRate)}`,
+                    data: layUpLines[i],
+                    borderColor: ['#fb923c','#34d399','#818cf8'][i],
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    fill: false,
+                    tension: 0.1
+                }))
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { labels: { color: '#8899aa', usePointStyle: true, padding: 16 } },
+                tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmt(Math.round(ctx.parsed.y))}` } }
+            },
+            scales: {
+                x: { ticks: { color: '#8899aa', maxTicksLimit: 10 }, grid: { color: 'rgba(42,63,85,0.3)' } },
+                y: { ticks: { color: '#8899aa', callback: v => fmtK(v) }, grid: { color: 'rgba(42,63,85,0.3)' } }
+            }
+        }
+    });
+
+    // 2. Bar Chart
+    charts.bar = new Chart(document.getElementById('barChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Standby\n(Baseline)', ...labels],
+            datasets: [{
+                label: 'Total Cost (incl. VAT)',
+                data: [standbyTotal, ...scenarios.map(s => s.totalInclVAT)],
+                backgroundColor: ['rgba(248,113,113,0.7)', ...COLORS.map(c => c + 'AA')],
+                borderColor: ['#f87171', ...COLORS],
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: ctx => fmt(Math.round(ctx.parsed.y)) } }
+            },
+            scales: {
+                x: { ticks: { color: '#8899aa', font: { size: 11 } }, grid: { display: false } },
+                y: { ticks: { color: '#8899aa', callback: v => fmtK(v) }, grid: { color: 'rgba(42,63,85,0.3)' } }
+            }
+        }
+    });
+
+    // 3. Savings Chart
+    charts.savings = new Chart(document.getElementById('savingsChart'), {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{
+                label: 'Net Savings',
+                data: scenarios.map(s => s.savings),
+                backgroundColor: scenarios.map(s => s.savings > 0 ? 'rgba(52,211,153,0.7)' : 'rgba(248,113,113,0.7)'),
+                borderColor: scenarios.map(s => s.savings > 0 ? '#34d399' : '#f87171'),
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: ctx => fmt(Math.round(ctx.parsed.y)) } }
+            },
+            scales: {
+                x: { ticks: { color: '#8899aa' }, grid: { display: false } },
+                y: { ticks: { color: '#8899aa', callback: v => fmtK(v) }, grid: { color: 'rgba(42,63,85,0.3)' } }
+            }
+        }
+    });
+
+    // 4. Break-Even Chart
+    const leadTimes = [5, 7, 10, 14];
+    const breakEvenData = DISCOUNT_RATES.map(disc => {
+        const reducedRate = FULL_RATE * (1 - disc);
+        const dailySaving = FULL_RATE - reducedRate;
+        if (dailySaving <= 0) return null;
+        const fixedCosts = data.setupCost + data.reactivationCost;
+        const breakEvenDays = Math.ceil(fixedCosts / dailySaving);
+        return breakEvenDays;
+    });
+
+    charts.breakEven = new Chart(document.getElementById('breakEvenChart'), {
+        type: 'bar',
+        data: {
+            labels: DISCOUNT_RATES.map(d => pct(d)),
+            datasets: [{
+                label: 'Break-Even Days',
+                data: breakEvenData,
+                backgroundColor: breakEvenData.map(d => d !== null && d <= data.layUpDays ? 'rgba(52,211,153,0.7)' : 'rgba(248,113,113,0.5)'),
+                borderColor: breakEvenData.map(d => d !== null && d <= data.layUpDays ? '#34d399' : '#f87171'),
+                borderWidth: 1,
+                borderRadius: 4
+            }, {
+                label: `Available Lay-Up Days (${data.layUpDays}d)`,
+                data: Array(DISCOUNT_RATES.length).fill(data.layUpDays),
+                type: 'line',
+                borderColor: '#ffd166',
+                borderDash: [6, 3],
+                borderWidth: 2,
+                pointRadius: 0,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+                legend: { labels: { color: '#8899aa', usePointStyle: true, padding: 16 } },
+                tooltip: { callbacks: { label: ctx => ctx.dataset.type === 'line' ? `Available: ${ctx.parsed.y} days` : `Break-even: ${ctx.parsed.y} days` } }
+            },
+            scales: {
+                x: { ticks: { color: '#8899aa' }, grid: { display: false } },
+                y: { title: { display: true, text: 'Days', color: '#8899aa' }, ticks: { color: '#8899aa' }, grid: { color: 'rgba(42,63,85,0.3)' } }
+            }
+        }
+    });
+}
+
+function renderScenarioTable(data) {
+    const { scenarios, best } = data;
+    const body = document.getElementById('scenarioBody');
+
+    // Add standby row first
+    let html = `<tr style="background:rgba(248,113,113,0.08)">
+        <td><strong>STANDBY (Baseline)</strong></td>
+        <td>0%</td>
+        <td>${fmt(FULL_RATE)}</td>
+        <td>\u2014</td>
+        <td>\u2014</td>
+        <td>${fmt(data.standbyHire)}</td>
+        <td>\u2014</td>
+        <td>\u2014</td>
+        <td>${fmt(data.standbyHire)}</td>
+        <td>${fmt(data.standbyVAT)}</td>
+        <td><strong>${fmt(data.standbyTotal)}</strong></td>
+        <td>\u2014</td>
+        <td><span class="tag tag-base">BASE</span></td>
+    </tr>`;
+
+    scenarios.forEach(s => {
+        const isBest = s.id === best.id;
+        const rating = s.savings <= 0 ? 'risky' : s.id === best.id ? 'best' : s.savingsPct > 0.2 ? 'good' : 'base';
+        const ratingLabel = rating === 'best' ? 'OPTIMAL' : rating === 'good' ? 'GOOD' : rating === 'risky' ? 'LOSS' : 'OK';
+
+        html += `<tr class="${isBest ? 'best' : ''}">
+            <td>${isBest ? '\u2B50 ' : ''}Lay-Up ${pct(s.discountRate)}</td>
+            <td>${pct(s.discountRate)}</td>
+            <td>${fmt(s.reducedRate)}</td>
+            <td>${s.leadTime}</td>
+            <td>${s.layUpDays}</td>
+            <td>${fmt(s.hireLeadTime)}</td>
+            <td>${fmt(s.hireLayUp)}</td>
+            <td>${fmt(s.fixedCosts)}</td>
+            <td>${fmt(s.totalExVAT)}</td>
+            <td>${fmt(Math.round(s.vat))}</td>
+            <td><strong>${fmt(Math.round(s.totalInclVAT))}</strong></td>
+            <td style="color:${s.savings > 0 ? 'var(--green)' : 'var(--red)'}">${s.savings > 0 ? '+' : ''}${fmt(Math.round(s.savings))}</td>
+            <td><span class="tag tag-${rating}">${ratingLabel}</span></td>
+        </tr>`;
+    });
+
+    body.innerHTML = html;
+}
+
+function renderSensitivityMatrix(data) {
+    const leadTimes = [5, 7, 10, 14];
+    const table = document.getElementById('sensitivityTable');
+
+    let html = '<thead><tr><th>Discount \\ Lead</th>';
+    leadTimes.forEach(lt => { html += `<th>${lt} days</th>`; });
+    html += '</tr></thead><tbody>';
+
+    DISCOUNT_RATES.forEach(disc => {
+        html += `<tr><th>${pct(disc)}</th>`;
+        leadTimes.forEach(lt => {
+            const totalDays = data.totalDays;
+            const layUpDays = Math.max(0, totalDays - lt);
+            const reducedRate = FULL_RATE * (1 - disc);
+            const hireLead = FULL_RATE * lt;
+            const hireLayUp = reducedRate * layUpDays;
+            const fixed = data.setupCost + data.reactivationCost;
+            const total = (hireLead + hireLayUp + fixed) * (1 + data.vatRate);
+            const savings = data.standbyTotal - total;
+
+            let cls = 'cell-low';
+            if (savings > data.standbyTotal * 0.25) cls = 'cell-high';
+            else if (savings > data.standbyTotal * 0.1) cls = 'cell-mid';
+            else if (savings < 0) cls = 'cell-neg';
+
+            html += `<td class="${cls}">${savings >= 0 ? '+' : ''}${fmtK(Math.round(savings))}</td>`;
+        });
+        html += '</tr>';
+    });
+
+    html += '</tbody>';
+    table.innerHTML = html;
+}
+
+function renderDailyTable(data) {
+    const { best, startDate, totalDays, vatRate } = data;
+    const body = document.getElementById('dailyBody');
+    let html = '';
+    let standbyCumul = 0;
+    let layUpCumul = 0;
+    let savingCumul = 0;
+    const setupAmort = data.setupCost / (best.layUpDays || 1); // spread setup
+
+    for (let d = 1; d <= totalDays; d++) {
+        const dt = new Date(startDate);
+        dt.setDate(dt.getDate() + d);
+        const dateStr = dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' });
+
+        const standbyDaily = FULL_RATE;
+        standbyCumul += standbyDaily;
+
+        let layUpDaily, phase;
+        if (d <= best.leadTime) {
+            layUpDaily = FULL_RATE;
+            phase = 'Lead Time';
+        } else if (d === best.leadTime + 1) {
+            layUpDaily = best.reducedRate + data.setupCost; // setup on first lay-up day
+            phase = 'Lay-Up Start';
+        } else if (d === totalDays) {
+            layUpDaily = best.reducedRate + data.reactivationCost; // reactivation on last day
+            phase = 'Reactivation';
+        } else {
+            layUpDaily = best.reducedRate;
+            phase = 'Lay-Up';
+        }
+        layUpCumul += layUpDaily;
+
+        const dailySaving = standbyDaily - layUpDaily;
+        savingCumul += dailySaving;
+
+        const phaseColor = phase === 'Lead Time' ? 'var(--text2)' : phase.includes('Lay-Up') ? 'var(--accent)' : 'var(--gold)';
+
+        html += `<tr>
+            <td>${d}</td>
+            <td>${dateStr}</td>
+            <td style="color:${phaseColor}">${phase}</td>
+            <td>${fmt(standbyDaily)}</td>
+            <td>${fmt(standbyCumul)}</td>
+            <td>${fmt(Math.round(layUpDaily))}</td>
+            <td>${fmt(Math.round(layUpCumul))}</td>
+            <td style="color:${dailySaving >= 0 ? 'var(--green)' : 'var(--red)'}">${dailySaving >= 0 ? '+' : ''}${fmt(Math.round(dailySaving))}</td>
+            <td style="color:${savingCumul >= 0 ? 'var(--green)' : 'var(--red)'}; font-weight:600">${savingCumul >= 0 ? '+' : ''}${fmt(Math.round(savingCumul))}</td>
+        </tr>`;
+    }
+
+    body.innerHTML = html;
+}
+
+function renderDecision(data) {
+    const { best, totalDays, layUpDays, standbyTotal } = data;
+    const box = document.getElementById('decisionBox');
+
+    const breakEvenDays = Math.ceil((data.setupCost + data.reactivationCost) / (FULL_RATE * best.discountRate));
+    const isViable = best.savings > 0;
+    const reco50 = data.scenarios[4]; // 50% discount
+
+    box.innerHTML = `
+        <h3>\u2699\uFE0F Decision Analysis & Recommendation</h3>
+        <p>
+            <strong>Period:</strong> ${totalDays} total days (${data.leadTime}d lead time + ${layUpDays}d potential lay-up).<br><br>
+
+            <strong>Standby Baseline:</strong> Continuing at full hire of <span class="amount">${fmt(FULL_RATE)}/day</span> for the remaining
+            ${totalDays} days costs <span class="amount">${fmt(Math.round(standbyTotal))}</span> (incl. VAT).<br><br>
+
+            ${isViable ? `
+            <strong>\u2705 Lay-Up is viable.</strong> At the optimal discount rate of <span class="highlight">${pct(best.discountRate)}</span>
+            (reduced rate ${fmt(best.reducedRate)}/day), total cost drops to <span class="amount">${fmt(Math.round(best.totalInclVAT))}</span>,
+            saving <span class="amount">${fmt(Math.round(best.savings))}</span> (<span class="highlight">${(best.savingsPct * 100).toFixed(1)}%</span>).<br><br>
+
+            <strong>Break-even:</strong> At ${pct(best.discountRate)} discount, lay-up breaks even after just <span class="highlight">${breakEvenDays} days</span>
+            \u2014 well within the ${layUpDays}-day lay-up window.<br><br>
+
+            <strong>Realistic Mid-Range (50% discount):</strong> Even at a conservative 50% discount, savings reach
+            <span class="amount">${fmt(Math.round(reco50.savings))}</span> (${(reco50.savingsPct * 100).toFixed(1)}% reduction).<br><br>
+
+            <strong>\u27A1\uFE0F Recommendation:</strong> Proceed with Clause 33 Lay-Up Request immediately. The formal notice has been prepared
+            (JOPETWIL71_Clause33_LayUp_Request_20260309.docx). Upon Owner response with the actual reduced hire rate per Cl.33(b)(iv),
+            confirm within 7 days per Cl.33(c). Any discount rate \u2265 30% yields positive savings for this period.
+            ` : `
+            <strong>\u26A0\uFE0F Lay-Up may not be cost-effective</strong> for this period. The fixed costs (setup + reactivation) exceed
+            potential savings given the short lay-up window. Consider extending the charter period or negotiating a standby rate reduction
+            directly with the Owner outside of the formal Clause 33 process.
+            `}
+        </p>
+    `;
+}
+
+function recalculate() {
+    const data = calculate();
+    renderKPIs(data);
+    renderCharts(data);
+    renderScenarioTable(data);
+    renderSensitivityMatrix(data);
+    renderDailyTable(data);
+    renderDecision(data);
+}
+
+// Initial render
+recalculate();
+</script>
+</body>
+</html>

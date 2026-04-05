@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>JPT71 Laden/Ballast Fuel Root-Cause v5.1</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f0;padding:16px}
+.header{text-align:center;padding:12px 0;border-bottom:2px solid #334155;margin-bottom:16px}
+.header h1{font-size:20px;color:#38bdf8} .header .ver{color:#94a3b8;font-size:13px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.card{background:#1e293b;border-radius:10px;padding:16px;margin-bottom:14px}
+.card h3{font-size:14px;color:#38bdf8;margin-bottom:10px}
+canvas{max-height:300px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:#334155;padding:6px 8px;text-align:left;color:#94a3b8} td{padding:5px 8px;border-bottom:1px solid #334155}
+.r{text-align:right} tr:hover{background:#334155}
+.note{background:#334155;border-radius:8px;padding:10px;font-size:12px;margin-bottom:14px}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px}
+.kpi{background:#1e293b;border-radius:10px;padding:14px;text-align:center;border-left:4px solid #38bdf8}
+.kpi .val{font-size:22px;font-weight:700;color:#f1f5f9} .kpi .lbl{font-size:11px;color:#94a3b8}
+.kpi.red{border-color:#ef4444} .kpi.orange{border-color:#f97316} .kpi.green{border-color:#22c55e}
+@media(max-width:768px){.grid2{grid-template-columns:1fr}}
+</style></head><body>
+<div class="header"><h1>JPT71 Laden/Ballast Fuel Root-Cause Analysis</h1>
+<div class="ver">v5.1 | Updated scope | Activity-based fuel decomposition</div></div>
+<div class="kpi-row">
+<div class="kpi red"><div class="val">AT_ANCHOR</div><div class="lbl">#1 Driver (1,226 L/day)</div></div>
+<div class="kpi orange"><div class="val">179,525 L</div><div class="lbl">Total Fuel</div></div>
+<div class="kpi"><div class="val">102,263</div><div class="lbl">Laden Fuel (L)</div></div>
+<div class="kpi"><div class="val">3,766</div><div class="lbl">Ballast Fuel (L)</div></div>
+<div class="kpi green"><div class="val">27.2x</div><div class="lbl">Laden/Ballast Ratio</div></div>
+</div>
+<div class="note"><b>Key Findings:</b> AT_ANCHOR #1 fuel driver. DISCHARGING > LOADING by ~33%. DAS port +25% vs AGI.</div>
+<div class="grid2">
+<div class="card"><h3>Activity Fuel/Day Ranking</h3><canvas id="actChart"></canvas></div>
+<div class="card"><h3>Monthly Fuel Breakdown (Laden/Ballast/Port)</h3><canvas id="monthlyChart"></canvas></div>
+</div>
+<div class="grid2">
+<div class="card"><h3>Fuel Efficiency Trend (L/ton)</h3><canvas id="effChart"></canvas></div>
+<div class="card"><h3>Laden vs Ballast Monthly</h3><canvas id="lbChart"></canvas></div>
+</div>
+<div class="card"><h3>Activity Fuel Breakdown</h3><table>
+<tr><th>Activity</th><th class="r">Days</th><th class="r">Fuel (L)</th><th class="r">L/day</th></tr>
+<tr><td>AT_ANCHOR</td><td class="r">54.0</td><td class="r">66,225</td><td class="r">1226.4</td></tr>
+<tr><td>SAILING_LADEN</td><td class="r">10.0</td><td class="r">6,758</td><td class="r">675.8</td></tr>
+<tr><td>DISCHARGING</td><td class="r">97.0</td><td class="r">42,711</td><td class="r">440.3</td></tr>
+<tr><td>SAILING</td><td class="r">33.0</td><td class="r">12,409</td><td class="r">376.0</td></tr>
+<tr><td>LOADING</td><td class="r">119.0</td><td class="r">38,938</td><td class="r">327.2</td></tr>
+<tr><td>OTHER</td><td class="r">47.0</td><td class="r">7,055</td><td class="r">150.1</td></tr>
+<tr><td>BUNKERING</td><td class="r">7.0</td><td class="r">888</td><td class="r">126.9</td></tr>
+<tr><td>MAINTENANCE</td><td class="r">13.0</td><td class="r">1,457</td><td class="r">112.1</td></tr>
+<tr><td>AT_BERTH</td><td class="r">33.0</td><td class="r">3,086</td><td class="r">93.5</td></tr>
+</table></div>
+<div class="card"><h3>Monthly Fuel Efficiency</h3><table>
+<tr><th>Month</th><th class="r">Fuel (L)</th><th class="r">Cargo (ton)</th><th class="r">L/ton</th></tr>
+<tr><td>2024-11</td><td class="r">9,267</td><td class="r">3,361</td><td class="r">2.76</td></tr>
+<tr><td>2024-12</td><td class="r">13,345</td><td class="r">5,266</td><td class="r">2.53</td></tr>
+<tr><td>2025-01</td><td class="r">8,784</td><td class="r">1,932</td><td class="r">4.55</td></tr>
+<tr><td>2025-02</td><td class="r">10,046</td><td class="r">1,282</td><td class="r">7.84</td></tr>
+<tr><td>2025-03</td><td class="r">6,414</td><td class="r">2,308</td><td class="r">2.78</td></tr>
+<tr><td>2025-04</td><td class="r">6,019</td><td class="r">3,013</td><td class="r">2.0</td></tr>
+<tr><td>2025-05</td><td class="r">3,514</td><td class="r">2,931</td><td class="r">1.2</td></tr>
+<tr><td>2025-07</td><td class="r">6,512</td><td class="r">3,639</td><td class="r">1.79</td></tr>
+<tr><td>2025-08</td><td class="r">9,230</td><td class="r">2,390</td><td class="r">3.86</td></tr>
+<tr><td>2025-10</td><td class="r">10,812</td><td class="r">6,429</td><td class="r">1.68</td></tr>
+<tr><td>2025-11</td><td class="r">8,645</td><td class="r">5,360</td><td class="r">1.61</td></tr>
+<tr><td>2025-12</td><td class="r">9,702</td><td class="r">4,514</td><td class="r">2.15</td></tr>
+<tr><td>2026-01</td><td class="r">65,754</td><td class="r">4,911</td><td class="r">13.39</td></tr>
+<tr><td>2026-02</td><td class="r">10,220</td><td class="r">0</td><td class="r">nan</td></tr>
+<tr><td>2026-03</td><td class="r">1,261</td><td class="r">0</td><td class="r">nan</td></tr>
+</table></div>
+<script>
+var DATA = {"monthly": [{"month": "2024-11", "fuel": 9267, "days": 30, "laden": 9044, "ballast": 145, "port": 78}, {"month": "2024-12", "fuel": 13345, "days": 31, "laden": 12973, "ballast": 198, "port": 174}, {"month": "2025-01", "fuel": 8784, "days": 31, "laden": 5366, "ballast": 1342, "port": 106}, {"month": "2025-02", "fuel": 10046, "days": 28, "laden": 7381, "ballast": 1445, "port": 526}, {"month": "2025-03", "fuel": 6414, "days": 31, "laden": 5022, "ballast": 0, "port": 99}, {"month": "2025-04", "fuel": 6019, "days": 30, "laden": 5657, "ballast": 0, "port": 162}, {"month": "2025-05", "fuel": 3514, "days": 23, "laden": 3164, "ballast": 0, "port": 350}, {"month": "2025-07", "fuel": 6512, "days": 18, "laden": 5878, "ballast": 0, "port": 92}, {"month": "2025-08", "fuel": 9230, "days": 31, "laden": 7160, "ballast": 0, "port": 1331}, {"month": "2025-10", "fuel": 10812, "days": 31, "laden": 9852, "ballast": 0, "port": 960}, {"month": "2025-11", "fuel": 8645, "days": 30, "laden": 7887, "ballast": 0, "port": 604}, {"month": "2025-12", "fuel": 9702, "days": 31, "laden": 7785, "ballast": 0, "port": 560}, {"month": "2026-01", "fuel": 65754, "days": 33, "laden": 6100, "ballast": 0, "port": 0}, {"month": "2026-02", "fuel": 10220, "days": 27, "laden": 8994, "ballast": 0, "port": 389}, {"month": "2026-03", "fuel": 1261, "days": 8, "laden": 0, "ballast": 636, "port": 0}], "activities": [{"act": "AT_ANCHOR", "days": 54.0, "fuel": 66225, "fpd": 1226.4}, {"act": "SAILING_LADEN", "days": 10.0, "fuel": 6758, "fpd": 675.8}, {"act": "DISCHARGING", "days": 97.0, "fuel": 42711, "fpd": 440.3}, {"act": "SAILING", "days": 33.0, "fuel": 12409, "fpd": 376.0}, {"act": "LOADING", "days": 119.0, "fuel": 38938, "fpd": 327.2}, {"act": "OTHER", "days": 47.0, "fuel": 7055, "fpd": 150.1}, {"act": "BUNKERING", "days": 7.0, "fuel": 888, "fpd": 126.9}, {"act": "MAINTENANCE", "days": 13.0, "fuel": 1457, "fpd": 112.1}, {"act": "AT_BERTH", "days": 33.0, "fuel": 3086, "fpd": 93.5}], "laden_ballast": [{"month": "2024-11", "state": "BALLAST", "days": 1.0, "fuel": 145, "avg": 145.0}, {"month": "2024-11", "state": "LADEN", "days": 23.0, "fuel": 9044, "avg": 411.1}, {"month": "2024-12", "state": "BALLAST", "days": 1.0, "fuel": 198, "avg": 198.0}, {"month": "2024-12", "state": "LADEN", "days": 24.0, "fuel": 12973, "avg": 540.6}, {"month": "2025-01", "state": "BALLAST", "days": 3.0, "fuel": 1342, "avg": 447.3}, {"month": "2025-01", "state": "LADEN", "days": 13.0, "fuel": 5366, "avg": 412.8}, {"month": "2025-02", "state": "BALLAST", "days": 3.0, "fuel": 1445, "avg": 481.8}, {"month": "2025-02", "state": "LADEN", "days": 19.0, "fuel": 7381, "avg": 388.5}, {"month": "2025-03", "state": "LADEN", "days": 19.0, "fuel": 5022, "avg": 264.3}, {"month": "2025-04", "state": "LADEN", "days": 27.0, "fuel": 5657, "avg": 209.5}, {"month": "2025-05", "state": "LADEN", "days": 14.0, "fuel": 3164, "avg": 226.0}, {"month": "2025-07", "state": "LADEN", "days": 14.0, "fuel": 5878, "avg": 419.9}, {"month": "2025-08", "state": "LADEN", "days": 24.0, "fuel": 7160, "avg": 298.3}, {"month": "2025-10", "state": "LADEN", "days": 25.0, "fuel": 9852, "avg": 394.1}, {"month": "2025-11", "state": "LADEN", "days": 26.0, "fuel": 7887, "avg": 303.3}, {"month": "2025-12", "state": "LADEN", "days": 18.0, "fuel": 7785, "avg": 432.5}, {"month": "2026-01", "state": "LADEN", "days": 3.0, "fuel": 6100, "avg": 2033.3}, {"month": "2026-02", "state": "LADEN", "days": 20.0, "fuel": 8994, "avg": 449.7}, {"month": "2026-03", "state": "BALLAST", "days": 1.0, "fuel": 636, "avg": 636.0}], "fuel_eff": [{"month": "2024-11", "fuel_total": 9267, "cargo_ton": 3361, "fpt": 2.76}, {"month": "2024-12", "fuel_total": 13345, "cargo_ton": 5266, "fpt": 2.53}, {"month": "2025-01", "fuel_total": 8784, "cargo_ton": 1932, "fpt": 4.55}, {"month": "2025-02", "fuel_total": 10046, "cargo_ton": 1282, "fpt": 7.84}, {"month": "2025-03", "fuel_total": 6414, "cargo_ton": 2308, "fpt": 2.78}, {"month": "2025-04", "fuel_total": 6019, "cargo_ton": 3013, "fpt": 2.0}, {"month": "2025-05", "fuel_total": 3514, "cargo_ton": 2931, "fpt": 1.2}, {"month": "2025-07", "fuel_total": 6512, "cargo_ton": 3639, "fpt": 1.79}, {"month": "2025-08", "fuel_total": 9230, "cargo_ton": 2390, "fpt": 3.86}, {"month": "2025-10", "fuel_total": 10812, "cargo_ton": 6429, "fpt": 1.68}, {"month": "2025-11", "fuel_total": 8645, "cargo_ton": 5360, "fpt": 1.61}, {"month": "2025-12", "fuel_total": 9702, "cargo_ton": 4514, "fpt": 2.15}, {"month": "2026-01", "fuel_total": 65754, "cargo_ton": 4911, "fpt": 13.39}, {"month": "2026-02", "fuel_total": 10220, "cargo_ton": 0, "fpt": NaN}, {"month": "2026-03", "fuel_total": 1261, "cargo_ton": 0, "fpt": NaN}]};
+
+var aLabels = DATA.activities.map(function(a){return a.act});
+var aFPD = DATA.activities.map(function(a){return a.fpd});
+var aColors = aFPD.map(function(v){return v>1000?'#ef4444':v>500?'#f97316':v>200?'#eab308':'#22c55e'});
+new Chart(document.getElementById('actChart'),{type:'bar',data:{
+    labels:aLabels,datasets:[{label:'L/day',data:aFPD,backgroundColor:aColors}]
+},options:{responsive:true,indexAxis:'y',scales:{x:{ticks:{color:'#94a3b8'},grid:{color:'#334155'}},y:{ticks:{color:'#94a3b8'}}},plugins:{legend:{display:false}}}});
+
+var mLabels = DATA.monthly.map(function(m){return m.month});
+new Chart(document.getElementById('monthlyChart'),{type:'bar',data:{
+    labels:mLabels,
+    datasets:[
+        {label:'Laden',data:DATA.monthly.map(function(m){return m.laden}),backgroundColor:'#3b82f6'},
+        {label:'Ballast',data:DATA.monthly.map(function(m){return m.ballast}),backgroundColor:'#f97316'},
+        {label:'Port Ops',data:DATA.monthly.map(function(m){return m.port}),backgroundColor:'#a855f7'}
+    ]
+},options:{responsive:true,scales:{y:{stacked:true,ticks:{color:'#94a3b8',callback:function(v){return(v/1000)+'K'}},grid:{color:'#334155'}},x:{stacked:true,ticks:{color:'#94a3b8',maxRotation:45}}},plugins:{legend:{labels:{color:'#94a3b8'}}}}});
+
+new Chart(document.getElementById('effChart'),{type:'line',data:{
+    labels:DATA.fuel_eff.map(function(f){return f.month}),
+    datasets:[{label:'L/ton',data:DATA.fuel_eff.map(function(f){return f.fpt}),borderColor:'#22c55e',backgroundColor:'rgba(34,197,94,0.1)',fill:true,tension:0.3,pointRadius:4}]
+},options:{responsive:true,scales:{y:{ticks:{color:'#94a3b8'},grid:{color:'#334155'}},x:{ticks:{color:'#94a3b8',maxRotation:45},grid:{color:'#334155'}}},plugins:{legend:{labels:{color:'#94a3b8'}}}}});
+
+// Laden vs Ballast by month
+var lbMonths = [];
+var ladenMap = {};
+var ballastMap = {};
+DATA.laden_ballast.forEach(function(r){
+    if(lbMonths.indexOf(r.month)===-1) lbMonths.push(r.month);
+    if(r.state==='LADEN') ladenMap[r.month] = r.avg;
+    else ballastMap[r.month] = r.avg;
+});
+new Chart(document.getElementById('lbChart'),{type:'bar',data:{
+    labels:lbMonths,
+    datasets:[
+        {label:'Laden avg L/day',data:lbMonths.map(function(m){return ladenMap[m]||0}),backgroundColor:'#3b82f6'},
+        {label:'Ballast avg L/day',data:lbMonths.map(function(m){return ballastMap[m]||0}),backgroundColor:'#f97316'}
+    ]
+},options:{responsive:true,scales:{y:{ticks:{color:'#94a3b8'},grid:{color:'#334155'}},x:{ticks:{color:'#94a3b8',maxRotation:45}}},plugins:{legend:{labels:{color:'#94a3b8'}}}}});
+
+</script></body></html>

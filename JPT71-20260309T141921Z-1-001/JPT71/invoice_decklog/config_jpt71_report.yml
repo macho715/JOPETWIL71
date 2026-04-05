@@ -1,0 +1,43 @@
+# JPT71 Deep Insight Report — config (P2 Data Contract)
+# 변경 시 config_version 올려서 run_manifest에 기록
+
+config_version: "1.0"
+
+# Invoice key normalization
+invoice:
+  vendor_prefix_ofco: "OFCO"
+  vendor_prefix_als: "ALS"
+  # digits only (variable length); InvoiceKey = prefix + ":" + digits
+
+# TagMap v1.1
+tagmap:
+  path: "TagMap_v1.1.csv"
+  unknown_rate_warn: 0.05   # TAGMAP_DRIFT_WARN if UNKNOWN > 5%
+  default_severity_weight: 1.0
+
+# Dual-Value / mismatch flags
+mismatch:
+  ton_mismatch_warn_pct: 0.03   # 1~3%
+  ton_mismatch_high_pct: 0.10   # >10%
+  date_mismatch_flag: true      # |Delta_days| > 0
+
+# Voyage window (Activity-based boundary)
+voyage_window:
+  start_keywords: ["SAILING", "DEPARTURE", "CASTED OFF", "UNDERWAY"]
+  end_keywords: ["DISCHARGE", "DELIVERY COMPLETE", "ARRIVAL", "SECURED", "OFF-LOADING COMP"]
+  fallback_days: 7              # ±N days when no activity match
+  fallback_flag: "VOYAGE_WINDOW_FALLBACK"
+
+# Charter / CostType (P1)
+charter:
+  source: "MANUAL"
+  confidence: 0.8
+  source_values: ["CONTRACT", "INVOICE", "DERIVED", "MANUAL"]
+  cost_type_keywords:
+    CHARTER: ["hire", "daily", "charter", "time charter"]
+    FUEL: ["diesel", "bunker", "fuel"]
+    PORT: ["port dues", "pilotage", "berth"]
+
+# Run manifest (P2)
+manifest:
+  run_id_from_timestamp: true

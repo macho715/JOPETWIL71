@@ -1,0 +1,41 @@
+JPT71 Public Share Handoff Inputs
+
+이 파일을 먼저 채운 뒤 배포를 시작합니다.
+
+Vercel
+- Project name:
+- Team/workspace:
+- Initial Vercel URL:
+- Final dashboard URL:
+
+Proxy domain
+- Public API domain:
+- Health URL:
+- Chat URL:
+
+Linux server
+- Host/IP:
+- SSH user:
+- Deploy path:
+- Process owner:
+
+Secrets
+- `MYAGENT_PROXY_AUTH_TOKEN`:
+- Token storage method:
+
+CORS
+- Allowed origin 1:
+- Allowed origin 2:
+- Additional origins:
+
+Ops
+- `pnpm login` 수행 계정:
+- Copilot auth source:
+- Log collection path:
+- Rollback contact:
+
+Status
+- Vercel deployed:
+- Proxy deployed:
+- HTTPS checked:
+- QA completed:

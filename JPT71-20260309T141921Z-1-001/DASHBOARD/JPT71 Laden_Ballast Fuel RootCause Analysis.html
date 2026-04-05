@@ -1,0 +1,3006 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JPT71 Root-Cause Analysis — v5.3 RAW</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root{
+      --bg:#07111f;
+      --bg2:#0d1728;
+      --card:#111c2f;
+      --card2:#16233a;
+      --card3:#1b2b46;
+      --border:#2a3a50;
+      --grid:rgba(148,163,184,.14);
+      --text:#e5edf7;
+      --muted:#94a3b8;
+      --subtle:#7c8aa3;
+      --accent:#f97316;
+      --accent2:#fb923c;
+      --green:#22c55e;
+      --yellow:#f59e0b;
+      --red:#ef4444;
+      --purple:#a855f7;
+      --blue:#3b82f6;
+      --cyan:#06b6d4;
+      --shadow:0 18px 50px rgba(0,0,0,.24);
+      --radius:18px;
+    }
+
+    :root[data-theme="light"]{
+      --bg:#eef4fb;
+      --bg2:#f8fbff;
+      --card:#ffffff;
+      --card2:#f7faff;
+      --card3:#eef5ff;
+      --border:#d7e2ef;
+      --grid:rgba(71,85,105,.12);
+      --text:#132238;
+      --muted:#5b6b81;
+      --subtle:#708198;
+      --accent:#ea580c;
+      --accent2:#f97316;
+      --green:#15803d;
+      --yellow:#b45309;
+      --red:#dc2626;
+      --purple:#7e22ce;
+      --blue:#2563eb;
+      --cyan:#0891b2;
+      --shadow:0 18px 40px rgba(15,23,42,.08);
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      font-family:Inter, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      background:
+        radial-gradient(circle at top left, rgba(249,115,22,.10), transparent 24%),
+        radial-gradient(circle at top right, rgba(59,130,246,.10), transparent 28%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+    }
+
+    button,input,select{font:inherit}
+
+    .app-shell{
+      max-width:1580px;
+      margin:0 auto;
+      padding:22px;
+    }
+
+    .header{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:18px;
+      flex-wrap:wrap;
+      padding:24px;
+      border:1px solid var(--border);
+      border-radius:24px;
+      background:
+        linear-gradient(135deg, rgba(249,115,22,.12), transparent 42%),
+        linear-gradient(180deg, var(--card), var(--card2));
+      box-shadow:var(--shadow);
+    }
+
+    .title-wrap h1{
+      margin:0;
+      font-size:26px;
+      line-height:1.2;
+      letter-spacing:.2px;
+    }
+
+    .title-wrap .sub{
+      margin-top:8px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.55;
+      max-width:940px;
+    }
+
+    .badge-row,.chip-row,.pill-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+    }
+
+    .badge,
+    .chip,
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:700;
+      white-space:nowrap;
+      border:1px solid transparent;
+    }
+
+    .badge{
+      background:rgba(249,115,22,.12);
+      color:var(--accent);
+      border-color:rgba(249,115,22,.22);
+    }
+
+    .chip{
+      background:rgba(148,163,184,.10);
+      color:var(--muted);
+      border-color:rgba(148,163,184,.18);
+    }
+
+    .pill-neutral{
+      background:rgba(148,163,184,.10);
+      color:var(--muted);
+      border-color:rgba(148,163,184,.18);
+    }
+
+    .pill-success{
+      background:rgba(34,197,94,.10);
+      color:var(--green);
+      border-color:rgba(34,197,94,.24);
+    }
+
+    .pill-warn{
+      background:rgba(245,158,11,.10);
+      color:var(--yellow);
+      border-color:rgba(245,158,11,.24);
+    }
+
+    .pill-danger{
+      background:rgba(239,68,68,.10);
+      color:var(--red);
+      border-color:rgba(239,68,68,.22);
+    }
+
+    .pill-info{
+      background:rgba(59,130,246,.10);
+      color:var(--blue);
+      border-color:rgba(59,130,246,.22);
+    }
+
+    .pill-purple{
+      background:rgba(168,85,247,.10);
+      color:var(--purple);
+      border-color:rgba(168,85,247,.24);
+    }
+
+    .toolbar,
+    .statusbar,
+    .chart-card,
+    .table-card,
+    .callout,
+    .stat-card,
+    .insight-card{
+      background:linear-gradient(180deg,var(--card),var(--card2));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+
+    .toolbar{
+      margin-top:18px;
+      padding:18px;
+      display:grid;
+      grid-template-columns:repeat(12,1fr);
+      gap:14px;
+      align-items:end;
+    }
+
+    .control-group{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      min-width:0;
+    }
+
+    .control-group label{
+      font-size:11px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.7px;
+      color:var(--muted);
+    }
+
+    .span-2{grid-column:span 2}
+    .span-3{grid-column:span 3}
+    .span-4{grid-column:span 4}
+    .span-5{grid-column:span 5}
+
+    select,
+    .ghost-btn,
+    .primary-btn,
+    .range-wrap{
+      height:42px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:var(--card3);
+      color:var(--text);
+      padding:0 12px;
+      outline:none;
+      transition:.18s ease;
+    }
+
+    select:focus,
+    .ghost-btn:hover,
+    .primary-btn:hover{
+      border-color:rgba(249,115,22,.40);
+      box-shadow:0 0 0 3px rgba(249,115,22,.12);
+      transform:translateY(-1px);
+    }
+
+    .ghost-btn,
+    .primary-btn{
+      cursor:pointer;
+    }
+
+    .primary-btn{
+      background:linear-gradient(135deg, rgba(249,115,22,.22), rgba(251,146,60,.22));
+      border-color:rgba(249,115,22,.26);
+      font-weight:800;
+    }
+
+    .range-wrap{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .range-wrap input[type="range"]{
+      width:100%;
+      accent-color:var(--accent);
+      cursor:pointer;
+    }
+
+    .range-value{
+      min-width:42px;
+      text-align:right;
+      font-weight:800;
+      color:var(--accent);
+      font-size:12px;
+    }
+
+    .quick-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .statusbar{
+      margin-top:14px;
+      padding:14px 18px;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:14px;
+      flex-wrap:wrap;
+    }
+
+    .statusline{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.6;
+      max-width:900px;
+    }
+
+    .statusline strong{color:var(--text)}
+
+    .mini-note{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.55;
+    }
+
+    .tabs{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:18px;
+    }
+
+    .tab-btn{
+      border:1px solid var(--border);
+      background:var(--card);
+      color:var(--muted);
+      padding:12px 16px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:800;
+      transition:.18s ease;
+    }
+
+    .tab-btn:hover{
+      transform:translateY(-1px);
+      color:var(--text);
+      border-color:rgba(249,115,22,.32);
+    }
+
+    .tab-btn.active{
+      color:#fff;
+      border-color:transparent;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      box-shadow:0 10px 30px rgba(249,115,22,.18);
+    }
+
+    .content{margin-top:18px}
+
+    .panel{
+      display:block;
+      visibility:hidden;
+      height:0;
+      overflow:hidden;
+      opacity:0;
+      transform:translateY(10px);
+      transition:opacity .22s ease, transform .22s ease;
+    }
+
+    .panel.active{
+      visibility:visible;
+      height:auto;
+      overflow:visible;
+      opacity:1;
+      transform:none;
+    }
+
+    .section-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .section-head h2{
+      margin:0;
+      font-size:20px;
+      line-height:1.2;
+    }
+
+    .section-head p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.6;
+      max-width:1000px;
+    }
+
+    .cards{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:14px;
+      margin-bottom:16px;
+    }
+
+    .stat-card{
+      padding:16px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .stat-card::after{
+      content:"";
+      position:absolute;
+      inset:auto -20px -20px auto;
+      width:110px;
+      height:110px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(255,255,255,.08), transparent 60%);
+      pointer-events:none;
+    }
+
+    .stat-label{
+      font-size:11px;
+      letter-spacing:.75px;
+      text-transform:uppercase;
+      color:var(--muted);
+      font-weight:800;
+    }
+
+    .stat-value{
+      margin-top:8px;
+      font-size:28px;
+      line-height:1.08;
+      font-weight:800;
+      color:var(--text);
+    }
+
+    .stat-note{
+      margin-top:8px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.48;
+    }
+
+    .tone-orange .stat-value{color:var(--accent)}
+    .tone-blue .stat-value{color:var(--blue)}
+    .tone-green .stat-value{color:var(--green)}
+    .tone-red .stat-value{color:var(--red)}
+    .tone-yellow .stat-value{color:var(--yellow)}
+    .tone-purple .stat-value{color:var(--purple)}
+    .tone-cyan .stat-value{color:var(--cyan)}
+
+    .chart-grid{
+      display:grid;
+      grid-template-columns:repeat(12,minmax(0,1fr));
+      gap:16px;
+      margin-bottom:16px;
+    }
+
+    .chart-card,
+    .table-card{
+      padding:16px;
+      min-width:0;
+    }
+
+    .span-12-col{grid-column:span 12}
+    .span-8-col{grid-column:span 8}
+    .span-6-col{grid-column:span 6}
+    .span-4-col{grid-column:span 4}
+
+    .card-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+
+    .card-head h3{
+      margin:0;
+      font-size:14px;
+      line-height:1.35;
+      color:var(--text);
+    }
+
+    .card-head p{
+      margin:4px 0 0;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.55;
+    }
+
+    .chart-wrap{
+      position:relative;
+      width:100%;
+      height:330px;
+    }
+
+    .chart-wrap.tall{height:390px}
+    .chart-wrap.medium{height:300px}
+    .chart-wrap.small{height:250px}
+
+    .callout{
+      padding:16px;
+      margin-bottom:16px;
+    }
+
+    .callout strong{
+      display:block;
+      margin-bottom:10px;
+      font-size:13px;
+      line-height:1.4;
+    }
+
+    .callout p{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.6;
+    }
+
+    .insight-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+    }
+
+    .insight-card{
+      padding:16px;
+    }
+
+    .insight-card h4{
+      margin:8px 0 8px;
+      font-size:15px;
+      line-height:1.35;
+    }
+
+    .insight-card p{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.62;
+    }
+
+    .table-wrap{
+      max-height:430px;
+      overflow:auto;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:rgba(0,0,0,.04);
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:980px;
+      font-size:12px;
+    }
+
+    thead th{
+      position:sticky;
+      top:0;
+      z-index:2;
+      text-align:left;
+      padding:10px 12px;
+      background:var(--card3);
+      color:var(--muted);
+      border-bottom:1px solid var(--border);
+      font-weight:800;
+      letter-spacing:.25px;
+    }
+
+    tbody td{
+      padding:10px 12px;
+      border-bottom:1px solid var(--border);
+      color:var(--text);
+      vertical-align:top;
+    }
+
+    tbody tr:hover td{
+      background:rgba(249,115,22,.06);
+    }
+
+    .row-low td{background:rgba(59,130,246,.04)}
+    .row-medium td{background:rgba(245,158,11,.06)}
+    .row-high td{background:rgba(239,68,68,.08)}
+
+    .num{text-align:right}
+    .strong{font-weight:800}
+    .nowrap{white-space:nowrap}
+    .muted{color:var(--muted)}
+
+    @media (max-width:1200px){
+      .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .insight-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .span-8-col,.span-6-col,.span-4-col{grid-column:span 12}
+      .span-5,.span-4,.span-3,.span-2{grid-column:span 6}
+    }
+
+    @media (max-width:820px){
+      .app-shell{padding:14px}
+      .header{padding:18px}
+      .toolbar{padding:14px;grid-template-columns:repeat(6,1fr)}
+      .span-5,.span-4,.span-3,.span-2{grid-column:span 6}
+      .cards{grid-template-columns:1fr}
+      .insight-grid{grid-template-columns:1fr}
+      .chart-wrap{height:290px}
+      .chart-wrap.tall{height:330px}
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="header">
+      <div class="title-wrap">
+        <div class="badge-row">
+          <span class="badge">v5.3 RAW</span>
+          <span class="badge">EXECUTIVE + QUALITY</span>
+          <span class="badge">COMPARE / FILTER / EXPORT</span>
+        </div>
+        <h1>JPT71 Laden/Ballast Fuel Root-Cause Analysis</h1>
+        <div class="sub">
+          JPT-reconciled_v5.3.xlsx · 57 Trips · Route별 · Activity별 · 풍속별 연료 분석.
+        </div>
+      </div>
+      <div class="badge-row" id="headerBadges"></div>
+    </header>
+
+    <section class="toolbar">
+      <div class="control-group span-2">
+        <label for="routeMode">Route Scope</label>
+        <select id="routeMode">
+          <option value="all">전체 Route</option>
+          <option value="major">주요 Route (Trips ≥ 4)</option>
+          <option value="stable">안정 표본 (Trips ≥ 8)</option>
+        </select>
+      </div>
+
+      <div class="control-group span-2">
+        <label for="minTrips">Min Trips</label>
+        <div class="range-wrap">
+          <input type="range" id="minTrips" min="1" max="10" value="1" />
+          <span class="range-value" id="minTripsValue">1</span>
+        </div>
+      </div>
+
+      <div class="control-group span-3">
+        <label for="sortMetric">Route Sort</label>
+        <select id="sortMetric">
+          <option value="trips">Trips</option>
+          <option value="avg_trip_fuel">Avg Fuel / Trip</option>
+          <option value="total_fuel">Total Fuel</option>
+          <option value="anchor_fpd">Anchor L/day</option>
+          <option value="anchor_share">Est. Anchor Share</option>
+          <option value="total_days">Total Days</option>
+        </select>
+      </div>
+
+      <div class="control-group span-2">
+        <label for="compareA">Compare A</label>
+        <select id="compareA"></select>
+      </div>
+
+      <div class="control-group span-2">
+        <label for="compareB">Compare B</label>
+        <select id="compareB"></select>
+      </div>
+
+      <div class="control-group span-3">
+        <label>Actions</label>
+        <div class="quick-actions">
+          <button id="resetBtn" class="ghost-btn">Reset</button>
+          <button id="themeToggle" class="ghost-btn">Light Mode</button>
+          <button id="copySummaryBtn" class="ghost-btn">Summary Copy</button>
+          <button id="exportRoutesCsvBtn" class="primary-btn">Routes CSV</button>
+          <button id="exportIssuesCsvBtn" class="ghost-btn">Issues CSV</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="statusbar">
+      <div id="activeFilterText" class="statusline"></div>
+      <div class="chip-row" id="qualityBadges"></div>
+      <div id="flashMsg" class="mini-note"></div>
+    </section>
+
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="0">Executive Summary</button>
+      <button class="tab-btn" data-tab="1">Route Analysis</button>
+      <button class="tab-btn" data-tab="2">Activity Fuel</button>
+      <button class="tab-btn" data-tab="3">Handling Time</button>
+      <button class="tab-btn" data-tab="4">Wind Impact</button>
+      <button class="tab-btn" data-tab="5">Findings & Actions</button>
+      <button class="tab-btn" data-tab="6">Data Quality</button>
+    </nav>
+
+    <main class="content">
+      <!-- 0 Executive Summary -->
+      <section class="panel active" data-panel="0">
+        <div class="section-head">
+          <div>
+            <h2>Executive Summary</h2>
+            <p>
+              필터가 적용된 Route 집합을 기준으로 핵심 KPI, 연료 Driver, 지배 Route, A/B 비교를 재계산합니다.
+              Activity / Handling / Wind 탭은 원본 소스가 이미 전구간 aggregate 형태라 필터와 무관하게 전체 집계를 유지합니다.
+            </p>
+          </div>
+        </div>
+
+        <div id="summaryCards" class="cards"></div>
+
+        <div class="chart-grid">
+          <article class="chart-card span-8-col">
+            <div class="card-head">
+              <div>
+                <h3>Trips vs Avg Fuel / Trip</h3>
+                <p>Bubble 크기는 Total Fuel 규모를 의미합니다.</p>
+              </div>
+              <div class="pill-row">
+                <span class="pill pill-info">X: Trips</span>
+                <span class="pill pill-warn">Y: Avg L / Trip</span>
+                <span class="pill pill-success">R: Total Fuel</span>
+              </div>
+            </div>
+            <div class="chart-wrap tall">
+              <canvas id="summaryScatterChart"></canvas>
+            </div>
+          </article>
+
+          <article class="chart-card span-4-col">
+            <div class="card-head">
+              <div>
+                <h3>Estimated Phase Fuel Mix</h3>
+                <p>Route별 Days × L/day 기준의 추정 비중입니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap tall">
+              <canvas id="summaryPhaseChart"></canvas>
+            </div>
+          </article>
+        </div>
+
+        <div class="chart-grid">
+          <article class="chart-card span-12-col">
+            <div class="card-head">
+              <div>
+                <h3>Compare A vs B — Phase Intensity</h3>
+                <p>선택한 두 Route의 Load / Discharge / Sail / Anchor 강도를 직접 비교합니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap medium">
+              <canvas id="summaryCompareChart"></canvas>
+            </div>
+          </article>
+        </div>
+
+        <div id="compareDetailsBox" class="callout"></div>
+
+        <div id="summaryInsights" class="insight-grid"></div>
+      </section>
+
+      <!-- 1 Route Analysis -->
+      <section class="panel" data-panel="1">
+        <div class="section-head">
+          <div>
+            <h2>Route Analysis</h2>
+            <p>Route Scope / Min Trips / Sort 기준이 적용되는 핵심 운항 비교 영역입니다.</p>
+          </div>
+        </div>
+
+        <div id="routeCards" class="cards"></div>
+
+        <div class="chart-grid">
+          <article class="chart-card span-6-col">
+            <div class="card-head">
+              <div>
+                <h3>Trips & Avg Fuel / Trip by Route</h3>
+                <p>정렬 기준은 상단 Route Sort를 따릅니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap medium">
+              <canvas id="routeBarChart"></canvas>
+            </div>
+          </article>
+
+          <article class="chart-card span-6-col">
+            <div class="card-head">
+              <div>
+                <h3>Phase Intensity by Route</h3>
+                <p>Load / Discharge / Sail / Anchor L/day 비교입니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap medium">
+              <canvas id="routePhaseChart"></canvas>
+            </div>
+          </article>
+
+          <article class="chart-card span-12-col">
+            <div class="card-head">
+              <div>
+                <h3>Estimated Phase Fuel by Route</h3>
+                <p>Days × L/day 기반 추정치이므로 실제 Total Fuel과 소수 차이가 날 수 있습니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap medium">
+              <canvas id="routeFuelMixChart"></canvas>
+            </div>
+          </article>
+        </div>
+
+        <div id="routeCallout" class="callout"></div>
+
+        <article class="table-card">
+          <div class="card-head">
+            <div>
+              <h3>Route Register</h3>
+              <p>Route별 Anchor Share, Days / Trip, 위험 신호까지 한 번에 확인합니다.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Destination</th>
+                  <th class="num">Trips</th>
+                  <th class="num">Total Fuel</th>
+                  <th class="num">Avg / Trip</th>
+                  <th class="num">Total Days</th>
+                  <th class="num">Days / Trip</th>
+                  <th class="num">Load L/d</th>
+                  <th class="num">Disc L/d</th>
+                  <th class="num">Sail L/d</th>
+                  <th class="num">Anchor L/d</th>
+                  <th class="num">Est. Anchor %</th>
+                  <th>Flags</th>
+                </tr>
+              </thead>
+              <tbody id="routeTbody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- 2 Activity Fuel -->
+      <section class="panel" data-panel="2">
+        <div class="section-head">
+          <div>
+            <h2>Activity Fuel</h2>
+            <p>원본 aggregate activity dataset을 그대로 사용하며, intensity / total share / days 분포를 동시에 보여줍니다.</p>
+          </div>
+        </div>
+
+        <div id="activityCards" class="cards"></div>
+
+        <div class="chart-grid">
+          <article class="chart-card span-12-col">
+            <div class="card-head">
+              <div>
+                <h3>Daily Fuel by Activity</h3>
+                <p>Avg와 Median을 동시에 보여줘 피크 민감도를 확인합니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap medium">
+              <canvas id="actBarChart"></canvas>
+            </div>
+          </article>
+
+          <article class="chart-card span-4-col">
+            <div class="card-head">
+              <div>
+                <h3>Total Fuel Share</h3>
+                <p>Activity별 총 연료 기여도</p>
+              </div>
+            </div>
+            <div class="chart-wrap small">
+              <canvas id="actDonutChart"></canvas>
+            </div>
+          </article>
+
+          <article class="chart-card span-4-col">
+            <div class="card-head">
+              <div>
+                <h3>Days Distribution</h3>
+                <p>Activity별 일수 구성</p>
+              </div>
+            </div>
+            <div class="chart-wrap small">
+              <canvas id="actDaysChart"></canvas>
+            </div>
+          </article>
+
+          <article class="chart-card span-4-col">
+            <div class="card-head">
+              <div>
+                <h3>Days vs Avg Fuel</h3>
+                <p>Bubble 크기는 Total Fuel 규모를 의미합니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap small">
+              <canvas id="actScatterChart"></canvas>
+            </div>
+          </article>
+        </div>
+
+        <div id="activityCallout" class="callout"></div>
+
+        <article class="table-card">
+          <div class="card-head">
+            <div>
+              <h3>Activity Register</h3>
+              <p>Avg / Median / Max / Total을 한 줄에서 봅니다.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Activity</th>
+                  <th class="num">Days</th>
+                  <th class="num">Avg L/day</th>
+                  <th class="num">Median L/day</th>
+                  <th class="num">Max L/day</th>
+                  <th class="num">Total Fuel</th>
+                  <th class="num">Fuel Share</th>
+                </tr>
+              </thead>
+              <tbody id="actTbody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- 3 Handling Time -->
+      <section class="panel" data-panel="3">
+        <div class="section-head">
+          <div>
+            <h2>Handling Time</h2>
+            <p>Loading / Discharge duration별 Trip Fuel 변화와 회전효율을 비교합니다.</p>
+          </div>
+        </div>
+
+        <div id="handlingCards" class="cards"></div>
+
+        <div class="chart-grid">
+          <article class="chart-card span-6-col">
+            <div class="card-head">
+              <div>
+                <h3>Loading Duration vs Trip Fuel</h3>
+                <p>Avg Total Fuel과 Avg Trip Days를 같이 봅니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap medium">
+              <canvas id="loadDurChart"></canvas>
+            </div>
+          </article>
+
+          <article class="chart-card span-6-col">
+            <div class="card-head">
+              <div>
+                <h3>Discharge Duration vs Trip Fuel</h3>
+                <p>하역일수에 따른 Avg Total / Avg Discharge Fuel 비교입니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap medium">
+              <canvas id="discDurChart"></canvas>
+            </div>
+          </article>
+        </div>
+
+        <div id="handlingCallout" class="callout"></div>
+
+        <div class="chart-grid">
+          <article class="table-card span-6-col">
+            <div class="card-head">
+              <div>
+                <h3>Loading Duration Table</h3>
+                <p>선적일수별 Trip 프로파일</p>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Load Days</th>
+                    <th class="num">Trips</th>
+                    <th class="num">Avg Trip Days</th>
+                    <th class="num">Avg Total Fuel</th>
+                    <th class="num">Avg Load Fuel</th>
+                  </tr>
+                </thead>
+                <tbody id="loadHandleTbody"></tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="table-card span-6-col">
+            <div class="card-head">
+              <div>
+                <h3>Discharge Duration Table</h3>
+                <p>하역일수별 Trip 프로파일</p>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Disc Days</th>
+                    <th class="num">Trips</th>
+                    <th class="num">Avg Total Fuel</th>
+                    <th class="num">Avg Disc Fuel</th>
+                    <th class="num">Disc / Total</th>
+                  </tr>
+                </thead>
+                <tbody id="discHandleTbody"></tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- 4 Wind -->
+      <section class="panel" data-panel="4">
+        <div class="section-head">
+          <div>
+            <h2>Wind Impact</h2>
+            <p>풍속 bucket별 일수와 Avg / Median Fuel을 함께 확인합니다.</p>
+          </div>
+        </div>
+
+        <div id="windCards" class="cards"></div>
+
+        <div class="chart-grid">
+          <article class="chart-card span-6-col">
+            <div class="card-head">
+              <div>
+                <h3>Wind Speed vs Fuel</h3>
+                <p>Avg / Median 동시 비교</p>
+              </div>
+            </div>
+            <div class="chart-wrap medium">
+              <canvas id="windChart"></canvas>
+            </div>
+          </article>
+
+          <article class="chart-card span-6-col">
+            <div class="card-head">
+              <div>
+                <h3>Wind Bucket Days vs Avg Fuel</h3>
+                <p>빈도와 연료강도를 한 화면에서 봅니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap medium">
+              <canvas id="windDaysFuelChart"></canvas>
+            </div>
+          </article>
+        </div>
+
+        <div id="windCallout" class="callout"></div>
+
+        <article class="table-card">
+          <div class="card-head">
+            <div>
+              <h3>Wind Bucket Table</h3>
+              <p>강풍 sample이 얇은지 여부까지 함께 해석합니다.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Wind</th>
+                  <th class="num">Days</th>
+                  <th class="num">Avg Fuel L/day</th>
+                  <th class="num">Median L/day</th>
+                  <th class="num">Share</th>
+                </tr>
+              </thead>
+              <tbody id="windTbody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- 5 Findings -->
+      <section class="panel" data-panel="5">
+        <div class="section-head">
+          <div>
+            <h2>Findings & Actions</h2>
+            <p>원본 findings를 유지하되, 현재 선택된 Route Scope와 비교 설정을 반영한 실행 우선순위를 자동 생성합니다.</p>
+          </div>
+        </div>
+
+        <div id="actionCards" class="insight-grid" style="margin-bottom:16px;"></div>
+
+        <div id="findingsNarrative" class="callout"></div>
+
+        <div class="chart-grid">
+          <article class="chart-card span-6-col">
+            <div class="card-head">
+              <div>
+                <h3>Fuel Driver Ladder</h3>
+                <p>Activity intensity 기준의 핵심 Driver 순서입니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap medium">
+              <canvas id="waterfallChart"></canvas>
+            </div>
+          </article>
+
+          <article class="chart-card span-6-col">
+            <div class="card-head">
+              <div>
+                <h3>Compare A vs B — Normalized Route Profile</h3>
+                <p>Fuel / Anchor / Discharge / Sail / Days per Trip을 0~100으로 정규화합니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap medium">
+              <canvas id="compareRadarChart"></canvas>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- 6 Quality -->
+      <section class="panel" data-panel="6">
+        <div class="section-head">
+          <div>
+            <h2>Data Quality</h2>
+            <p>표본수, 집중도, Anchor-heavy, Ballast tagging limitation, Unknown port-state 비중을 종합 점검합니다.</p>
+          </div>
+        </div>
+
+        <div id="qualityCards" class="cards"></div>
+
+        <div id="qualityChecklist" class="callout"></div>
+
+        <div class="chart-grid">
+          <article class="chart-card span-8-col">
+            <div class="card-head">
+              <div>
+                <h3>Trips vs Avg Fuel / Trip — Quality Lens</h3>
+                <p>Low sample 또는 High issue route는 색으로 강조됩니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap tall">
+              <canvas id="qualityScatterChart"></canvas>
+            </div>
+          </article>
+
+          <article class="chart-card span-4-col">
+            <div class="card-head">
+              <div>
+                <h3>Issue Severity</h3>
+                <p>현재 선택된 Route Scope 기준</p>
+              </div>
+            </div>
+            <div class="chart-wrap tall">
+              <canvas id="qualitySeverityChart"></canvas>
+            </div>
+          </article>
+
+          <article class="chart-card span-12-col">
+            <div class="card-head">
+              <div>
+                <h3>Fuel Concentration by Route</h3>
+                <p>Total Fuel share가 높은 Route는 시나리오 해석을 지배할 수 있습니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap medium">
+              <canvas id="qualityConcentrationChart"></canvas>
+            </div>
+          </article>
+        </div>
+
+        <article class="table-card">
+          <div class="card-head">
+            <div>
+              <h3>Issue Register</h3>
+              <p>Route별 / Dataset-level issue와 권장 조치를 정리한 표입니다.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Entity</th>
+                  <th>Severity</th>
+                  <th>Type</th>
+                  <th>Detail</th>
+                  <th>Recommendation</th>
+                </tr>
+              </thead>
+              <tbody id="qualityTbody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const DATA = {"routes": [{"dest": "AGI_FIELD","trips": 43,"total_days": 290,"load_days": 78,"disc_days": 32,"sail_days": 47,"anchor_days": 30,"total_fuel": 82636.5,"avg_trip_fuel": 1921.8,"load_fpd": 312.0,"disc_fpd": 393.1,"sail_fpd": 393.7,"anchor_fpd": 452.2},{"dest": "MW4_MUSAFFAH","trips": 6,"total_days": 14,"load_days": 11,"disc_days": 1,"sail_days": 1,"anchor_days": 0,"total_fuel": 5814.3,"avg_trip_fuel": 969.1,"load_fpd": 424.3,"disc_fpd": 333.0,"sail_fpd": 440.0,"anchor_fpd": 0},{"dest": "JPW_BASE","trips": 4,"total_days": 16,"load_days": 4,"disc_days": 0,"sail_days": 6,"anchor_days": 1,"total_fuel": 4526.0,"avg_trip_fuel": 1131.5,"load_fpd": 247.5,"disc_fpd": 0,"sail_fpd": 452.0,"anchor_fpd": 440.0},{"dest": "DAS_ISLAND","trips": 2,"total_days": 54,"load_days": 2,"disc_days": 1,"sail_days": 14,"anchor_days": 29,"total_fuel": 17421.6,"avg_trip_fuel": 8710.8,"load_fpd": 250.0,"disc_fpd": 380.6,"sail_fpd": 454.5,"anchor_fpd": 309.0},{"dest": "FREE_PORT","trips": 1,"total_days": 2,"load_days": 1,"disc_days": 0,"sail_days": 1,"anchor_days": 0,"total_fuel": 977.0,"avg_trip_fuel": 977.0,"load_fpd": 137.0,"disc_fpd": 0,"sail_fpd": 840.0,"anchor_fpd": 0},{"dest": "OTHER","trips": 1,"total_days": 6,"load_days": 1,"disc_days": 0,"sail_days": 3,"anchor_days": 0,"total_fuel": 2549.5,"avg_trip_fuel": 2549.5,"load_fpd": 191.0,"disc_fpd": 0,"sail_fpd": 550.2,"anchor_fpd": 0}],"act_fuel": [{"act": "LOADING","days": 97,"avg": 317.7,"med": 290.4,"total": 30817.8,"max": 810.0},{"act": "DISCHARGING","days": 34,"avg": 390.9,"med": 364.0,"total": 13291.6,"max": 810.0},{"act": "SAILING","days": 72,"avg": 423.7,"med": 395.9,"total": 30508.7,"max": 840.4},{"act": "AT_ANCHOR","days": 60,"avg": 382.8,"med": 381.6,"total": 22966.6,"max": 781.0},{"act": "AT_BERTH","days": 49,"avg": 101.5,"med": 77.0,"total": 4975.0,"max": 664.0},{"act": "MAINTENANCE","days": 45,"avg": 123.5,"med": 77.0,"total": 5558.4,"max": 575.0},{"act": "BUNKERING","days": 21,"avg": 260.6,"med": 231.0,"total": 5472.8,"max": 631.0},{"act": "OTHER","days": 4,"avg": 83.5,"med": 73.7,"total": 334.0,"max": 116.6}],"port_data": [{"port": "AGI_FIELD","state": "LADEN","days": 52,"avg": 321.0,"total": 16689.5},{"port": "AGI_FIELD","state": "PORT_OPS","days": 27,"avg": 151.8,"total": 4097.6},{"port": "AGI_FIELD","state": "UNKNOWN","days": 48,"avg": 398.8,"total": 19141.6},{"port": "DAS_ISLAND","state": "LADEN","days": 4,"avg": 294.9,"total": 1179.6},{"port": "DAS_ISLAND","state": "PORT_OPS","days": 1,"avg": 389.4,"total": 389.4},{"port": "DAS_ISLAND","state": "UNKNOWN","days": 20,"avg": 393.7,"total": 7874.4},{"port": "FREE_PORT","state": "LADEN","days": 9,"avg": 329.1,"total": 2962.0},{"port": "FREE_PORT","state": "PORT_OPS","days": 2,"avg": 269.5,"total": 539.0},{"port": "FREE_PORT","state": "UNKNOWN","days": 6,"avg": 556.5,"total": 3339.0},{"port": "JPW_BASE","state": "LADEN","days": 11,"avg": 338.0,"total": 3718.0},{"port": "JPW_BASE","state": "PORT_OPS","days": 58,"avg": 98.7,"total": 5726.0},{"port": "JPW_BASE","state": "UNKNOWN","days": 38,"avg": 373.1,"total": 14178.2},{"port": "MUSAFFAH","state": "LADEN","days": 6,"avg": 237.5,"total": 1425.0},{"port": "MW4_MUSAFFAH","state": "LADEN","days": 49,"avg": 370.1,"total": 18135.3},{"port": "MW4_MUSAFFAH","state": "PORT_OPS","days": 24,"avg": 198.7,"total": 4768.0},{"port": "MW4_MUSAFFAH","state": "UNKNOWN","days": 16,"avg": 430.2,"total": 6882.6},{"port": "OTHER","state": "PORT_OPS","days": 3,"avg": 162.1,"total": 486.2},{"port": "OTHER","state": "UNKNOWN","days": 8,"avg": 299.2,"total": 2393.5}],"handle": [{"load_days": 0,"trips": 3,"avg_total_fuel": 2101.0,"avg_load_fuel": 0.0,"avg_trip_days": 6.7},{"load_days": 1,"trips": 29,"avg_total_fuel": 2275.5,"avg_load_fuel": 256.1,"avg_trip_days": 7.5},{"load_days": 2,"trips": 10,"avg_total_fuel": 1584.5,"avg_load_fuel": 608.0,"avg_trip_days": 6.3},{"load_days": 3,"trips": 12,"avg_total_fuel": 1627.9,"avg_load_fuel": 1057.2,"avg_trip_days": 5.2},{"load_days": 4,"trips": 3,"avg_total_fuel": 2084.3,"avg_load_fuel": 1541.6,"avg_trip_days": 6.0}],"disc": [{"disc_days": 0,"trips": 38,"avg_total_fuel": 1750.2,"avg_disc_fuel": 0.0},{"disc_days": 1,"trips": 11,"avg_total_fuel": 2886.4,"avg_disc_fuel": 429.5},{"disc_days": 2,"trips": 5,"avg_total_fuel": 1594.4,"avg_disc_fuel": 760.6},{"disc_days": 4,"trips": 2,"avg_total_fuel": 2038.0,"avg_disc_fuel": 957.0},{"disc_days": 5,"trips": 1,"avg_total_fuel": 3618.0,"avg_disc_fuel": 2850.0}],"wind": [{"label": "Light(<8)","days": 44,"avg": 288.5,"med": 209.0},{"label": "Moderate(8-12)","days": 209,"avg": 303.1,"med": 286.0},{"label": "Fresh(12-16)","days": 75,"avg": 293.0,"med": 224.0},{"label": "Strong(16+)","days": 13,"avg": 110.5,"med": 90.0}],"findings": {"total_trips": 57,"agi_trips": 43,"das_trips": 2,"agi_avg_fuel": 1921.8,"das_avg_fuel": 8710.8,"load_fpd": 317.7,"disc_fpd": 390.9,"sail_fpd": 423.7,"anchor_fpd": 382.8,"disc_vs_load": 1.23,"anchor_vs_load": 1.2}};
+
+    const ROUTE_COLORS = {
+      AGI_FIELD:"#22c55e",
+      DAS_ISLAND:"#3b82f6",
+      MW4_MUSAFFAH:"#f97316",
+      JPW_BASE:"#a855f7",
+      MUSAFFAH:"#06b6d4",
+      FREE_PORT:"#eab308",
+      OTHER:"#6b7280"
+    };
+
+    const ACT_COLORS = {
+      LOADING:"#22c55e",
+      DISCHARGING:"#ef4444",
+      SAILING:"#3b82f6",
+      SAILING_LADEN:"#06b6d4",
+      AT_ANCHOR:"#eab308",
+      AT_BERTH:"#a855f7",
+      MAINTENANCE:"#6b7280",
+      BUNKERING:"#f97316",
+      OTHER:"#64748b"
+    };
+
+    const severityRank = { none:0, low:1, medium:2, high:3 };
+    const scopeMin = { all:1, major:4, stable:8 };
+    const routeModeLabels = {
+      all:"전체 Route",
+      major:"주요 Route (Trips ≥ 4)",
+      stable:"안정 표본 (Trips ≥ 8)"
+    };
+    const sortLabels = {
+      trips:"Trips",
+      avg_trip_fuel:"Avg Fuel / Trip",
+      total_fuel:"Total Fuel",
+      anchor_fpd:"Anchor L/day",
+      anchor_share:"Estimated Anchor Share",
+      total_days:"Total Days"
+    };
+
+    const state = {
+      theme: localStorage.getItem("jpt71-rootcause-theme") || "dark",
+      routeMode: "all",
+      minTrips: 1,
+      sortMetric: "trips",
+      compareA: "AGI_FIELD",
+      compareB: "DAS_ISLAND",
+      activeTab: 0,
+      charts: {},
+      latestContext: null,
+      flashTimer: null
+    };
+
+    const noDataPlugin = {
+      id: "noData",
+      afterDraw(chart, args, opts){
+        const datasets = chart?.data?.datasets || [];
+        const hasData = datasets.some(ds => Array.isArray(ds.data) && ds.data.length > 0);
+        if (hasData) return;
+        const area = chart.chartArea;
+        if (!area) return;
+        const { ctx } = chart;
+        ctx.save();
+        ctx.fillStyle = opts?.color || "#94a3b8";
+        ctx.textAlign = "center";
+        ctx.font = "600 13px Inter, Segoe UI, sans-serif";
+        ctx.fillText(opts?.text || "No data", (area.left + area.right) / 2, (area.top + area.bottom) / 2);
+        ctx.restore();
+      }
+    };
+
+    Chart.register(noDataPlugin);
+    Chart.defaults.font.family = 'Inter, "Segoe UI", system-ui, sans-serif';
+    Chart.defaults.animation = false;
+    Chart.defaults.responsive = true;
+    Chart.defaults.maintainAspectRatio = false;
+
+    function n(v){ return Number.isFinite(Number(v)) ? Number(v) : 0; }
+    function clamp(v,min,max){ return Math.min(max, Math.max(min, v)); }
+    function sum(arr){ return arr.reduce((acc,v) => acc + n(v), 0); }
+
+    function average(arr){
+      const vals = arr.filter(v => Number.isFinite(Number(v))).map(Number);
+      return vals.length ? sum(vals) / vals.length : null;
+    }
+
+    function median(arr){
+      const vals = arr.filter(v => Number.isFinite(Number(v))).map(Number).sort((a,b) => a-b);
+      if (!vals.length) return null;
+      const mid = Math.floor(vals.length / 2);
+      return vals.length % 2 ? vals[mid] : (vals[mid-1] + vals[mid]) / 2;
+    }
+
+    function safeRatio(a,b){ return b ? a / b : null; }
+
+    function fmt(v,digits=0){
+      if (v === null || v === undefined || !Number.isFinite(Number(v))) return "—";
+      return Number(v).toLocaleString("en-US", {
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits
+      });
+    }
+
+    function pct(v,digits=1){
+      if (v === null || v === undefined || !Number.isFinite(Number(v))) return "—";
+      return `${(Number(v) * 100).toFixed(digits)}%`;
+    }
+
+    function cssVar(name){
+      return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    }
+
+    function commonLegend(){
+      return {
+        labels:{
+          color:cssVar("--muted"),
+          boxWidth:12,
+          boxHeight:12
+        }
+      };
+    }
+
+    function commonTooltip(){
+      return {
+        backgroundColor:cssVar("--card2"),
+        borderColor:cssVar("--border"),
+        borderWidth:1,
+        titleColor:cssVar("--text"),
+        bodyColor:cssVar("--text"),
+        padding:10
+      };
+    }
+
+    function axis(title, formatter){
+      return {
+        ticks:{
+          color:cssVar("--muted"),
+          callback: formatter || undefined
+        },
+        grid:{ color:cssVar("--grid") },
+        title: title ? {
+          display:true,
+          text:title,
+          color:cssVar("--muted")
+        } : undefined
+      };
+    }
+
+    function phaseFuel(route){
+      return {
+        loading: n(route.load_days) * n(route.load_fpd),
+        discharge: n(route.disc_days) * n(route.disc_fpd),
+        sailing: n(route.sail_days) * n(route.sail_fpd),
+        anchor: n(route.anchor_days) * n(route.anchor_fpd)
+      };
+    }
+
+    function phaseTotal(route){
+      const p = phaseFuel(route);
+      return n(p.loading) + n(p.discharge) + n(p.sailing) + n(p.anchor);
+    }
+
+    function anchorShare(route){
+      return safeRatio(phaseFuel(route).anchor, phaseTotal(route)) || 0;
+    }
+
+    function effectiveMinTrips(){
+      return Math.max(n(state.minTrips), scopeMin[state.routeMode] || 1);
+    }
+
+    function filteredRoutes(){
+      const minT = effectiveMinTrips();
+      const rows = DATA.routes.filter(r => n(r.trips) >= minT);
+      return rows.sort((a,b) => metricValue(b, state.sortMetric) - metricValue(a, state.sortMetric));
+    }
+
+    function metricValue(route, metric){
+      if (metric === "anchor_share") return anchorShare(route);
+      return n(route[metric]);
+    }
+
+    function findRoute(dest){
+      return DATA.routes.find(r => r.dest === dest) || null;
+    }
+
+    function maxSeverity(issues){
+      return (issues || []).reduce((best, item) => (
+        severityRank[item.severity] > severityRank[best] ? item.severity : best
+      ), "none");
+    }
+
+    function severityBadge(sev){
+      if (!sev || sev === "none") return `<span class="pill pill-neutral">Clean</span>`;
+      if (sev === "high") return `<span class="pill pill-danger">HIGH</span>`;
+      if (sev === "medium") return `<span class="pill pill-warn">MEDIUM</span>`;
+      return `<span class="pill pill-info">LOW</span>`;
+    }
+
+    function rowClassFromSeverity(sev){
+      if (sev === "high") return "row-high";
+      if (sev === "medium") return "row-medium";
+      if (sev === "low") return "row-low";
+      return "";
+    }
+
+    function qualityLabel(score){
+      if (score >= 85) return `<span class="pill pill-success">Strong</span>`;
+      if (score >= 72) return `<span class="pill pill-info">Usable</span>`;
+      if (score >= 58) return `<span class="pill pill-warn">Watch</span>`;
+      return `<span class="pill pill-danger">Low Confidence</span>`;
+    }
+
+    function downloadText(filename, text, mime="text/csv;charset=utf-8;"){
+      const blob = new Blob(["\uFEFF" + text], { type:mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function csvEscape(v){
+      const value = v === null || v === undefined ? "" : String(v);
+      if (/[",\n]/.test(value)) return `"${value.replace(/"/g, '""')}"`;
+      return value;
+    }
+
+    function showFlash(message, type="info"){
+      const el = document.getElementById("flashMsg");
+      const cls = type === "success" ? "pill-success" : type === "danger" ? "pill-danger" : "pill-info";
+      el.innerHTML = `<span class="pill ${cls}">${message}</span>`;
+      clearTimeout(state.flashTimer);
+      state.flashTimer = setTimeout(() => {
+        el.innerHTML = "";
+      }, 3000);
+    }
+
+    function copyText(text){
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        return navigator.clipboard.writeText(text);
+      }
+      return new Promise((resolve, reject) => {
+        try{
+          const textarea = document.createElement("textarea");
+          textarea.value = text;
+          textarea.setAttribute("readonly","readonly");
+          textarea.style.position = "fixed";
+          textarea.style.opacity = "0";
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand("copy");
+          textarea.remove();
+          resolve();
+        } catch(err){
+          reject(err);
+        }
+      });
+    }
+
+    function createChart(id, config){
+      const canvas = document.getElementById(id);
+      if (!canvas) return;
+      if (state.charts[id]) state.charts[id].destroy();
+      state.charts[id] = new Chart(canvas, config);
+    }
+
+    function buildIssueCatalog(routes){
+      const issues = [];
+      const filteredTripTotal = sum(routes.map(r => r.trips));
+      const filteredFuelTotal = sum(routes.map(r => r.total_fuel));
+      const weightedAvgTripFuel = filteredTripTotal ? filteredFuelTotal / filteredTripTotal : 0;
+
+      const lowSampleRoutes = [];
+      const anchorHeavyRoutes = [];
+      const dischargePenaltyRoutes = [];
+
+      function push(entity, severity, type, detail, recommendation){
+        issues.push({ entity, severity, type, detail, recommendation });
+      }
+
+      routes.forEach(route => {
+        const ash = anchorShare(route);
+
+        if (route.trips < 5){
+          lowSampleRoutes.push(route);
+          push(
+            route.dest,
+            "medium",
+            "Low sample",
+            `Trips ${route.trips} only`,
+            "표본이 얇아 평균값을 성능 확정치로 쓰지 말고 장기 구간과 함께 보세요."
+          );
+        }
+
+        if (ash >= 0.25 || route.anchor_fpd >= 900){
+          anchorHeavyRoutes.push(route);
+          push(
+            route.dest,
+            route.anchor_fpd >= 1500 ? "high" : "medium",
+            "Anchor heavy",
+            `Estimated anchor share ${pct(ash,0)} / anchor intensity ${fmt(route.anchor_fpd,1)} L/day`,
+            "Berth window 선확보, 대기원인 코드화, arrival sequencing 최적화를 우선 검토하세요."
+          );
+        }
+
+        if (route.disc_fpd > route.load_fpd * 1.25){
+          dischargePenaltyRoutes.push(route);
+          push(
+            route.dest,
+            "low",
+            "Discharge penalty",
+            `Discharge ${fmt(route.disc_fpd,1)} L/day > Loading ${fmt(route.load_fpd,1)} L/day`,
+            "크레인/펌프/밸러스트 사전준비를 점검하고 하역 동선을 표준화하세요."
+          );
+        }
+
+        if (weightedAvgTripFuel && route.avg_trip_fuel > weightedAvgTripFuel * 1.45){
+          push(
+            route.dest,
+            route.trips >= 4 ? "high" : "medium",
+            "High fuel / trip",
+            `Avg ${fmt(route.avg_trip_fuel,0)} L/trip vs filtered weighted ${fmt(weightedAvgTripFuel,0)} L/trip`,
+            "앵커 대기와 회항 패턴, 빈 항차 비중, 선적밀도를 함께 점검하세요."
+          );
+        }
+
+        if (route.sail_days === 0 && route.anchor_days >= 10){
+          push(
+            route.dest,
+            "medium",
+            "Port / anchor dominated",
+            `No sailing days recorded but anchor ${route.anchor_days} days`,
+            "Route classification 또는 waiting cause tagging이 필요한 패턴입니다."
+          );
+        }
+      });
+
+      const concentrationRoute = routes.slice().sort((a,b) => b.total_fuel - a.total_fuel)[0] || null;
+      const concentrationShare = concentrationRoute ? concentrationRoute.total_fuel / filteredFuelTotal : 0;
+
+      if (concentrationShare >= 0.55 && concentrationRoute){
+        push(
+          "Dataset",
+          "medium",
+          "Fuel concentration",
+          `${concentrationRoute.dest} accounts for ${pct(concentrationShare,0)} of filtered total fuel`,
+          "지배 Route 제외 시나리오와 포함 시나리오를 분리해서 읽으세요."
+        );
+      }
+
+      const totalPortFuel = sum(DATA.port_data.map(p => p.total));
+      const unknownPortFuel = sum(DATA.port_data.filter(p => p.state === "UNKNOWN").map(p => p.total));
+      const unknownPortShare = totalPortFuel ? unknownPortFuel / totalPortFuel : 0;
+      const biggestUnknown = DATA.port_data
+        .filter(p => p.state === "UNKNOWN")
+        .sort((a,b) => b.total - a.total)[0] || null;
+
+      if (unknownPortShare >= 0.25){
+        push(
+          "Dataset",
+          "high",
+          "Unknown port-state share",
+          `UNKNOWN state accounts for ${pct(unknownPortShare,0)} of port-state total${biggestUnknown ? ` (largest bucket: ${biggestUnknown.port} ${fmt(biggestUnknown.total,0)} L)` : ""}`,
+          "특히 OTHER / UNKNOWN bucket의 상태 태깅을 정리해 root-cause 해석 신뢰도를 높이세요."
+        );
+      }
+
+      push(
+        "Dataset",
+        "high",
+        "Ballast evidence thin",
+        "Source finding indicates only 9 explicit Ballast days (2.2%)",
+        "DECKLOG에 Laden / Ballast 명시를 강제해 귀항 / 공선 해석 정확도를 높이세요."
+      );
+
+      const strongWind = DATA.wind.find(w => w.label.includes("Strong"));
+      if (strongWind && strongWind.days < 10){
+        push(
+          "Dataset",
+          "low",
+          "Thin strong-wind sample",
+          `Strong wind bucket has ${strongWind.days} days only`,
+          "풍속 결론은 방향성 해석으로 두고, 장기 누적 후 재검증하세요."
+        );
+      }
+
+      const severityCounts = { low:0, medium:0, high:0 };
+      issues.forEach(item => { severityCounts[item.severity] += 1; });
+
+      let score = 100;
+      score -= lowSampleRoutes.length * 7;
+      score -= anchorHeavyRoutes.length * 5;
+      score -= concentrationShare > 0.55 ? 12 : concentrationShare > 0.40 ? 6 : 0;
+      score -= unknownPortShare * 20;
+      score -= 10; // ballast limitation
+      score -= strongWind && strongWind.days < 10 ? 4 : 0;
+      score = clamp(Math.round(score), 40, 100);
+
+      return {
+        issues,
+        lowSampleRoutes,
+        anchorHeavyRoutes,
+        dischargePenaltyRoutes,
+        concentrationRoute,
+        concentrationShare,
+        unknownPortShare,
+        severityCounts,
+        score
+      };
+    }
+
+    function groupIssuesByEntity(issues){
+      const map = {};
+      issues.forEach(item => {
+        if (!map[item.entity]) map[item.entity] = [];
+        map[item.entity].push(item);
+      });
+      return map;
+    }
+
+    function bestRepeatableRoute(routes){
+      const threshold = Math.max(4, effectiveMinTrips());
+      const pool = routes.filter(r => r.trips >= threshold);
+      const base = pool.length ? pool : routes;
+      return base.slice().sort((a,b) => a.avg_trip_fuel - b.avg_trip_fuel)[0] || null;
+    }
+
+    function highestAvgRoute(routes){
+      return routes.slice().sort((a,b) => b.avg_trip_fuel - a.avg_trip_fuel)[0] || null;
+    }
+
+    function highestAnchorRoute(routes){
+      return routes.slice().sort((a,b) => b.anchor_fpd - a.anchor_fpd)[0] || null;
+    }
+
+    function mostTripsRoute(routes){
+      return routes.slice().sort((a,b) => b.trips - a.trips)[0] || null;
+    }
+
+    function buildContext(){
+      const routes = filteredRoutes();
+      const phase = routes.reduce((acc, route) => {
+        const p = phaseFuel(route);
+        acc.loading += p.loading;
+        acc.discharge += p.discharge;
+        acc.sailing += p.sailing;
+        acc.anchor += p.anchor;
+        return acc;
+      }, { loading:0, discharge:0, sailing:0, anchor:0 });
+
+      const totalTrips = sum(routes.map(r => r.trips));
+      const totalFuel = sum(routes.map(r => r.total_fuel));
+      const weightedAvgFuel = safeRatio(totalFuel, totalTrips);
+      const tripCoverage = safeRatio(totalTrips, DATA.findings.total_trips);
+      const quality = buildIssueCatalog(routes);
+      const issuesByEntity = groupIssuesByEntity(quality.issues);
+      const bestRoute = bestRepeatableRoute(routes);
+      const worstRoute = highestAvgRoute(routes);
+      const dominantRoute = quality.concentrationRoute;
+      const anchorShareAll = safeRatio(phase.anchor, sum(Object.values(phase)));
+      const compareA = findRoute(state.compareA) || DATA.routes[0];
+      const compareB = findRoute(state.compareB) || DATA.routes[1] || DATA.routes[0];
+
+      return {
+        routes,
+        phase,
+        totalTrips,
+        totalFuel,
+        weightedAvgFuel,
+        tripCoverage,
+        quality,
+        issuesByEntity,
+        bestRoute,
+        worstRoute,
+        dominantRoute,
+        anchorShareAll,
+        compareA,
+        compareB
+      };
+    }
+
+    function renderHeader(ctx){
+      const badges = [
+        `<span class="badge">Filtered Trips ${fmt(ctx.totalTrips,0)}</span>`,
+        `<span class="badge">Weighted ${fmt(ctx.weightedAvgFuel,0)} L/trip</span>`,
+        `<span class="badge">Anchor Share ${pct(ctx.anchorShareAll,0)}</span>`,
+        `<span class="badge">Confidence ${ctx.quality.score}</span>`
+      ];
+      document.getElementById("headerBadges").innerHTML = badges.join("");
+    }
+
+    function renderStatus(ctx){
+      document.getElementById("activeFilterText").innerHTML = `
+        Route Scope <strong>${routeModeLabels[state.routeMode]}</strong> · Effective Min Trips <strong>${effectiveMinTrips()}</strong> ·
+        Sort <strong>${sortLabels[state.sortMetric]}</strong> · Compare <strong>${state.compareA}</strong> vs <strong>${state.compareB}</strong><br>
+        <span class="muted">Executive / Route / Findings / Quality 탭은 현재 필터를 반영합니다. Activity / Handling / Wind 탭은 원본 aggregate dataset을 유지합니다.</span>
+      `;
+
+      const chips = [
+        `<span class="chip">Filtered Routes ${ctx.routes.length}/${DATA.routes.length}</span>`,
+        `<span class="chip">Trips Coverage ${pct(ctx.tripCoverage,0)}</span>`,
+        `<span class="chip">Low Sample ${ctx.quality.lowSampleRoutes.length}</span>`,
+        `<span class="chip">Anchor-heavy ${ctx.quality.anchorHeavyRoutes.length}</span>`,
+        `<span class="chip">Unknown Port-State ${pct(ctx.quality.unknownPortShare,0)}</span>`
+      ];
+      document.getElementById("qualityBadges").innerHTML = chips.join("");
+    }
+
+    function renderCards(id, cards){
+      document.getElementById(id).innerHTML = cards.map(card => `
+        <article class="stat-card ${card.cls || ""}">
+          <div class="stat-label">${card.label}</div>
+          <div class="stat-value">${card.value}</div>
+          <div class="stat-note">${card.note || ""}</div>
+        </article>
+      `).join("");
+    }
+
+    function renderInsights(id, items){
+      document.getElementById(id).innerHTML = items.map(item => `
+        <article class="insight-card">
+          <span class="pill ${item.pill || "pill-neutral"}">${item.tag}</span>
+          <h4>${item.title}</h4>
+          <p>${item.text}</p>
+        </article>
+      `).join("");
+    }
+
+    function buildSummaryText(ctx){
+      const a = ctx.compareA;
+      const b = ctx.compareB;
+      const compareDelta = a && b && a.avg_trip_fuel
+        ? (b.avg_trip_fuel - a.avg_trip_fuel) / a.avg_trip_fuel
+        : null;
+
+      const lines = [
+        `[JPT71 Root-Cause Summary]`,
+        `Scope: ${routeModeLabels[state.routeMode]} / Effective Min Trips ${effectiveMinTrips()} / Sort ${sortLabels[state.sortMetric]}`,
+        `Filtered Trips: ${fmt(ctx.totalTrips,0)} / Weighted Fuel per Trip: ${fmt(ctx.weightedAvgFuel,0)} L/trip`,
+        `Estimated Anchor Share: ${pct(ctx.anchorShareAll,1)}`,
+        `Best repeatable route: ${ctx.bestRoute ? `${ctx.bestRoute.dest} (${fmt(ctx.bestRoute.avg_trip_fuel,0)} L/trip)` : "—"}`,
+        `Highest avg route: ${ctx.worstRoute ? `${ctx.worstRoute.dest} (${fmt(ctx.worstRoute.avg_trip_fuel,0)} L/trip)` : "—"}`,
+        `Dominant route: ${ctx.dominantRoute ? `${ctx.dominantRoute.dest} (${pct(ctx.quality.concentrationShare,0)} of filtered fuel)` : "—"}`,
+        `Compare ${a.dest} vs ${b.dest}: Avg Fuel/Trip ${fmt(a.avg_trip_fuel,0)} vs ${fmt(b.avg_trip_fuel,0)} (${compareDelta !== null ? (compareDelta >= 0 ? "+" : "") + pct(compareDelta,1) : "—"})`,
+        `Confidence score: ${ctx.quality.score} / Issues: ${ctx.quality.issues.length}`,
+        `Main action: reduce anchor waiting, standardize ballast tagging, clean UNKNOWN port-state buckets.`
+      ];
+      return lines.join("\n");
+    }
+
+    function exportRoutesCsv(ctx){
+      const lines = [
+        ["route_mode", state.routeMode],
+        ["effective_min_trips", effectiveMinTrips()],
+        ["sort_metric", state.sortMetric],
+        ["compare_a", state.compareA],
+        ["compare_b", state.compareB],
+        [],
+        ["dest","trips","total_days","total_fuel","avg_trip_fuel","load_days","disc_days","sail_days","anchor_days","load_fpd","disc_fpd","sail_fpd","anchor_fpd","est_anchor_share_pct","max_severity","issues"]
+      ];
+
+      ctx.routes.forEach(route => {
+        const entityIssues = ctx.issuesByEntity[route.dest] || [];
+        const maxSev = maxSeverity(entityIssues);
+        lines.push([
+          route.dest,
+          route.trips,
+          route.total_days,
+          route.total_fuel,
+          route.avg_trip_fuel,
+          route.load_days,
+          route.disc_days,
+          route.sail_days,
+          route.anchor_days,
+          route.load_fpd,
+          route.disc_fpd,
+          route.sail_fpd,
+          route.anchor_fpd,
+          (anchorShare(route) * 100).toFixed(1),
+          maxSev,
+          entityIssues.map(i => i.type).join(" | ")
+        ]);
+      });
+
+      const csv = lines.map(row => row.map(csvEscape).join(",")).join("\n");
+      downloadText(`JPT71_rootcause_routes_${state.routeMode}_min${effectiveMinTrips()}.csv`, csv);
+    }
+
+    function exportIssuesCsv(ctx){
+      const lines = [
+        ["entity","severity","type","detail","recommendation"]
+      ];
+      ctx.quality.issues.forEach(issue => {
+        lines.push([issue.entity, issue.severity, issue.type, issue.detail, issue.recommendation]);
+      });
+      const csv = lines.map(row => row.map(csvEscape).join(",")).join("\n");
+      downloadText(`JPT71_rootcause_issues_${state.routeMode}_min${effectiveMinTrips()}.csv`, csv);
+    }
+
+    function renderSummary(ctx){
+      const compareDelta = ctx.compareA && ctx.compareB && ctx.compareA.avg_trip_fuel
+        ? (ctx.compareB.avg_trip_fuel - ctx.compareA.avg_trip_fuel) / ctx.compareA.avg_trip_fuel
+        : null;
+
+      renderCards("summaryCards", [
+        {
+          cls:"tone-orange",
+          label:"Filtered Trips",
+          value:fmt(ctx.totalTrips,0),
+          note:`Total source trips ${fmt(DATA.findings.total_trips,0)} 대비 ${pct(ctx.tripCoverage,0)}`
+        },
+        {
+          cls:"tone-blue",
+          label:"Weighted Fuel / Trip",
+          value:`${fmt(ctx.weightedAvgFuel,0)} L`,
+          note:"현재 Route 필터 기준 가중평균"
+        },
+        {
+          cls:"tone-yellow",
+          label:"Estimated Anchor Share",
+          value:pct(ctx.anchorShareAll,1),
+          note:"Days × L/day 추정치 기준"
+        },
+        {
+          cls:"tone-green",
+          label:"Best Repeatable Route",
+          value:ctx.bestRoute ? ctx.bestRoute.dest : "—",
+          note:ctx.bestRoute ? `${fmt(ctx.bestRoute.avg_trip_fuel,0)} L/trip` : ""
+        },
+        {
+          cls:"tone-red",
+          label:"Highest Avg Route",
+          value:ctx.worstRoute ? ctx.worstRoute.dest : "—",
+          note:ctx.worstRoute ? `${fmt(ctx.worstRoute.avg_trip_fuel,0)} L/trip` : ""
+        },
+        {
+          cls:"tone-purple",
+          label:"Dominant Route Share",
+          value:ctx.dominantRoute ? pct(ctx.quality.concentrationShare,0) : "—",
+          note:ctx.dominantRoute ? ctx.dominantRoute.dest : ""
+        },
+        {
+          cls:"tone-cyan",
+          label:"Compare Δ (B vs A)",
+          value:compareDelta !== null ? `${compareDelta >= 0 ? "+" : ""}${pct(compareDelta,1)}` : "—",
+          note:`${ctx.compareA.dest} → ${ctx.compareB.dest}`
+        },
+        {
+          cls:"tone-green",
+          label:"Confidence Score",
+          value:String(ctx.quality.score),
+          note:qualityLabel(ctx.quality.score).replace(/<[^>]+>/g, "")
+        }
+      ]);
+
+      createChart("summaryScatterChart", {
+        type:"bubble",
+        data:{
+          datasets:[{
+            label:"Routes",
+            data:ctx.routes.map(route => ({
+              x: route.trips,
+              y: route.avg_trip_fuel,
+              r: clamp(Math.sqrt(route.total_fuel) / 12, 8, 28),
+              dest: route.dest,
+              fuel: route.total_fuel
+            })),
+            backgroundColor: ctx.routes.map(route => ROUTE_COLORS[route.dest] || "#64748b"),
+            borderWidth:1,
+            borderColor:cssVar("--card")
+          }]
+        },
+        options:{
+          plugins:{
+            legend:{ display:false },
+            tooltip:{
+              ...commonTooltip(),
+              callbacks:{
+                label(context){
+                  const raw = context.raw;
+                  return `${raw.dest} · Trips ${fmt(raw.x,0)} · Avg ${fmt(raw.y,0)} L/trip · Total ${fmt(raw.fuel,0)} L`;
+                }
+              }
+            },
+            noData:{ text:"No filtered routes" }
+          },
+          scales:{
+            x: axis("Trips"),
+            y: axis("Avg Fuel / Trip (L)")
+          }
+        }
+      });
+
+      createChart("summaryPhaseChart", {
+        type:"doughnut",
+        data:{
+          labels:["Loading","Discharging","Sailing","Anchor"],
+          datasets:[{
+            data:[ctx.phase.loading, ctx.phase.discharge, ctx.phase.sailing, ctx.phase.anchor],
+            backgroundColor:[
+              "rgba(34,197,94,.85)",
+              "rgba(239,68,68,.85)",
+              "rgba(59,130,246,.85)",
+              "rgba(245,158,11,.85)"
+            ],
+            borderWidth:0
+          }]
+        },
+        options:{
+          cutout:"62%",
+          plugins:{
+            legend:commonLegend(),
+            tooltip:{
+              ...commonTooltip(),
+              callbacks:{
+                label(c){
+                  const value = c.raw || 0;
+                  const total = sum([ctx.phase.loading, ctx.phase.discharge, ctx.phase.sailing, ctx.phase.anchor]);
+                  const share = total ? value / total : 0;
+                  return `${c.label}: ${fmt(value,0)} (${pct(share,1)})`;
+                }
+              }
+            },
+            noData:{ text:"No phase mix" }
+          }
+        }
+      });
+
+      createChart("summaryCompareChart", {
+        type:"bar",
+        data:{
+          labels:["Load L/day","Disc L/day","Sail L/day","Anchor L/day"],
+          datasets:[
+            {
+              label:ctx.compareA.dest,
+              data:[ctx.compareA.load_fpd, ctx.compareA.disc_fpd, ctx.compareA.sail_fpd, ctx.compareA.anchor_fpd],
+              backgroundColor:"rgba(59,130,246,.78)",
+              borderRadius:6
+            },
+            {
+              label:ctx.compareB.dest,
+              data:[ctx.compareB.load_fpd, ctx.compareB.disc_fpd, ctx.compareB.sail_fpd, ctx.compareB.anchor_fpd],
+              backgroundColor:"rgba(249,115,22,.78)",
+              borderRadius:6
+            }
+          ]
+        },
+        options:{
+          plugins:{
+            legend:commonLegend(),
+            tooltip:commonTooltip(),
+            noData:{ text:"No compare selection" }
+          },
+          scales:{
+            x: axis(),
+            y: axis("L/day")
+          }
+        }
+      });
+
+      const a = ctx.compareA;
+      const b = ctx.compareB;
+      const aDaysTrip = safeRatio(a.total_days, a.trips);
+      const bDaysTrip = safeRatio(b.total_days, b.trips);
+      const aAnchorShare = anchorShare(a);
+      const bAnchorShare = anchorShare(b);
+      document.getElementById("compareDetailsBox").innerHTML = `
+        <strong>Compare Snapshot — ${a.dest} vs ${b.dest}</strong>
+        <p>
+          Avg Fuel/Trip은 <strong>${fmt(a.avg_trip_fuel,0)} L</strong> vs <strong>${fmt(b.avg_trip_fuel,0)} L</strong> 입니다.
+          Days/Trip은 <strong>${fmt(aDaysTrip,2)}</strong> vs <strong>${fmt(bDaysTrip,2)}</strong>,
+          Estimated Anchor Share는 <strong>${pct(aAnchorShare,1)}</strong> vs <strong>${pct(bAnchorShare,1)}</strong> 입니다.
+          ${a.dest === b.dest ? "동일 Route를 비교 중입니다." : ""}
+        </p>
+      `;
+
+      const summaryInsights = [];
+      summaryInsights.push({
+        tag:"Main Driver",
+        pill:"pill-warn",
+        title:"Anchor waiting remains the strongest root-cause",
+        text:`현재 필터 기준 추정 Anchor 비중은 ${pct(ctx.anchorShareAll,1)}이며, 원본 aggregate에서도 Anchor intensity는 Loading의 ${fmt(DATA.findings.anchor_vs_load,2)}배입니다.`
+      });
+
+      if (ctx.dominantRoute){
+        summaryInsights.push({
+          tag:"Dominant Route",
+          pill:ctx.quality.concentrationShare >= 0.55 ? "pill-danger" : "pill-info",
+          title:`${ctx.dominantRoute.dest} is shaping the story`,
+          text:`현재 선택 구간의 Total Fuel 중 ${pct(ctx.quality.concentrationShare,1)}를 ${ctx.dominantRoute.dest}가 차지합니다. 단일 Route 지배도가 높아질수록 해석은 route-mix에 민감해집니다.`
+        });
+      }
+
+      if (ctx.bestRoute && ctx.worstRoute){
+        summaryInsights.push({
+          tag:"Efficiency Spread",
+          pill:"pill-success",
+          title:"Best repeatable vs highest average route",
+          text:`반복표본 기준 가장 효율적인 Route는 ${ctx.bestRoute.dest} (${fmt(ctx.bestRoute.avg_trip_fuel,0)} L/trip), 가장 높은 평균 Route는 ${ctx.worstRoute.dest} (${fmt(ctx.worstRoute.avg_trip_fuel,0)} L/trip)입니다.`
+        });
+      }
+
+      summaryInsights.push({
+        tag:"Handling",
+        pill:"pill-info",
+        title:"Discharge consumes more than Loading",
+        text:`원본 findings 기준 Discharging은 ${fmt(DATA.findings.disc_fpd,1)} L/day, Loading은 ${fmt(DATA.findings.load_fpd,1)} L/day로 ${fmt(DATA.findings.disc_vs_load,2)}배입니다.`
+      });
+
+      summaryInsights.push({
+        tag:"Wind",
+        pill:"pill-purple",
+        title:"Wind is more likely an indirect delay factor",
+        text:`Strong wind bucket는 ${DATA.wind.find(w => w.label.includes("Strong"))?.days || 0}일로 표본이 얇고, Avg Fuel은 Moderate보다 낮습니다. 작업중단 → 대기모드 전환 효과로 읽는 편이 자연스럽습니다.`
+      });
+
+      summaryInsights.push({
+        tag:"Data Caveat",
+        pill:"pill-danger",
+        title:"Ballast and UNKNOWN tagging limit precision",
+        text:`Ballast explicit days는 source finding 기준 9일뿐이며, port-state UNKNOWN 비중은 ${pct(ctx.quality.unknownPortShare,1)}입니다. 이 두 항목이 root-cause 정밀도를 낮춥니다.`
+      });
+
+      renderInsights("summaryInsights", summaryInsights);
+    }
+
+    function renderRouteTab(ctx){
+      const highAnchor = highestAnchorRoute(ctx.routes);
+      const mostTrip = mostTripsRoute(ctx.routes);
+
+      renderCards("routeCards", [
+        {
+          cls:"tone-orange",
+          label:"Filtered Routes",
+          value:fmt(ctx.routes.length,0),
+          note:`Effective Min Trips ${effectiveMinTrips()}`
+        },
+        {
+          cls:"tone-blue",
+          label:"Trips Coverage",
+          value:pct(ctx.tripCoverage,0),
+          note:`Filtered trips ${fmt(ctx.totalTrips,0)} / source ${fmt(DATA.findings.total_trips,0)}`
+        },
+        {
+          cls:"tone-red",
+          label:"Highest Anchor Route",
+          value:highAnchor ? highAnchor.dest : "—",
+          note:highAnchor ? `${fmt(highAnchor.anchor_fpd,1)} L/day` : ""
+        },
+        {
+          cls:"tone-green",
+          label:"Most Frequent Route",
+          value:mostTrip ? mostTrip.dest : "—",
+          note:mostTrip ? `${fmt(mostTrip.trips,0)} trips` : ""
+        }
+      ]);
+
+      createChart("routeBarChart", {
+        type:"bar",
+        data:{
+          labels:ctx.routes.map(r => r.dest),
+          datasets:[
+            {
+              label:"Trips",
+              data:ctx.routes.map(r => r.trips),
+              backgroundColor:ctx.routes.map(r => ROUTE_COLORS[r.dest] || "#64748b"),
+              borderRadius:6,
+              yAxisID:"y"
+            },
+            {
+              type:"line",
+              label:"Avg Fuel / Trip",
+              data:ctx.routes.map(r => r.avg_trip_fuel),
+              borderColor:cssVar("--red"),
+              backgroundColor:"rgba(239,68,68,.14)",
+              pointRadius:4,
+              tension:.25,
+              yAxisID:"y1"
+            }
+          ]
+        },
+        options:{
+          plugins:{
+            legend:commonLegend(),
+            tooltip:commonTooltip(),
+            noData:{ text:"No route data" }
+          },
+          scales:{
+            x: axis(),
+            y: { ...axis("Trips"), position:"left" },
+            y1: {
+              ...axis("Avg Fuel / Trip (L)", v => fmt(v,0)),
+              position:"right",
+              grid:{ drawOnChartArea:false }
+            }
+          }
+        }
+      });
+
+      createChart("routePhaseChart", {
+        type:"bar",
+        data:{
+          labels:ctx.routes.map(r => r.dest),
+          datasets:[
+            {label:"Load L/d",data:ctx.routes.map(r => r.load_fpd),backgroundColor:"rgba(34,197,94,.78)",borderRadius:6},
+            {label:"Disc L/d",data:ctx.routes.map(r => r.disc_fpd),backgroundColor:"rgba(239,68,68,.78)",borderRadius:6},
+            {label:"Sail L/d",data:ctx.routes.map(r => r.sail_fpd),backgroundColor:"rgba(59,130,246,.78)",borderRadius:6},
+            {label:"Anchor L/d",data:ctx.routes.map(r => r.anchor_fpd),backgroundColor:"rgba(245,158,11,.78)",borderRadius:6}
+          ]
+        },
+        options:{
+          plugins:{
+            legend:commonLegend(),
+            tooltip:commonTooltip(),
+            noData:{ text:"No phase intensity data" }
+          },
+          scales:{
+            x: axis(),
+            y: axis("L/day")
+          }
+        }
+      });
+
+      createChart("routeFuelMixChart", {
+        type:"bar",
+        data:{
+          labels:ctx.routes.map(r => r.dest),
+          datasets:[
+            {label:"Loading",data:ctx.routes.map(r => phaseFuel(r).loading),backgroundColor:"rgba(34,197,94,.78)",stack:"fuel"},
+            {label:"Discharging",data:ctx.routes.map(r => phaseFuel(r).discharge),backgroundColor:"rgba(239,68,68,.78)",stack:"fuel"},
+            {label:"Sailing",data:ctx.routes.map(r => phaseFuel(r).sailing),backgroundColor:"rgba(59,130,246,.78)",stack:"fuel"},
+            {label:"Anchor",data:ctx.routes.map(r => phaseFuel(r).anchor),backgroundColor:"rgba(245,158,11,.82)",stack:"fuel"}
+          ]
+        },
+        options:{
+          plugins:{
+            legend:commonLegend(),
+            tooltip:commonTooltip(),
+            noData:{ text:"No estimated phase fuel data" }
+          },
+          scales:{
+            x:{ ...axis(), stacked:true },
+            y:{ ...axis("Estimated Fuel"), stacked:true }
+          }
+        }
+      });
+
+      const routeNote = ctx.worstRoute
+        ? `${ctx.worstRoute.dest}가 현재 필터 기준 최고 Avg Fuel/Trip Route입니다. ${ctx.worstRoute.trips < 5 ? "단, 표본이 얇아 outlier 영향 가능성이 큽니다." : "표본이 비교적 있어 운영 패턴 점검 우선순위가 높습니다."}`
+        : "현재 필터에서 특이 Route를 찾을 수 없습니다.";
+      document.getElementById("routeCallout").innerHTML = `
+        <strong>Route Reading Guide</strong>
+        <p>${routeNote} Route Sort를 바꾸면 Trips / Avg Fuel / Anchor intensity / Total Fuel 관점으로 ranking을 다시 볼 수 있습니다.</p>
+      `;
+
+      document.getElementById("routeTbody").innerHTML = ctx.routes.length ? ctx.routes.map(route => {
+        const entityIssues = ctx.issuesByEntity[route.dest] || [];
+        const sev = maxSeverity(entityIssues);
+        return `
+          <tr class="${rowClassFromSeverity(sev)}">
+            <td class="strong nowrap" style="color:${ROUTE_COLORS[route.dest] || cssVar("--text")}">${route.dest}</td>
+            <td class="num">${fmt(route.trips,0)}</td>
+            <td class="num strong">${fmt(route.total_fuel,0)}</td>
+            <td class="num">${fmt(route.avg_trip_fuel,0)}</td>
+            <td class="num">${fmt(route.total_days,0)}</td>
+            <td class="num">${fmt(safeRatio(route.total_days, route.trips),2)}</td>
+            <td class="num">${fmt(route.load_fpd,1)}</td>
+            <td class="num">${fmt(route.disc_fpd,1)}</td>
+            <td class="num">${fmt(route.sail_fpd,1)}</td>
+            <td class="num">${fmt(route.anchor_fpd,1)}</td>
+            <td class="num">${pct(anchorShare(route),1)}</td>
+            <td>${entityIssues.length ? entityIssues.map(i => `<span class="pill ${i.severity === "high" ? "pill-danger" : i.severity === "medium" ? "pill-warn" : "pill-info"}">${i.type}</span>`).join(" ") : `<span class="pill pill-neutral">Clean</span>`}</td>
+          </tr>
+        `;
+      }).join("") : `<tr><td colspan="12" class="muted">No route rows.</td></tr>`;
+    }
+
+    function renderActivityTab(){
+      const totalFuel = sum(DATA.act_fuel.map(a => a.total));
+      const highestAvg = DATA.act_fuel.slice().sort((a,b) => b.avg - a.avg)[0];
+      const biggestTotal = DATA.act_fuel.slice().sort((a,b) => b.total - a.total)[0];
+      const mostDays = DATA.act_fuel.slice().sort((a,b) => b.days - a.days)[0];
+      const berth = DATA.act_fuel.find(a => a.act === "AT_BERTH");
+
+      renderCards("activityCards", [
+        {
+          cls:"tone-red",
+          label:"Highest Intensity",
+          value:highestAvg ? highestAvg.act : "—",
+          note:highestAvg ? `${fmt(highestAvg.avg,1)} L/day` : ""
+        },
+        {
+          cls:"tone-orange",
+          label:"Largest Fuel Share",
+          value:biggestTotal ? biggestTotal.act : "—",
+          note:biggestTotal ? pct(safeRatio(biggestTotal.total, totalFuel),1) : ""
+        },
+        {
+          cls:"tone-blue",
+          label:"Most Days",
+          value:mostDays ? mostDays.act : "—",
+          note:mostDays ? `${fmt(mostDays.days,0)} days` : ""
+        },
+        {
+          cls:"tone-green",
+          label:"Baseline Port Ops",
+          value:berth ? `${fmt(berth.avg,1)} L/day` : "—",
+          note:"AT_BERTH avg"
+        }
+      ]);
+
+      createChart("actBarChart", {
+        type:"bar",
+        data:{
+          labels:DATA.act_fuel.map(a => a.act),
+          datasets:[
+            {
+              label:"Avg L/day",
+              data:DATA.act_fuel.map(a => a.avg),
+              backgroundColor:DATA.act_fuel.map(a => ACT_COLORS[a.act] || "#64748b"),
+              borderRadius:6
+            },
+            {
+              label:"Median L/day",
+              data:DATA.act_fuel.map(a => a.med),
+              backgroundColor:DATA.act_fuel.map(a => (ACT_COLORS[a.act] || "#64748b") + "88"),
+              borderRadius:6
+            }
+          ]
+        },
+        options:{
+          plugins:{ legend:commonLegend(), tooltip:commonTooltip() },
+          scales:{ x:axis(), y:axis("L/day") }
+        }
+      });
+
+      createChart("actDonutChart", {
+        type:"doughnut",
+        data:{
+          labels:DATA.act_fuel.map(a => a.act),
+          datasets:[{
+            data:DATA.act_fuel.map(a => a.total),
+            backgroundColor:DATA.act_fuel.map(a => ACT_COLORS[a.act] || "#64748b"),
+            borderWidth:0
+          }]
+        },
+        options:{
+          cutout:"62%",
+          plugins:{
+            legend:commonLegend(),
+            tooltip:{
+              ...commonTooltip(),
+              callbacks:{
+                label(c){
+                  return `${c.label}: ${fmt(c.raw,0)} L`;
+                }
+              }
+            }
+          }
+        }
+      });
+
+      createChart("actDaysChart", {
+        type:"doughnut",
+        data:{
+          labels:DATA.act_fuel.map(a => a.act),
+          datasets:[{
+            data:DATA.act_fuel.map(a => a.days),
+            backgroundColor:DATA.act_fuel.map(a => ACT_COLORS[a.act] || "#64748b"),
+            borderWidth:0
+          }]
+        },
+        options:{
+          cutout:"62%",
+          plugins:{
+            legend:commonLegend(),
+            tooltip:{
+              ...commonTooltip(),
+              callbacks:{
+                label(c){
+                  return `${c.label}: ${fmt(c.raw,0)} days`;
+                }
+              }
+            }
+          }
+        }
+      });
+
+      createChart("actScatterChart", {
+        type:"bubble",
+        data:{
+          datasets:[{
+            label:"Activity",
+            data:DATA.act_fuel.map(a => ({
+              x:a.days,
+              y:a.avg,
+              r:clamp(Math.sqrt(a.total) / 10, 7, 24),
+              act:a.act,
+              total:a.total
+            })),
+            backgroundColor:DATA.act_fuel.map(a => ACT_COLORS[a.act] || "#64748b"),
+            borderColor:cssVar("--card"),
+            borderWidth:1
+          }]
+        },
+        options:{
+          plugins:{
+            legend:{ display:false },
+            tooltip:{
+              ...commonTooltip(),
+              callbacks:{
+                label(c){
+                  const raw = c.raw;
+                  return `${raw.act} · Days ${fmt(raw.x,0)} · Avg ${fmt(raw.y,1)} · Total ${fmt(raw.total,0)} L`;
+                }
+              }
+            }
+          },
+          scales:{
+            x:axis("Days"),
+            y:axis("Avg Fuel L/day")
+          }
+        }
+      });
+
+      document.getElementById("activityCallout").innerHTML = `
+        <strong>Activity Interpretation</strong>
+        <p>
+          AT_ANCHOR는 ${fmt(DATA.findings.anchor_fpd,1)} L/day로 Loading의 ${fmt(DATA.findings.anchor_vs_load,2)}배 수준입니다.
+          또한 Discharging은 ${fmt(DATA.findings.disc_fpd,1)} L/day로 Loading 대비 ${fmt(DATA.findings.disc_vs_load,2)}배입니다.
+          즉, 생산활동 자체보다 대기와 하역 단계가 비용 Driver에 더 가깝습니다.
+        </p>
+      `;
+
+      document.getElementById("actTbody").innerHTML = DATA.act_fuel.map(a => `
+        <tr>
+          <td class="strong nowrap" style="color:${ACT_COLORS[a.act] || cssVar("--text")}">${a.act}</td>
+          <td class="num">${fmt(a.days,0)}</td>
+          <td class="num strong">${fmt(a.avg,1)}</td>
+          <td class="num">${fmt(a.med,1)}</td>
+          <td class="num">${fmt(a.max,1)}</td>
+          <td class="num">${fmt(a.total,0)}</td>
+          <td class="num">${pct(safeRatio(a.total, totalFuel),1)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderHandlingTab(){
+      const mostCommonLoad = DATA.handle.slice().sort((a,b) => b.trips - a.trips)[0];
+      const zeroDisc = DATA.disc.find(d => d.disc_days === 0);
+      const bestDisc = DATA.disc.slice().sort((a,b) => a.avg_total_fuel - b.avg_total_fuel)[0];
+      const highestLoadFuel = DATA.handle.slice().sort((a,b) => b.avg_load_fuel - a.avg_load_fuel)[0];
+
+      renderCards("handlingCards", [
+        {
+          cls:"tone-blue",
+          label:"Most Common Load Days",
+          value:mostCommonLoad ? `${mostCommonLoad.load_days}d` : "—",
+          note:mostCommonLoad ? `${fmt(mostCommonLoad.trips,0)} trips` : ""
+        },
+        {
+          cls:"tone-green",
+          label:"Highest Avg Load Fuel",
+          value:highestLoadFuel ? `${highestLoadFuel.load_days}d` : "—",
+          note:highestLoadFuel ? `${fmt(highestLoadFuel.avg_load_fuel,0)} L` : ""
+        },
+        {
+          cls:"tone-red",
+          label:"Zero Discharge Trips",
+          value:zeroDisc ? fmt(zeroDisc.trips,0) : "—",
+          note:zeroDisc ? `${fmt(zeroDisc.avg_total_fuel,0)} L avg total fuel` : ""
+        },
+        {
+          cls:"tone-orange",
+          label:"Lowest Avg Disc Bucket",
+          value:bestDisc ? `${bestDisc.disc_days}d` : "—",
+          note:bestDisc ? `${fmt(bestDisc.avg_total_fuel,0)} L total` : ""
+        }
+      ]);
+
+      createChart("loadDurChart", {
+        type:"bar",
+        data:{
+          labels:DATA.handle.map(h => `${h.load_days}d`),
+          datasets:[
+            {
+              type:"bar",
+              label:"Avg Total Trip Fuel",
+              data:DATA.handle.map(h => h.avg_total_fuel),
+              backgroundColor:"rgba(59,130,246,.78)",
+              borderRadius:6,
+              yAxisID:"y"
+            },
+            {
+              type:"line",
+              label:"Avg Trip Days",
+              data:DATA.handle.map(h => h.avg_trip_days),
+              borderColor:cssVar("--green"),
+              backgroundColor:"rgba(34,197,94,.14)",
+              tension:.25,
+              pointRadius:4,
+              yAxisID:"y1"
+            }
+          ]
+        },
+        options:{
+          plugins:{ legend:commonLegend(), tooltip:commonTooltip() },
+          scales:{
+            x:axis("Loading Days"),
+            y:{ ...axis("Avg Total Fuel (L)", v => fmt(v/1000,0) + "K"), position:"left" },
+            y1:{ ...axis("Avg Trip Days"), position:"right", grid:{ drawOnChartArea:false } }
+          }
+        }
+      });
+
+      createChart("discDurChart", {
+        type:"bar",
+        data:{
+          labels:DATA.disc.map(d => `${d.disc_days}d`),
+          datasets:[
+            {
+              label:"Avg Total Trip Fuel",
+              data:DATA.disc.map(d => d.avg_total_fuel),
+              backgroundColor:"rgba(239,68,68,.78)",
+              borderRadius:6
+            },
+            {
+              label:"Avg Disc Fuel",
+              data:DATA.disc.map(d => d.avg_disc_fuel),
+              backgroundColor:"rgba(249,115,22,.78)",
+              borderRadius:6
+            }
+          ]
+        },
+        options:{
+          plugins:{ legend:commonLegend(), tooltip:commonTooltip() },
+          scales:{
+            x:axis("Discharge Days"),
+            y:axis("Fuel (L)", v => fmt(v/1000,0) + "K")
+          }
+        }
+      });
+
+      document.getElementById("handlingCallout").innerHTML = `
+        <strong>Handling Interpretation</strong>
+        <p>
+          1일 선적 bucket이 ${fmt(mostCommonLoad?.trips,0)}건으로 압도적이며, 하역 0일 bucket도 ${fmt(zeroDisc?.trips,0)}건 존재합니다.
+          하역 없이 종료된 Trip에서도 Avg Total Fuel이 ${fmt(zeroDisc?.avg_total_fuel,0)} L로 높게 나타나므로,
+          Handling time 자체보다 <strong>대기·이동·비생산 구간</strong>이 총연료에 더 큰 영향을 줄 가능성이 큽니다.
+        </p>
+      `;
+
+      document.getElementById("loadHandleTbody").innerHTML = DATA.handle.map(h => `
+        <tr>
+          <td class="strong">${h.load_days}</td>
+          <td class="num">${fmt(h.trips,0)}</td>
+          <td class="num">${fmt(h.avg_trip_days,1)}</td>
+          <td class="num">${fmt(h.avg_total_fuel,0)}</td>
+          <td class="num">${fmt(h.avg_load_fuel,0)}</td>
+        </tr>
+      `).join("");
+
+      document.getElementById("discHandleTbody").innerHTML = DATA.disc.map(d => `
+        <tr>
+          <td class="strong">${d.disc_days}</td>
+          <td class="num">${fmt(d.trips,0)}</td>
+          <td class="num">${fmt(d.avg_total_fuel,0)}</td>
+          <td class="num">${fmt(d.avg_disc_fuel,0)}</td>
+          <td class="num">${pct(safeRatio(d.avg_disc_fuel, d.avg_total_fuel),1)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderWindTab(){
+      const totalDays = sum(DATA.wind.map(w => w.days));
+      const mostFreq = DATA.wind.slice().sort((a,b) => b.days - a.days)[0];
+      const highestAvg = DATA.wind.slice().sort((a,b) => b.avg - a.avg)[0];
+      const strong = DATA.wind.find(w => w.label.includes("Strong"));
+
+      renderCards("windCards", [
+        {
+          cls:"tone-blue",
+          label:"Most Frequent Bucket",
+          value:mostFreq ? mostFreq.label : "—",
+          note:mostFreq ? `${fmt(mostFreq.days,0)} days` : ""
+        },
+        {
+          cls:"tone-orange",
+          label:"Highest Avg Fuel",
+          value:highestAvg ? highestAvg.label : "—",
+          note:highestAvg ? `${fmt(highestAvg.avg,1)} L/day` : ""
+        },
+        {
+          cls:"tone-red",
+          label:"Strong Wind Sample",
+          value:strong ? fmt(strong.days,0) : "—",
+          note:"해석 신뢰도 낮음"
+        },
+        {
+          cls:"tone-green",
+          label:"Moderate Bucket Share",
+          value:pct(safeRatio(DATA.wind.find(w => w.label.includes("Moderate"))?.days || 0, totalDays),1),
+          note:"운영의 중심 구간"
+        }
+      ]);
+
+      createChart("windChart", {
+        type:"bar",
+        data:{
+          labels:DATA.wind.map(w => w.label),
+          datasets:[
+            {
+              label:"Avg L/day",
+              data:DATA.wind.map(w => w.avg),
+              backgroundColor:["#22c55e","#3b82f6","#f97316","#ef4444"],
+              borderRadius:6
+            },
+            {
+              label:"Median L/day",
+              data:DATA.wind.map(w => w.med),
+              backgroundColor:["#22c55e88","#3b82f688","#f9731688","#ef444488"],
+              borderRadius:6
+            }
+          ]
+        },
+        options:{
+          plugins:{ legend:commonLegend(), tooltip:commonTooltip() },
+          scales:{ x:axis(), y:axis("L/day") }
+        }
+      });
+
+      createChart("windDaysFuelChart", {
+        type:"bar",
+        data:{
+          labels:DATA.wind.map(w => w.label),
+          datasets:[
+            {
+              type:"bar",
+              label:"Days",
+              data:DATA.wind.map(w => w.days),
+              backgroundColor:"rgba(59,130,246,.78)",
+              borderRadius:6,
+              yAxisID:"y"
+            },
+            {
+              type:"line",
+              label:"Avg Fuel",
+              data:DATA.wind.map(w => w.avg),
+              borderColor:cssVar("--accent"),
+              backgroundColor:"rgba(249,115,22,.14)",
+              pointRadius:4,
+              tension:.25,
+              yAxisID:"y1"
+            }
+          ]
+        },
+        options:{
+          plugins:{ legend:commonLegend(), tooltip:commonTooltip() },
+          scales:{
+            x:axis(),
+            y:{ ...axis("Days"), position:"left" },
+            y1:{ ...axis("Avg Fuel L/day"), position:"right", grid:{ drawOnChartArea:false } }
+          }
+        }
+      });
+
+      document.getElementById("windCallout").innerHTML = `
+        <strong>Wind Interpretation</strong>
+        <p>
+          Moderate(8-12) 구간이 운영의 대부분을 차지하고, Strong(16+) 구간은 ${fmt(strong?.days,0)}일로 표본이 얇습니다.
+          Strong에서 Avg Fuel이 낮게 보이는 것은 연료 효율 향상이라기보다 <strong>작업중단 → 대기모드 전환</strong> 효과일 가능성이 큽니다.
+        </p>
+      `;
+
+      document.getElementById("windTbody").innerHTML = DATA.wind.map(w => `
+        <tr>
+          <td class="strong">${w.label}</td>
+          <td class="num">${fmt(w.days,0)}</td>
+          <td class="num">${fmt(w.avg,1)}</td>
+          <td class="num">${fmt(w.med,1)}</td>
+          <td class="num">${pct(safeRatio(w.days, totalDays),1)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function buildActionCards(ctx){
+      const actions = [];
+
+      actions.push({
+        tag:"P1",
+        pill:"pill-danger",
+        title:"Anchor waiting reduction",
+        text:`Anchor intensity는 aggregate 기준 ${fmt(DATA.findings.anchor_fpd,1)} L/day이며, 현재 필터의 estimated anchor share는 ${pct(ctx.anchorShareAll,1)}입니다. 선석 예약, arrival sequencing, waiting cause tagging을 최우선 과제로 두는 것이 타당합니다.`
+      });
+
+      actions.push({
+        tag:"P2",
+        pill:"pill-warn",
+        title:"Discharge productivity uplift",
+        text:`Discharging은 Loading보다 ${fmt(DATA.findings.disc_vs_load,2)}배 높습니다. 펌프/크레인/밸러스트 준비 순서를 표준화하고, 하역 리드타임을 세부 원인으로 쪼개서 기록하세요.`
+      });
+
+      if (ctx.worstRoute){
+        actions.push({
+          tag:"P3",
+          pill:"pill-info",
+          title:`Route design review — ${ctx.worstRoute.dest}`,
+          text:`현재 필터 기준 최고 Avg Fuel/Trip Route는 ${ctx.worstRoute.dest} (${fmt(ctx.worstRoute.avg_trip_fuel,0)} L/trip)입니다. ${ctx.worstRoute.trips < 5 ? "표본이 얇으므로 outlier 여부를 먼저 확인" : "대기·회항·적재밀도 관점에서 스케줄을 검토"}하세요.`
+        });
+      }
+
+      actions.push({
+        tag:"P4",
+        pill:"pill-purple",
+        title:"Data capture standardization",
+        text:`Ballast explicit days limitation과 UNKNOWN port-state ${pct(ctx.quality.unknownPortShare,1)} 비중이 함께 존재합니다. DECKLOG 상태코드, Laden/Ballast, waiting cause를 표준화하면 다음 분석의 신뢰도가 크게 올라갑니다.`
+      });
+
+      return actions.slice(0,4);
+    }
+
+    function renderFindingsTab(ctx){
+      renderInsights("actionCards", buildActionCards(ctx));
+
+      const narrative = [];
+      narrative.push(`현재 필터에서 핵심 Driver는 여전히 Anchor waiting입니다.`);
+      if (ctx.dominantRoute){
+        narrative.push(`${ctx.dominantRoute.dest}가 filtered total fuel의 ${pct(ctx.quality.concentrationShare,1)}를 차지하므로, 이 Route의 운영 패턴이 전체 그림을 강하게 좌우합니다.`);
+      }
+      if (ctx.bestRoute && ctx.worstRoute){
+        narrative.push(`반복표본 기준 최저 ${ctx.bestRoute.dest} (${fmt(ctx.bestRoute.avg_trip_fuel,0)} L/trip)와 최고 ${ctx.worstRoute.dest} (${fmt(ctx.worstRoute.avg_trip_fuel,0)} L/trip) 간 스프레드가 큽니다.`);
+      }
+      narrative.push(`따라서 실행 순서는 Anchor wait 축소 → Discharge productivity 개선 → 상태 태깅 정리 순으로 보는 것이 합리적입니다.`);
+
+      document.getElementById("findingsNarrative").innerHTML = `
+        <strong>Action Narrative</strong>
+        <p>${narrative.join(" ")}</p>
+      `;
+
+      const berth = DATA.act_fuel.find(a => a.act === "AT_BERTH");
+
+      createChart("waterfallChart", {
+        type:"bar",
+        data:{
+          labels:["Port Ops","Loading","Discharging","Sailing","Anchor Wait"],
+          datasets:[{
+            label:"L/day",
+            data:[
+              berth ? berth.avg : 96.4,
+              DATA.findings.load_fpd,
+              DATA.findings.disc_fpd,
+              DATA.findings.sail_fpd,
+              DATA.findings.anchor_fpd
+            ],
+            backgroundColor:["#6b7280","#22c55e","#ef4444","#3b82f6","#eab308"],
+            borderRadius:6
+          }]
+        },
+        options:{
+          plugins:{
+            legend:{ display:false },
+            tooltip:{
+              ...commonTooltip(),
+              callbacks:{
+                label(c){
+                  return `${fmt(c.raw,1)} L/day`;
+                }
+              }
+            }
+          },
+          scales:{ x:axis(), y:axis("L/day") }
+        }
+      });
+
+      const maxAvgTrip = Math.max(...DATA.routes.map(r => r.avg_trip_fuel));
+      const maxAnchor = Math.max(...DATA.routes.map(r => r.anchor_fpd));
+      const maxDisc = Math.max(...DATA.routes.map(r => r.disc_fpd));
+      const maxSail = Math.max(...DATA.routes.map(r => r.sail_fpd));
+      const maxDaysTrip = Math.max(...DATA.routes.map(r => safeRatio(r.total_days, r.trips) || 0));
+
+      function normalizeRoute(route){
+        return [
+          maxAvgTrip ? (route.avg_trip_fuel / maxAvgTrip) * 100 : 0,
+          maxAnchor ? (route.anchor_fpd / maxAnchor) * 100 : 0,
+          maxDisc ? (route.disc_fpd / maxDisc) * 100 : 0,
+          maxSail ? (route.sail_fpd / maxSail) * 100 : 0,
+          maxDaysTrip ? ((safeRatio(route.total_days, route.trips) || 0) / maxDaysTrip) * 100 : 0
+        ];
+      }
+
+      createChart("compareRadarChart", {
+        type:"radar",
+        data:{
+          labels:["Fuel/Trip","Anchor","Discharge","Sail","Days/Trip"],
+          datasets:[
+            {
+              label:ctx.compareA.dest,
+              data:normalizeRoute(ctx.compareA),
+              borderColor:"rgba(59,130,246,1)",
+              backgroundColor:"rgba(59,130,246,.18)",
+              pointBackgroundColor:"rgba(59,130,246,1)"
+            },
+            {
+              label:ctx.compareB.dest,
+              data:normalizeRoute(ctx.compareB),
+              borderColor:"rgba(249,115,22,1)",
+              backgroundColor:"rgba(249,115,22,.18)",
+              pointBackgroundColor:"rgba(249,115,22,1)"
+            }
+          ]
+        },
+        options:{
+          plugins:{ legend:commonLegend(), tooltip:commonTooltip() },
+          scales:{
+            r:{
+              angleLines:{ color:cssVar("--grid") },
+              grid:{ color:cssVar("--grid") },
+              pointLabels:{ color:cssVar("--muted") },
+              ticks:{ display:false },
+              suggestedMin:0,
+              suggestedMax:100
+            }
+          }
+        }
+      });
+    }
+
+    function renderQualityTab(ctx){
+      renderCards("qualityCards", [
+        {
+          cls:"tone-blue",
+          label:"Issues",
+          value:fmt(ctx.quality.issues.length,0),
+          note:"현재 필터 기준 총 이슈 수"
+        },
+        {
+          cls:"tone-red",
+          label:"High Issues",
+          value:fmt(ctx.quality.severityCounts.high,0),
+          note:"우선 조치 권장"
+        },
+        {
+          cls:"tone-yellow",
+          label:"Low Sample Routes",
+          value:fmt(ctx.quality.lowSampleRoutes.length,0),
+          note:"Trips < 5"
+        },
+        {
+          cls:"tone-orange",
+          label:"Anchor-heavy Routes",
+          value:fmt(ctx.quality.anchorHeavyRoutes.length,0),
+          note:"Anchor share / intensity 기준"
+        },
+        {
+          cls:"tone-purple",
+          label:"Unknown Port-State",
+          value:pct(ctx.quality.unknownPortShare,1),
+          note:"port_data 기준"
+        },
+        {
+          cls:"tone-green",
+          label:"Confidence Score",
+          value:String(ctx.quality.score),
+          note:qualityLabel(ctx.quality.score).replace(/<[^>]+>/g, "")
+        }
+      ]);
+
+      const strongWind = DATA.wind.find(w => w.label.includes("Strong"));
+      document.getElementById("qualityChecklist").innerHTML = `
+        <strong>Quality Checklist</strong>
+        <p>
+          표본 제한: Low sample routes ${fmt(ctx.quality.lowSampleRoutes.length,0)}개 ·
+          지배 Route 비중 ${ctx.dominantRoute ? pct(ctx.quality.concentrationShare,1) : "—"} ·
+          UNKNOWN port-state ${pct(ctx.quality.unknownPortShare,1)} ·
+          Ballast explicit days limitation 존재 ·
+          Strong wind sample ${fmt(strongWind?.days,0)} days
+        </p>
+      `;
+
+      createChart("qualityScatterChart", {
+        type:"bubble",
+        data:{
+          datasets:[{
+            label:"Routes",
+            data:ctx.routes.map(route => ({
+              x: route.trips,
+              y: route.avg_trip_fuel,
+              r: clamp(Math.sqrt(route.total_fuel) / 12, 8, 28),
+              dest: route.dest
+            })),
+            backgroundColor:ctx.routes.map(route => {
+              const sev = maxSeverity(ctx.issuesByEntity[route.dest] || []);
+              if (sev === "high") return "rgba(239,68,68,.82)";
+              if (sev === "medium") return "rgba(245,158,11,.82)";
+              if (sev === "low") return "rgba(59,130,246,.82)";
+              return ROUTE_COLORS[route.dest] || "rgba(100,116,139,.82)";
+            }),
+            borderColor:cssVar("--card"),
+            borderWidth:1
+          }]
+        },
+        options:{
+          plugins:{
+            legend:{ display:false },
+            tooltip:{
+              ...commonTooltip(),
+              callbacks:{
+                label(c){
+                  const raw = c.raw;
+                  const issues = ctx.issuesByEntity[raw.dest] || [];
+                  return `${raw.dest} · Trips ${fmt(raw.x,0)} · Avg ${fmt(raw.y,0)} L/trip · Issues ${issues.length}`;
+                }
+              }
+            },
+            noData:{ text:"No route rows" }
+          },
+          scales:{
+            x:axis("Trips"),
+            y:axis("Avg Fuel / Trip (L)")
+          }
+        }
+      });
+
+      createChart("qualitySeverityChart", {
+        type:"doughnut",
+        data:{
+          labels:["Low","Medium","High"],
+          datasets:[{
+            data:[
+              ctx.quality.severityCounts.low,
+              ctx.quality.severityCounts.medium,
+              ctx.quality.severityCounts.high
+            ],
+            backgroundColor:[
+              "rgba(59,130,246,.85)",
+              "rgba(245,158,11,.85)",
+              "rgba(239,68,68,.85)"
+            ],
+            borderWidth:0
+          }]
+        },
+        options:{
+          cutout:"62%",
+          plugins:{
+            legend:commonLegend(),
+            tooltip:commonTooltip(),
+            noData:{ text:"No issues" }
+          }
+        }
+      });
+
+      createChart("qualityConcentrationChart", {
+        type:"bar",
+        data:{
+          labels:ctx.routes.map(r => r.dest),
+          datasets:[{
+            label:"Fuel Share %",
+            data:ctx.routes.map(r => (safeRatio(r.total_fuel, ctx.totalFuel) || 0) * 100),
+            backgroundColor:ctx.routes.map(r => ROUTE_COLORS[r.dest] || "#64748b"),
+            borderRadius:6
+          }]
+        },
+        options:{
+          indexAxis:"y",
+          plugins:{
+            legend:{ display:false },
+            tooltip:{
+              ...commonTooltip(),
+              callbacks:{
+                label(c){
+                  return `${fmt(c.raw,1)}%`;
+                }
+              }
+            },
+            noData:{ text:"No concentration data" }
+          },
+          scales:{
+            x:axis("Fuel Share %", v => `${v}%`),
+            y:axis()
+          }
+        }
+      });
+
+      document.getElementById("qualityTbody").innerHTML = ctx.quality.issues.length ? ctx.quality.issues.map(item => `
+        <tr class="${rowClassFromSeverity(item.severity)}">
+          <td class="strong nowrap">${item.entity}</td>
+          <td>${severityBadge(item.severity)}</td>
+          <td class="nowrap">${item.type}</td>
+          <td>${item.detail}</td>
+          <td>${item.recommendation}</td>
+        </tr>
+      `).join("") : `<tr><td colspan="5" class="muted">No issues.</td></tr>`;
+    }
+
+    function updateTabs(){
+      document.querySelectorAll(".tab-btn").forEach((btn, idx) => {
+        btn.classList.toggle("active", idx === state.activeTab);
+      });
+      document.querySelectorAll(".panel").forEach((panel, idx) => {
+        panel.classList.toggle("active", idx === state.activeTab);
+      });
+      requestAnimationFrame(() => {
+        Object.values(state.charts).forEach(chart => chart.resize());
+      });
+    }
+
+    function setTheme(theme){
+      state.theme = theme;
+      document.documentElement.setAttribute("data-theme", theme);
+      localStorage.setItem("jpt71-rootcause-theme", theme);
+      document.getElementById("themeToggle").textContent = theme === "dark" ? "Light Mode" : "Dark Mode";
+    }
+
+    function populateCompareSelects(){
+      const options = DATA.routes.map(route => `<option value="${route.dest}">${route.dest}</option>`).join("");
+      document.getElementById("compareA").innerHTML = options;
+      document.getElementById("compareB").innerHTML = options;
+      document.getElementById("compareA").value = state.compareA;
+      document.getElementById("compareB").value = state.compareB;
+    }
+
+    function renderAll(){
+      const ctx = buildContext();
+      state.latestContext = ctx;
+      renderHeader(ctx);
+      renderStatus(ctx);
+      renderSummary(ctx);
+      renderRouteTab(ctx);
+      renderActivityTab();
+      renderHandlingTab();
+      renderWindTab();
+      renderFindingsTab(ctx);
+      renderQualityTab(ctx);
+      updateTabs();
+    }
+
+    function bindEvents(){
+      document.getElementById("routeMode").addEventListener("change", e => {
+        state.routeMode = e.target.value;
+        renderAll();
+      });
+
+      document.getElementById("minTrips").addEventListener("input", e => {
+        state.minTrips = Number(e.target.value);
+        document.getElementById("minTripsValue").textContent = String(state.minTrips);
+        renderAll();
+      });
+
+      document.getElementById("sortMetric").addEventListener("change", e => {
+        state.sortMetric = e.target.value;
+        renderAll();
+      });
+
+      document.getElementById("compareA").addEventListener("change", e => {
+        state.compareA = e.target.value;
+        renderAll();
+      });
+
+      document.getElementById("compareB").addEventListener("change", e => {
+        state.compareB = e.target.value;
+        renderAll();
+      });
+
+      document.getElementById("themeToggle").addEventListener("click", () => {
+        setTheme(state.theme === "dark" ? "light" : "dark");
+        renderAll();
+      });
+
+      document.getElementById("resetBtn").addEventListener("click", () => {
+        state.routeMode = "all";
+        state.minTrips = 1;
+        state.sortMetric = "trips";
+        state.compareA = "AGI_FIELD";
+        state.compareB = "DAS_ISLAND";
+        state.activeTab = 0;
+        document.getElementById("routeMode").value = state.routeMode;
+        document.getElementById("sortMetric").value = state.sortMetric;
+        document.getElementById("minTrips").value = String(state.minTrips);
+        document.getElementById("minTripsValue").textContent = String(state.minTrips);
+        document.getElementById("compareA").value = state.compareA;
+        document.getElementById("compareB").value = state.compareB;
+        renderAll();
+      });
+
+      document.getElementById("copySummaryBtn").addEventListener("click", async () => {
+        try{
+          await copyText(buildSummaryText(state.latestContext));
+          showFlash("Summary copied", "success");
+        } catch(err){
+          showFlash("Copy failed", "danger");
+        }
+      });
+
+      document.getElementById("exportRoutesCsvBtn").addEventListener("click", () => {
+        exportRoutesCsv(state.latestContext);
+        showFlash("Routes CSV exported", "success");
+      });
+
+      document.getElementById("exportIssuesCsvBtn").addEventListener("click", () => {
+        exportIssuesCsv(state.latestContext);
+        showFlash("Issues CSV exported", "success");
+      });
+
+      document.querySelectorAll(".tab-btn").forEach((btn, idx) => {
+        btn.addEventListener("click", () => {
+          state.activeTab = idx;
+          updateTabs();
+        });
+      });
+    }
+
+    function init(){
+      setTheme(state.theme);
+      document.getElementById("routeMode").value = state.routeMode;
+      document.getElementById("sortMetric").value = state.sortMetric;
+      document.getElementById("minTrips").value = String(state.minTrips);
+      document.getElementById("minTripsValue").textContent = String(state.minTrips);
+      populateCompareSelects();
+      bindEvents();
+      renderAll();
+    }
+
+    init();
+  </script>
+</body>
+</html>

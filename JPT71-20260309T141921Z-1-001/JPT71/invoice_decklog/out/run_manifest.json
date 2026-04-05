@@ -1,0 +1,22 @@
+{
+  "run_id": "cdc59354-103e-4705-b139-2c73905aee27",
+  "config_version": "1.0",
+  "inputs": {
+    "ofco detail.xlsx": "810ed84dbd13bb81f8a2151cc673a09ac3f5d1eda859fac31f187bcd81f769d2",
+    "decklog.xlsx": "bfb8e02ff4c45556803612b17829889d2c5188022368db2b5287d7a51d3f3648",
+    "jpt71.xlsx": "f7b4334fd20591e071b9f23c4ec64ad53b84736dfd1007e1811d06abbed4a3ec"
+  },
+  "row_counts": {
+    "fact_daily_ops": 345,
+    "voyage_scorecard": 115,
+    "leakage_ledger": 22,
+    "exception_ledger": 46
+  },
+  "unknown_rate": 0.22608695652173913,
+  "unmatched_count": 46,
+  "collision_count": 0,
+  "outputs": [
+    "JPT71_ops_summary.xlsx",
+    "run_manifest.json"
+  ]
+}

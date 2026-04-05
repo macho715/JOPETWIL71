@@ -1,0 +1,14 @@
+{
+  "model": "github-copilot/gpt-5-mini",
+  "messages": [
+    {
+      "role": "system",
+      "content": "주어진 JSON만 사용하라."
+    },
+    {
+      "role": "user",
+      "content": "질문: 상태 확인\n요약 JSON:\n{\"context\":{\"dashboard\":\"JPT71\"},\"period\":{\"startMonth\":\"2025-10\",\"endMonth\":\"2025-12\"}}"
+    }
+  ],
+  "sensitivity": "internal"
+}

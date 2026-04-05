@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JPT71 OFCO Voyage Cost Heatmap</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
+<style>
+:root {
+  --bg: #0f1117; --card: #1a1d28; --header: #12141e;
+  --text: #e4e6eb; --text2: #8b8fa3; --accent: #4f8cff;
+  --green: #2ecc71; --orange: #f39c12; --red: #e74c3c;
+  --blue: #3498db; --purple: #9b59b6; --gap: 14px; --radius: 10px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); line-height:1.5; }
+.container { max-width:1500px; margin:0 auto; padding:var(--gap); }
+.header { background: linear-gradient(135deg, #1a1d28, #252a3a); padding:20px 28px; border-radius:var(--radius); margin-bottom:var(--gap); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; border:1px solid #2a2e3e; }
+.header h1 { font-size:22px; font-weight:700; background: linear-gradient(135deg, #4f8cff, #6c5ce7); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.header .sub { font-size:13px; color:var(--text2); }
+.kpi-row { display:grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap:var(--gap); margin-bottom:var(--gap); }
+.kpi { background:var(--card); border-radius:var(--radius); padding:16px 20px; border:1px solid #2a2e3e; }
+.kpi .label { font-size:11px; color:var(--text2); text-transform:uppercase; letter-spacing:.8px; margin-bottom:4px; }
+.kpi .value { font-size:24px; font-weight:700; }
+.kpi .sub { font-size:12px; color:var(--text2); margin-top:2px; }
+.kpi .green { color:var(--green); } .kpi .orange { color:var(--orange); } .kpi .red { color:var(--red); } .kpi .blue { color:var(--blue); }
+.row2 { display:grid; grid-template-columns: 2fr 1fr; gap:var(--gap); margin-bottom:var(--gap); }
+.row1 { margin-bottom:var(--gap); }
+.card { background:var(--card); border-radius:var(--radius); padding:20px; border:1px solid #2a2e3e; }
+.card h3 { font-size:14px; font-weight:600; margin-bottom:14px; color:var(--text); }
+.card canvas { max-height:320px; }
+/* Heatmap */
+.heatmap-wrap { overflow-x:auto; overflow-y:auto; max-height:600px; }
+.heatmap { border-collapse:collapse; font-size:11px; white-space:nowrap; }
+.heatmap th { position:sticky; top:0; background:var(--card); padding:6px 8px; text-align:right; color:var(--text2); font-weight:600; z-index:2; border-bottom:2px solid #2a2e3e; }
+.heatmap th.voy-col { position:sticky; left:0; z-index:3; text-align:left; min-width:140px; }
+.heatmap td { padding:4px 8px; text-align:right; border-bottom:1px solid #1e2130; }
+.heatmap td.voy-cell { position:sticky; left:0; background:var(--card); font-weight:500; text-align:left; z-index:1; color:var(--text); border-right:1px solid #2a2e3e; }
+.heatmap tr:hover td { background:rgba(79,140,255,0.08); }
+.heatmap tr:hover td.voy-cell { background:rgba(79,140,255,0.15); }
+/* multi table */
+.mtable { width:100%; border-collapse:collapse; font-size:12px; }
+.mtable th { text-align:left; padding:8px 10px; border-bottom:2px solid #2a2e3e; color:var(--text2); font-size:11px; text-transform:uppercase; letter-spacing:.5px; cursor:pointer; user-select:none; }
+.mtable th:hover { color:var(--text); }
+.mtable td { padding:8px 10px; border-bottom:1px solid #1e2130; }
+.mtable tr:hover td { background:rgba(243,156,18,0.08); }
+.mtable .aed { text-align:right; font-weight:600; color:var(--orange); }
+.badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:10px; font-weight:600; }
+.badge-multi { background:rgba(243,156,18,0.15); color:var(--orange); }
+.badge-unresolved { background:rgba(231,76,60,0.15); color:var(--red); }
+.filter-bar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.filter-bar select { padding:5px 10px; border:1px solid #2a2e3e; border-radius:5px; background:var(--header); color:var(--text); font-size:12px; }
+.filter-bar label { font-size:11px; color:var(--text2); }
+.footer { text-align:center; padding:16px; font-size:11px; color:var(--text2); }
+.tab-bar { display:flex; gap:2px; margin-bottom:14px; }
+.tab-btn { padding:8px 18px; border:none; border-radius:6px 6px 0 0; cursor:pointer; font-size:12px; font-weight:600; background:#1e2130; color:var(--text2); transition:all .2s; }
+.tab-btn.active { background:var(--accent); color:#fff; }
+.tab-content { display:none; } .tab-content.active { display:block; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div>
+      <h1>JPT71 OFCO Voyage Cost Dashboard</h1>
+      <div class="sub">HVDC Project — OFCO Invoice × Voyage Mapping Analysis</div>
+    </div>
+    <div class="filter-bar">
+      <label>Cost Type</label>
+      <select id="f-cost" onchange="filterHeatmap()">
+        <option value="all">All Types</option>
+        <option value="AT COST">AT COST</option>
+<option value="CONTRACT">CONTRACT</option>
+<option value="CONTRACT_EQUPIMENT">CONTRACT_EQUPIMENT</option>
+<option value="CONTRACT_MANPOWER">CONTRACT_MANPOWER</option>
+<option value="OTHERS">OTHERS</option>
+<option value="PORT HANDLING">PORT HANDLING</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- KPI Row -->
+  <div class="kpi-row">
+    <div class="kpi"><div class="label">Total OFCO AED</div><div class="value">6,029,909</div><div class="sub">1303 invoice lines</div></div>
+    <div class="kpi"><div class="label">Direct Matched</div><div class="value green">4,049,014</div><div class="sub">79.1% of rows</div></div>
+    <div class="kpi"><div class="label">Manual Review</div><div class="value orange">453,961</div><div class="sub">incl. 34 multi-candidate</div></div>
+    <div class="kpi"><div class="label">Unique Voyages</div><div class="value blue">106</div><div class="sub">106 matched</div></div>
+    <div class="kpi"><div class="label">Multi-Candidate AED</div><div class="value orange">168,105</div><div class="sub">34 rows pending</div></div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('heatmap')">Voyage × Cost Heatmap</button>
+    <button class="tab-btn" onclick="switchTab('charts')">Charts & Trend</button>
+    <button class="tab-btn" onclick="switchTab('multi')">Multi-Candidate 34건</button>
+  </div>
+
+  <!-- Tab 1: Heatmap -->
+  <div id="tab-heatmap" class="tab-content active">
+    <div class="card">
+      <h3>Voyage × Cost Type Heatmap (AED) — 106 Voyages × 6 Cost Types</h3>
+      <div class="heatmap-wrap" id="heatmap-container"></div>
+    </div>
+  </div>
+
+  <!-- Tab 2: Charts -->
+  <div id="tab-charts" class="tab-content">
+    <div class="row2">
+      <div class="card"><h3>Top 30 Voyages by Total AED</h3><canvas id="bar-chart" height="320"></canvas></div>
+      <div class="card"><h3>Allocation Type Distribution</h3><canvas id="donut-chart" height="300"></canvas></div>
+    </div>
+    <div class="row2">
+      <div class="card"><h3>Monthly Cost Trend (AED)</h3><canvas id="trend-chart" height="260"></canvas></div>
+      <div class="card"><h3>Cost Type Breakdown</h3><canvas id="ct-chart" height="260"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Tab 3: Multi-candidate -->
+  <div id="tab-multi" class="tab-content">
+    <div class="card">
+      <h3>Multi-Candidate Items — 34 Rows / 168,105 AED (same-month multiple voyage candidates)</h3>
+      <div style="overflow-x:auto;">
+        <table class="mtable" id="multi-table">
+          <thead><tr>
+            <th onclick="sortMulti('idx')">#</th>
+            <th onclick="sortMulti('voyage_orig')">Voyage (Orig)</th>
+            <th onclick="sortMulti('ym')">Year-Month</th>
+            <th onclick="sortMulti('cost_main')">Cost Main</th>
+            <th onclick="sortMulti('aed')">AED</th>
+            <th>SUBJECT (excerpt)</th>
+            <th>Candidate Detail</th>
+          </tr></thead>
+          <tbody id="multi-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">JPT71 OFCO Voyage Mapping v2 — Generated 2026-03-09 19:20 — HVDC Project / Samsung C&T</div>
+</div>
+
+<script>
+// ========== DATA ==========
+const HEATMAP = {"voyages": ["HVDC-AGI-GRM-J71-062", "HVDC-AGI-GRM-J71-061", "HVDC-AGI-GRM-J71-087", "HVDC-AGI-GRM-J71-065", "HVDC-AGI-GRM-71-040", "HVDC-AGI-GRM-J71-056", "HVDC-AGI-GRM-J71-074", "HVDC-AGI-GRM-71-035", "HVDC-AGI-GRM-J71-048", "HVDC-AGI-GRM-J71-091", "HVDC-AGI-GRM-J71-081", "HVDC-AGI-GRM-J71-050", "HVDC-AGI-GRM-J71-060", "HVDC-AGI-009", "HVDC-AGI-010", "HVDC-AGI-GRM-J71-051", "HVDC-AGI-GRM-J71-064", "HVDC-DAS-J71", "HVDC-AGI-GRM-J71-047", "HVDC-AGI-J71-004", "HVDC-AGI-GRM-J71-052", "HVDC-AGI-J71-003", "HVDC-AGI-GRM-71-034", "HVDC-AGI-J71-001", "HVDC-AGI-GRM-71-030", "HVDC-AGI-GRM-J71-049", "HVDC-AGI-GRM-71-027", "HVDC-AGI-J71-002", "HVDC-AGI-GRM-J71-063", "HVDC-AGI-GRM-J71-053", "HVDC-AGI-GRM-71-023", "HVDC-AGI-GRM-71-037", "HVDC-AGI-GRM-71-031", "HVDC-AGI-GRM-J71-076", "HVDC-AGI-GRM-71-033", "HVDC-AGI-DEBRIS-011", "HVDC-AGI-GRM-J71-092", "HVDC-AGI-GRM-J71-080", "HVDC-AGI-GRM-J71-058", "HVDC-AGI-GRM-J71-077", "HVDC-AGI-GRM-J71-079", "HVDC-AGI-GRM-71-017", "HVDC-AGI-GRM-71-029", "HVDC-AGI-GRM-J71-078", "HVDC-AGI-GRM-71-039", "HVDC-AGI-GRM-71-003", "HVDC-AGI-GRM-71-010", "HVDC-AGI-GRM-71-005", "HVDC-AGI-GRM-71-045", "HVDC-AGI-GRM-J71-084", "HVDC-AGI-GRM-71-008", "HVDC-AGI-GRM-71-036", "HVDC-AGI-GRM-71-012", "HVDC-AGI-GRM-J71-082", "HVDC-AGI-GRM-J71-068", "HVDC-AGI-GRM-71-013", "HVDC-AGI-GRM-71-042", "HVDC-AGI-GRM-J71-066", "HVDC-AGI-GRM-J71-070", "HVDC-AGI-GRM-J71-075", "HVDC-AGI-GRM-J71-067", "HVDC-AGI-GRM-71-014", "HVDC-AGI-GRM-J71-072", "HVDC-AGI-GRM-J71-071", "HVDC-AGI-GRM-71-021", "HVDC-AGI-GRM-71-007", "HVDC-AGI-GRM-71-032", "HVDC-AGI-GRM-71-022", "HVDC-AGI-GRM-71-015", "HVDC-AGI-GRM-71-024", "HVDC-AGI-GRM-71-018", "HVDC-AGI-GRM-71-016", "HVDC-AGI-GRM-71-004", "HVDC-AGI-GRM-71-006", "HVDC-AGI-GRM-71-020", "HVDC-AGI-GRM-71-026", "HVDC-AGI-GRM-71-011", "HVDC-AGI-GRM-J71-073", "HVDC-AGI-GRM-71-038", "HVDC-AGI-GRM-71-025", "HVDC-AGI-GRM-71-019", "HVDC-AGI-GRM-71-043", "HVDC-AGI-GRM-71-009", "HVDC-AGI-GRM-71-044", "HVDC-AGI-GRM-J71-059", "HVDC-AGI-DEBRIS-009", "HVDC-AGI-GRM-J71-069", "HVDC-AGI-DEBRIS-010", "HVDC-AGI-GRM-71-041", "HVDC-AGI-GRM-J71-057", "HVDC-AGI-DEBRIS-007", "HVDC-AGI-DEBRIS-005", "HVDC-AGI-GRM-71-028", "HVDC-AGI-GRM-J71-055", "HVDC-AGI-DEBRIS-006", "HVDC-AGI-GRM-J71-086", "HVDC-AGI-GRM-J71-085", "HVDC-AGI-DEBRIS-012", "HVDC-AGI-GRM-J71-089", "HVDC-AGI-GRM-J71-090", "HVDC-AGI-GRM-J71-083", "HVDC-AGI-GRM-J71-093", "HVDC-AGI-GRM-71-002", "HVDC-AGI-GRM-71-046", "HVDC-AGI-GRM-71-001", "HVDC-AGI-DEBRIS-008"], "cost_types": ["AT COST", "CONTRACT", "CONTRACT_EQUPIMENT", "CONTRACT_MANPOWER", "OTHERS", "PORT HANDLING"], "matrix": [[129359.0, 81306.0, 0.0, 0.0, 0.0, 21912.0], [127141.0, 11694.0, 0.0, 0.0, 32887.0, 49187.0], [134795.0, 11495.0, 0.0, 0.0, 0.0, 20977.0], [0.0, 6147.0, 0.0, 0.0, 123546.0, 26079.0], [124299.0, 2300.0, 0.0, 0.0, 0.0, 18930.0], [121927.0, 2300.0, 170.0, 1984.0, 0.0, 17818.0], [123447.0, 4052.0, 0.0, 0.0, 0.0, 16018.0], [124343.0, 2650.0, 0.0, 0.0, 0.0, 12230.0], [124299.0, 1800.0, 0.0, 0.0, 0.0, 6383.0], [120112.0, 7861.0, 0.0, 0.0, 0.0, 3038.0], [123763.0, 1950.0, 0.0, 0.0, 0.0, 0.0], [1688.0, 8370.0, 9000.0, 12646.0, 0.0, 70817.0], [2409.0, 8771.0, 12490.0, 23060.0, 0.0, 48460.0], [5142.0, 8328.0, 15000.0, 12894.0, 18300.0, 31027.0], [455.0, 10576.0, 15000.0, 9919.0, 12510.0, 35451.0], [455.0, 6655.0, 12000.0, 12398.0, 0.0, 42408.0], [1500.0, 6829.0, 0.0, 4463.0, 0.0, 59502.0], [7205.0, 5891.0, 6000.0, 15326.0, 3680.0, 31979.0], [1955.0, 7100.0, 0.0, 1984.0, 6622.0, 45798.0], [1955.0, 5010.0, 3000.0, 6944.0, 0.0, 39568.0], [909.0, 30000.0, 0.0, 0.0, 0.0, 21994.0], [0.0, 3100.0, 510.0, 10972.0, 0.0, 37320.0], [23781.0, 2300.0, 0.0, 0.0, 0.0, 18561.0], [0.0, 3550.0, 6300.0, 10414.0, 0.0, 22481.0], [10005.0, 2500.0, 0.0, 0.0, 0.0, 28156.0], [909.0, 6800.0, 0.0, 0.0, 0.0, 32518.0], [14400.0, 4100.0, 0.0, 0.0, 0.0, 20139.0], [0.0, 3200.0, 6000.0, 7641.0, 0.0, 17783.0], [455.0, 6256.0, 0.0, 0.0, 0.0, 25940.0], [0.0, 4600.0, 0.0, 0.0, 0.0, 26079.0], [7655.0, 2500.0, 0.0, 0.0, 0.0, 16741.0], [455.0, 13866.0, 0.0, 0.0, 0.0, 12142.0], [0.0, 11732.0, 0.0, 0.0, 0.0, 13378.0], [0.0, 5861.0, 0.0, 0.0, 0.0, 17609.0], [0.0, 2300.0, 0.0, 0.0, 0.0, 20278.0], [0.0, 0.0, 0.0, 0.0, 0.0, 22570.0], [500.0, 7241.0, 0.0, 0.0, 0.0, 14653.0], [0.0, 4548.0, 0.0, 0.0, 0.0, 17475.0], [0.0, 4100.0, 0.0, 0.0, 0.0, 17909.0], [909.0, 5432.0, 0.0, 0.0, 0.0, 14784.0], [455.0, 4075.0, 0.0, 0.0, 0.0, 15753.0], [455.0, 2500.0, 0.0, 0.0, 0.0, 17228.0], [455.0, 2650.0, 0.0, 0.0, 0.0, 17058.0], [0.0, 2300.0, 0.0, 0.0, 0.0, 17597.0], [0.0, 2300.0, 0.0, 0.0, 0.0, 17430.0], [0.0, 2300.0, 0.0, 0.0, 0.0, 17228.0], [0.0, 2300.0, 0.0, 0.0, 0.0, 17228.0], [455.0, 2650.0, 0.0, 0.0, 0.0, 16178.0], [0.0, 2300.0, 0.0, 0.0, 0.0, 16896.0], [506.0, 3929.0, 0.0, 0.0, 0.0, 14288.0], [455.0, 2500.0, 0.0, 0.0, 0.0, 15768.0], [0.0, 2300.0, 0.0, 0.0, 0.0, 16378.0], [0.0, 2800.0, 0.0, 0.0, 0.0, 15652.0], [0.0, 0.0, 0.0, 0.0, 0.0, 18325.0], [455.0, 3887.0, 0.0, 0.0, 0.0, 13872.0], [0.0, 2450.0, 0.0, 0.0, 0.0, 15578.0], [0.0, 2300.0, 0.0, 0.0, 0.0, 15718.0], [0.0, 3726.0, 0.0, 0.0, 300.0, 13958.0], [455.0, 5444.0, 0.0, 0.0, 0.0, 11440.0], [455.0, 3802.0, 0.0, 0.0, 0.0, 13018.0], [0.0, 3598.0, 0.0, 0.0, 0.0, 12979.0], [455.0, 2500.0, 0.0, 0.0, 0.0, 13228.0], [0.0, 3561.0, 0.0, 0.0, 0.0, 12614.0], [0.0, 3560.0, 0.0, 0.0, 0.0, 12602.0], [0.0, 2450.0, 0.0, 0.0, 0.0, 13578.0], [455.0, 2500.0, 0.0, 0.0, 0.0, 12968.0], [0.0, 2300.0, 0.0, 0.0, 0.0, 13497.0], [0.0, 2300.0, 0.0, 0.0, 0.0, 13378.0], [0.0, 2300.0, 0.0, 0.0, 0.0, 13378.0], [0.0, 2300.0, 0.0, 0.0, 0.0, 13378.0], [0.0, 2300.0, 0.0, 0.0, 0.0, 13378.0], [0.0, 2300.0, 0.0, 0.0, 0.0, 13378.0], [0.0, 1800.0, 0.0, 0.0, 0.0, 13228.0], [0.0, 2300.0, 0.0, 0.0, 0.0, 12708.0], [455.0, 2500.0, 0.0, 0.0, 0.0, 11978.0], [455.0, 2500.0, 0.0, 0.0, 0.0, 11978.0], [454.0, 2500.0, 0.0, 0.0, 0.0, 11978.0], [0.0, 5084.0, 0.0, 0.0, 0.0, 9844.0], [455.0, 2500.0, 0.0, 0.0, 0.0, 11588.0], [0.0, 2300.0, 0.0, 0.0, 0.0, 11978.0], [0.0, 2300.0, 0.0, 0.0, 0.0, 11978.0], [0.0, 2300.0, 0.0, 0.0, 0.0, 11718.0], [0.0, 2300.0, 0.0, 0.0, 0.0, 11718.0], [0.0, 2300.0, 0.0, 0.0, 0.0, 11718.0], [0.0, 2300.0, 0.0, 0.0, 0.0, 11510.0], [0.0, 0.0, 0.0, 0.0, 0.0, 13702.0], [455.0, 3456.0, 0.0, 0.0, 0.0, 9556.0], [0.0, 0.0, 0.0, 0.0, 0.0, 12929.0], [0.0, 2300.0, 0.0, 0.0, 0.0, 10582.0], [455.0, 2500.0, 0.0, 0.0, 0.0, 9861.0], [0.0, 0.0, 0.0, 0.0, 0.0, 12792.0], [0.0, 0.0, 0.0, 0.0, 0.0, 12792.0], [0.0, 500.0, 0.0, 0.0, 0.0, 11978.0], [0.0, 1800.0, 0.0, 0.0, 0.0, 9666.0], [0.0, 0.0, 0.0, 0.0, 0.0, 11101.0], [506.0, 4621.0, 0.0, 0.0, 0.0, 5105.0], [0.0, 4603.0, 0.0, 0.0, 0.0, 5235.0], [0.0, 0.0, 0.0, 0.0, 0.0, 9758.0], [500.0, 4674.0, 0.0, 0.0, 0.0, 3038.0], [0.0, 4397.0, 0.0, 0.0, 0.0, 3038.0], [0.0, 2129.0, 0.0, 0.0, 0.0, 3291.0], [0.0, 2119.0, 0.0, 0.0, 0.0, 3191.0], [455.0, 700.0, 0.0, 0.0, 0.0, 4084.0], [0.0, 1800.0, 0.0, 0.0, 0.0, 3191.0], [0.0, 500.0, 0.0, 0.0, 0.0, 3935.0], [0.0, 0.0, 0.0, 0.0, 0.0, 3184.0]]};
+const TOP30 = {"labels": ["HVDC-AGI-GRM-J71-062", "HVDC-AGI-GRM-J71-061", "HVDC-AGI-GRM-J71-087", "HVDC-AGI-GRM-J71-065", "HVDC-AGI-GRM-71-040", "HVDC-AGI-GRM-J71-056", "HVDC-AGI-GRM-J71-074", "HVDC-AGI-GRM-71-035", "HVDC-AGI-GRM-J71-048", "HVDC-AGI-GRM-J71-091", "HVDC-AGI-GRM-J71-081", "HVDC-AGI-GRM-J71-050", "HVDC-AGI-GRM-J71-060", "HVDC-AGI-009", "HVDC-AGI-010", "HVDC-AGI-GRM-J71-051", "HVDC-AGI-GRM-J71-064", "HVDC-DAS-J71", "HVDC-AGI-GRM-J71-047", "HVDC-AGI-J71-004", "HVDC-AGI-GRM-J71-052", "HVDC-AGI-J71-003", "HVDC-AGI-GRM-71-034", "HVDC-AGI-J71-001", "HVDC-AGI-GRM-71-030", "HVDC-AGI-GRM-J71-049", "HVDC-AGI-GRM-71-027", "HVDC-AGI-J71-002", "HVDC-AGI-GRM-J71-063", "HVDC-AGI-GRM-J71-053"], "values": [232577.0, 220909.0, 167268.0, 155772.0, 145529.0, 144198.0, 143517.0, 139222.0, 132482.0, 131011.0, 125713.0, 102521.0, 95190.0, 90691.0, 83911.0, 73915.0, 72295.0, 70080.0, 63459.0, 56477.0, 52903.0, 51902.0, 44642.0, 42745.0, 40660.0, 40227.0, 38639.0, 34623.0, 32650.0, 30679.0]};
+const ALLOC = {"labels": ["DIRECT", "SEPARATE_OPS", "MANUAL_REVIEW", "NEW_TYPE", "PRORATE", "DATE_INFER"], "values": [1031, 99, 94, 39, 37, 3], "aed": [4049014.0, 316466.0, 453961.0, 110271.0, 1071661.0, 28535.0]};
+const TREND = {"labels": ["2024-08", "2024-09", "2024-10", "2024-11", "2024-12", "2025-01", "2025-02", "2025-03", "2025-04", "2025-05", "2025-06", "2025-07", "2025-10", "2025-12", "2026-02", "2026-12"], "total": [332639.0, 436059.0, 320802.0, 266026.0, 293079.0, 328714.0, 454786.0, 514390.0, 358520.0, 224095.0, 117898.0, 317113.0, 151952.0, 309815.0, 528169.0, 1075849.0], "direct": [180092.0, 162339.0, 183721.0, 266026.0, 265199.0, 320659.0, 145184.0, 310614.0, 147894.0, 92384.0, 0.0, 224025.0, 0.0, 255988.0, 479252.0, 1015636.0], "manual": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 57970.0, 0.0, 210627.0, 18549.0, 117898.0, 0.0, 0.0, 0.0, 48918.0, 0.0]};
+const MULTI = [{"idx": 278, "voyage_orig": "\u3000", "ym": "2025-01", "subject": "Agency fee: Arranging FW Supply on 02-JAN-2024", "cost_main": "CONTRACT", "aed": 200.0, "detail": "4 candidates in 2025-01: HVDC-AGI-GRM-71-045|HVDC-AGI-GRM-71-046|HVDC-DAS-J71-002|HVDC-DAS-J71-003"}, {"idx": 443, "voyage_orig": "HVDC-DAS-J71-005_HCS 39", "ym": "2025-02", "subject": "SAFEEN INV- 36030- berthing unberthing & Pilotage - Rot# 2503121295", "cost_main": "CONTRACT", "aed": 7140.0, "detail": "6 candidates in 2025-02: HVDC-DAS-J71-003|HVDC-AGI-J71-001|HVDC-DAS-J71-004|HVDC-AGI-GRM-J71-047|HVD"}, {"idx": 444, "voyage_orig": "HVDC-DAS-J71-005_HCS 39", "ym": "2025-02", "subject": "ADP INV-34778- Port Dues & Services", "cost_main": "PORT HANDLING", "aed": 2800.0, "detail": "6 candidates in 2025-02: HVDC-DAS-J71-003|HVDC-AGI-J71-001|HVDC-DAS-J71-004|HVDC-AGI-GRM-J71-047|HVD"}, {"idx": 445, "voyage_orig": "HVDC-DAS-J71-005_HCS 39", "ym": "2025-02", "subject": "ADP INV04250302511-PHC- 57th Trip", "cost_main": "PORT HANDLING", "aed": 7341.0, "detail": "6 candidates in 2025-02: HVDC-DAS-J71-003|HVDC-AGI-J71-001|HVDC-DAS-J71-004|HVDC-AGI-GRM-J71-047|HVD"}, {"idx": 446, "voyage_orig": "HVDC-DAS-J71-005_HCS 39", "ym": "2025-02", "subject": "Agency fee: Cargo Clearnace - 57th Trip", "cost_main": "CONTRACT", "aed": 500.0, "detail": "6 candidates in 2025-02: HVDC-DAS-J71-003|HVDC-AGI-J71-001|HVDC-DAS-J71-004|HVDC-AGI-GRM-J71-047|HVD"}, {"idx": 453, "voyage_orig": "HVDC-DAS-J71-005_HCS 39", "ym": "2025-02", "subject": "OFCO 10% Handling Fees", "cost_main": "CONTRACT", "aed": 460.0, "detail": "6 candidates in 2025-02: HVDC-DAS-J71-003|HVDC-AGI-J71-001|HVDC-DAS-J71-004|HVDC-AGI-GRM-J71-047|HVD"}, {"idx": 462, "voyage_orig": "HVDC-DAS-J71-005_HCS 39", "ym": "2025-02", "subject": "OFCO 10% Handling Fees", "cost_main": "CONTRACT", "aed": 345.0, "detail": "6 candidates in 2025-02: HVDC-DAS-J71-003|HVDC-AGI-J71-001|HVDC-DAS-J71-004|HVDC-AGI-GRM-J71-047|HVD"}, {"idx": 464, "voyage_orig": "HVDC-DAS-J71-005_HCS 39", "ym": "2025-02", "subject": "SAFEEN INV- 36624- Channel Charges - Rot# 2503122021", "cost_main": "PORT HANDLING", "aed": 6383.0, "detail": "6 candidates in 2025-02: HVDC-DAS-J71-003|HVDC-AGI-J71-001|HVDC-DAS-J71-004|HVDC-AGI-GRM-J71-047|HVD"}, {"idx": 644, "voyage_orig": "HVDC-AGI-J71-007", "ym": "2025-04", "subject": "Agency fee: Berthing Arrangement / Channel Transit Permission / Pilot Arrangemen", "cost_main": "CONTRACT", "aed": 1800.0, "detail": "6 candidates in 2025-04: HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71"}, {"idx": 645, "voyage_orig": "HVDC-AGI-J71-007", "ym": "2025-04", "subject": "SAFEEN INV-49127 \u2013 Berthing & Unberthing / Channel Crossing \u2013 Rot# 2503123598", "cost_main": "PORT HANDLING", "aed": 3931.0, "detail": "6 candidates in 2025-04: HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71"}, {"idx": 646, "voyage_orig": "HVDC-AGI-J71-007", "ym": "2025-04", "subject": "SAFEEN INV-49128 \u2013 Channel Crossing \u2013 Rot# 2503123598", "cost_main": "PORT HANDLING", "aed": 100.0, "detail": "6 candidates in 2025-04: HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71"}, {"idx": 647, "voyage_orig": "HVDC-AGI-J71-007", "ym": "2025-04", "subject": "ADP INV-49597 \u2013 Port Dues & Services", "cost_main": "PORT HANDLING", "aed": 2800.0, "detail": "6 candidates in 2025-04: HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71"}, {"idx": 648, "voyage_orig": "HVDC-AGI-J71-007", "ym": "2025-04", "subject": "ADP INV03250400326 \u2013 PHC \u2013 1st Trip", "cost_main": "PORT HANDLING", "aed": 6612.0, "detail": "6 candidates in 2025-04: HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71"}, {"idx": 649, "voyage_orig": "HVDC-AGI-J71-007", "ym": "2025-04", "subject": "ADP INV03250400325 \u2013 PHC \u2013 1st Trip", "cost_main": "OTHERS", "aed": 21770.0, "detail": "6 candidates in 2025-04: HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71"}, {"idx": 650, "voyage_orig": "HVDC-AGI-J71-007", "ym": "2025-04", "subject": "Agency fee: Port Crane Arrangement", "cost_main": "CONTRACT", "aed": 400.0, "detail": "6 candidates in 2025-04: HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71"}, {"idx": 651, "voyage_orig": "HVDC-AGI-J71-007", "ym": "2025-04", "subject": "Agency fee: Cargo Clearance \u2013 Trip", "cost_main": "CONTRACT", "aed": 500.0, "detail": "6 candidates in 2025-04: HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71"}, {"idx": 654, "voyage_orig": "HVDC-AGI-J71-007", "ym": "2025-04", "subject": "Agency fee: Berthing Arrangement / Channel Transit Permission / Pilot Arrangemen", "cost_main": "CONTRACT", "aed": 1800.0, "detail": "6 candidates in 2025-04: HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71"}, {"idx": 655, "voyage_orig": "HVDC-AGI-J71-007", "ym": "2025-04", "subject": "SAFEEN INV-48158 \u2013 Channel Crossing \u2013 Rot# 2503123786", "cost_main": "PORT HANDLING", "aed": 3931.0, "detail": "6 candidates in 2025-04: HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71"}, {"idx": 656, "voyage_orig": "HVDC-AGI-J71-007", "ym": "2025-04", "subject": "ADP INV-48302 \u2013 Port Dues & Services", "cost_main": "PORT HANDLING", "aed": 4200.0, "detail": "6 candidates in 2025-04: HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71"}, {"idx": 657, "voyage_orig": "HVDC-AGI-J71-007", "ym": "2025-04", "subject": "ADP INV03250400343 \u2013 Port Crane \u2013 1st Trip", "cost_main": "OTHERS", "aed": 3500.0, "detail": "6 candidates in 2025-04: HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71"}, {"idx": 658, "voyage_orig": "HVDC-AGI-J71-007", "ym": "2025-04", "subject": "Agency fee: Port Crane Arrangement", "cost_main": "CONTRACT", "aed": 200.0, "detail": "6 candidates in 2025-04: HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71"}, {"idx": 659, "voyage_orig": "HVDC-AGI-J71-007", "ym": "2025-04", "subject": "ADP INV03250500398 \u2013 PHC & Port Mobile Crane \u2013 1st Trip", "cost_main": "OTHERS", "aed": 37130.0, "detail": "6 candidates in 2025-04: HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71"}, {"idx": 660, "voyage_orig": "HVDC-AGI-J71-007", "ym": "2025-04", "subject": "Agency fee: Port Crane Arrangement", "cost_main": "CONTRACT", "aed": 600.0, "detail": "6 candidates in 2025-04: HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71"}, {"idx": 661, "voyage_orig": "HVDC-AGI-J71-007", "ym": "2025-04", "subject": "ADP INV032500397 \u2013 PHC & Port Mobile Crane \u2013 1st Trip", "cost_main": "PORT HANDLING", "aed": 9081.0, "detail": "6 candidates in 2025-04: HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71"}, {"idx": 662, "voyage_orig": "HVDC-AGI-J71-007", "ym": "2025-04", "subject": "Agency fee: Cargo Clearance \u2013 Trip", "cost_main": "CONTRACT", "aed": 500.0, "detail": "6 candidates in 2025-04: HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71"}, {"idx": 664, "voyage_orig": "HVDC-AGI-J71-007", "ym": "2025-04", "subject": "Agency fee: Berthing Arrangement / Channel Transit Permission / Pilot Arrangemen", "cost_main": "CONTRACT", "aed": 1800.0, "detail": "6 candidates in 2025-04: HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71"}, {"idx": 665, "voyage_orig": "HVDC-AGI-J71-007", "ym": "2025-04", "subject": "SAFEEN INV-48147 \u2013 Channel Crossing \u2013 Rot# 2503124026", "cost_main": "PORT HANDLING", "aed": 3091.0, "detail": "6 candidates in 2025-04: HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71"}, {"idx": 666, "voyage_orig": "HVDC-AGI-J71-007", "ym": "2025-04", "subject": "SAFEEN INV-48148 \u2013 Administration \u2013 Rot# 2503124026", "cost_main": "PORT HANDLING", "aed": 100.0, "detail": "6 candidates in 2025-04: HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71"}, {"idx": 668, "voyage_orig": "HVDC-AGI-J71-007", "ym": "2025-04", "subject": "OFCO Handling Fees \u2013 Port Charges Trip", "cost_main": "CONTRACT", "aed": 21195.0, "detail": "6 candidates in 2025-04: HVDC-AGI-J71-005|HVDC-AGI-GRM-J71-048|HVDC-AGI-GRM-J71-049|HVDC-AGI-GRM-J71"}, {"idx": 774, "voyage_orig": "HVDC-AGI-J71-054", "ym": "2025-05", "subject": "Agency fee: Berthing Arrangement / Channel Transit Permission / Pilot Arrangemen", "cost_main": "CONTRACT", "aed": 1800.0, "detail": "4 candidates in 2025-05: HVDC-AGI-GRM-J71-051|HVDC-AGI-GRM-J71-052|HVDC-AGI-GRM-J71-053|HVDC-AGI-GRM"}, {"idx": 775, "voyage_orig": "HVDC-AGI-J71-054", "ym": "2025-05", "subject": "SAFEEN INV-51457 \u2013 Channel Crossing \u2013 Rot#2503124553", "cost_main": "PORT HANDLING", "aed": 6483.0, "detail": "4 candidates in 2025-05: HVDC-AGI-GRM-J71-051|HVDC-AGI-GRM-J71-052|HVDC-AGI-GRM-J71-053|HVDC-AGI-GRM"}, {"idx": 776, "voyage_orig": "HVDC-AGI-J71-054", "ym": "2025-05", "subject": "ADP INV-51853 \u2013 Port Dues & Services", "cost_main": "PORT HANDLING", "aed": 4200.0, "detail": "4 candidates in 2025-05: HVDC-AGI-GRM-J71-051|HVDC-AGI-GRM-J71-052|HVDC-AGI-GRM-J71-053|HVDC-AGI-GRM"}, {"idx": 777, "voyage_orig": "HVDC-AGI-J71-054", "ym": "2025-05", "subject": "ADP INV03250500459 \u2013 PHC \u2013 1st Trip", "cost_main": "OTHERS", "aed": 4912.0, "detail": "4 candidates in 2025-05: HVDC-AGI-GRM-J71-051|HVDC-AGI-GRM-J71-052|HVDC-AGI-GRM-J71-053|HVDC-AGI-GRM"}, {"idx": 778, "voyage_orig": "HVDC-AGI-J71-054", "ym": "2025-05", "subject": "Agency fee: Cargo Clearance \u2013 (Trip)", "cost_main": "CONTRACT", "aed": 500.0, "detail": "4 candidates in 2025-05: HVDC-AGI-GRM-J71-051|HVDC-AGI-GRM-J71-052|HVDC-AGI-GRM-J71-053|HVDC-AGI-GRM"}];
+const CT = [{"type": "AT COST", "aed": 1345465.0, "voyages": 49}, {"type": "CONTRACT", "aed": 482635.0, "voyages": 97}, {"type": "CONTRACT_EQUPIMENT", "aed": 85470.0, "voyages": 11}, {"type": "CONTRACT_MANPOWER", "aed": 130646.0, "voyages": 13}, {"type": "OTHERS", "aed": 197845.0, "voyages": 7}, {"type": "PORT HANDLING", "aed": 1806953.0, "voyages": 105}];
+
+const COLORS = ['#4f8cff','#f39c12','#2ecc71','#e74c3c','#9b59b6','#1abc9c','#e67e22','#3498db'];
+
+// ========== HEATMAP ==========
+function shortVoy(v) { return v.replace('HVDC-AGI-','').replace('HVDC-',''); }
+
+function getHeatColor(val, maxVal) {
+  if (val === 0) return 'transparent';
+  const ratio = Math.min(val / maxVal, 1);
+  if (ratio < 0.25) return `rgba(79,140,255,${0.15 + ratio*1.4})`;
+  if (ratio < 0.5) return `rgba(46,204,113,${0.3 + (ratio-0.25)*2})`;
+  if (ratio < 0.75) return `rgba(243,156,18,${0.4 + (ratio-0.5)*2})`;
+  return `rgba(231,76,60,${0.5 + (ratio-0.75)*2})`;
+}
+
+function renderHeatmap(costFilter) {
+  const ct = HEATMAP.cost_types;
+  const cols = costFilter === 'all' ? ct : ct.filter(c => c === costFilter);
+  const colIdx = cols.map(c => ct.indexOf(c));
+
+  // Find max for color scale
+  let maxVal = 0;
+  HEATMAP.matrix.forEach(row => colIdx.forEach(i => { if(row[i]>maxVal) maxVal=row[i]; }));
+
+  let html = '<table class="heatmap"><thead><tr><th class="voy-col">Voyage</th>';
+  cols.forEach(c => { html += `<th>${c}</th>`; });
+  html += '<th>TOTAL</th></tr></thead><tbody>';
+
+  HEATMAP.voyages.forEach((voy, ri) => {
+    const row = HEATMAP.matrix[ri];
+    let total = 0;
+    colIdx.forEach(i => { total += row[i]; });
+    if (costFilter !== 'all' && total === 0) return; // skip zero rows when filtered
+
+    html += `<tr><td class="voy-cell">${shortVoy(voy)}</td>`;
+    colIdx.forEach(i => {
+      const v = row[i];
+      const bg = getHeatColor(v, maxVal);
+      const txt = v > 0 ? v.toLocaleString() : '-';
+      html += `<td style="background:${bg};color:${v>0?'#fff':'#555'}">${txt}</td>`;
+    });
+    html += `<td style="font-weight:700;color:#4f8cff">${total.toLocaleString()}</td>`;
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  document.getElementById('heatmap-container').innerHTML = html;
+}
+
+function filterHeatmap() {
+  renderHeatmap(document.getElementById('f-cost').value);
+}
+
+// ========== CHARTS ==========
+let charts = {};
+
+function initCharts() {
+  // Top 30 bar
+  const barCtx = document.getElementById('bar-chart').getContext('2d');
+  charts.bar = new Chart(barCtx, {
+    type: 'bar',
+    data: {
+      labels: TOP30.labels.map(shortVoy),
+      datasets: [{ label: 'AED', data: TOP30.values, backgroundColor: '#4f8cffCC', borderRadius: 3 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.x.toLocaleString() + ' AED' } } },
+      scales: { x: { grid: { color: '#1e2130' }, ticks: { color: '#8b8fa3', callback: v => (v/1000).toFixed(0)+'K' } }, y: { grid: { display: false }, ticks: { color: '#e4e6eb', font: { size: 10 } } } }
+    }
+  });
+
+  // Allocation donut
+  const donutCtx = document.getElementById('donut-chart').getContext('2d');
+  charts.donut = new Chart(donutCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ALLOC.labels.map((l,i) => `${l} (${ALLOC.values[i]})`),
+      datasets: [{ data: ALLOC.aed, backgroundColor: COLORS.map(c=>c+'CC'), borderColor: '#1a1d28', borderWidth: 2 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '55%',
+      plugins: {
+        legend: { position: 'right', labels: { color: '#e4e6eb', usePointStyle: true, padding: 10, font: { size: 11 } } },
+        tooltip: { callbacks: { label: ctx => { const t = ctx.dataset.data.reduce((a,b)=>a+b,0); return `${ctx.label}: ${ctx.parsed.toLocaleString()} AED (${(ctx.parsed/t*100).toFixed(1)}%)`; } } }
+      }
+    }
+  });
+
+  // Trend
+  const trendCtx = document.getElementById('trend-chart').getContext('2d');
+  charts.trend = new Chart(trendCtx, {
+    type: 'bar',
+    data: {
+      labels: TREND.labels,
+      datasets: [
+        { label: 'Direct', data: TREND.direct, backgroundColor: '#2ecc71AA', borderRadius: 2, order: 2 },
+        { label: 'Manual Review', data: TREND.manual, backgroundColor: '#f39c12AA', borderRadius: 2, order: 1 },
+        { label: 'Total', data: TREND.total, type: 'line', borderColor: '#4f8cff', borderWidth: 2, pointRadius: 3, fill: false, order: 0 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#e4e6eb', usePointStyle: true } }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toLocaleString() + ' AED' } } },
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { color: '#8b8fa3' } },
+        y: { stacked: false, grid: { color: '#1e2130' }, ticks: { color: '#8b8fa3', callback: v => (v/1000).toFixed(0)+'K' } }
+      }
+    }
+  });
+
+  // Cost type bar
+  const ctCtx = document.getElementById('ct-chart').getContext('2d');
+  charts.ct = new Chart(ctCtx, {
+    type: 'bar',
+    data: {
+      labels: CT.map(c => c.type),
+      datasets: [{ label: 'AED', data: CT.map(c => c.aed), backgroundColor: COLORS.slice(0,CT.length).map(c=>c+'CC'), borderRadius: 4 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.y.toLocaleString() + ' AED' } } },
+      scales: { x: { grid: { display: false }, ticks: { color: '#e4e6eb', font: { size: 10 } } }, y: { grid: { color: '#1e2130' }, ticks: { color: '#8b8fa3', callback: v => (v/1000).toFixed(0)+'K' } } }
+    }
+  });
+}
+
+// ========== MULTI TABLE ==========
+let multiSort = { col: 'aed', dir: 'desc' };
+
+function renderMultiTable() {
+  const sorted = [...MULTI].sort((a,b) => {
+    const av = a[multiSort.col], bv = b[multiSort.col];
+    const cmp = typeof av === 'string' ? av.localeCompare(bv) : av - bv;
+    return multiSort.dir === 'asc' ? cmp : -cmp;
+  });
+
+  let html = '';
+  sorted.forEach((r, i) => {
+    html += `<tr>
+      <td>${r.idx}</td>
+      <td><span class="badge badge-multi">${shortVoy(r.voyage_orig)}</span></td>
+      <td>${r.ym}</td>
+      <td>${r.cost_main}</td>
+      <td class="aed">${r.aed.toLocaleString()}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis" title="${r.subject}">${r.subject}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;font-size:11px;color:#8b8fa3" title="${r.detail}">${r.detail}</td>
+    </tr>`;
+  });
+  document.getElementById('multi-tbody').innerHTML = html;
+}
+
+function sortMulti(col) {
+  if (multiSort.col === col) multiSort.dir = multiSort.dir === 'asc' ? 'desc' : 'asc';
+  else { multiSort.col = col; multiSort.dir = 'desc'; }
+  renderMultiTable();
+}
+
+// ========== TABS ==========
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  event.target.classList.add('active');
+
+  if (tab === 'charts' && !charts.bar) initCharts();
+}
+
+// ========== INIT ==========
+renderHeatmap('all');
+renderMultiTable();
+</script>
+</body>
+</html>

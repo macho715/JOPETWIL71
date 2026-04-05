@@ -1,0 +1,1162 @@
+[
+  {
+    "Batch": "1",
+    "Loading Date": "2024-07-27",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-01",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "5mm",
+    "Delivery Qty. in Ton": 600.0,
+    "OFCO INVOICE NO": "OFCO-INV-0924-345"
+  },
+  {
+    "Batch": "2",
+    "Loading Date": "2024-07-30",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-02",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "20mm",
+    "Delivery Qty. in Ton": 623.0,
+    "OFCO INVOICE NO": "OFCO-INV-0924-345"
+  },
+  {
+    "Batch": "3",
+    "Loading Date": "2024-08-02",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-03",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "10mm",
+    "Delivery Qty. in Ton": 618.96,
+    "OFCO INVOICE NO": "OFCO-INV-0924-345"
+  },
+  {
+    "Batch": "4",
+    "Loading Date": "2024-08-05",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-04",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "5mm",
+    "Delivery Qty. in Ton": 626.3,
+    "OFCO INVOICE NO": "OFCO-INV-0924-345"
+  },
+  {
+    "Batch": "5",
+    "Loading Date": "2024-08-08",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-05",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "20mm",
+    "Delivery Qty. in Ton": 614.22,
+    "OFCO INVOICE NO": "OFCO-INV-0924-345"
+  },
+  {
+    "Batch": "6",
+    "Loading Date": "2024-08-11",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-06",
+    "Description of Material": "Dune Sand",
+    "Size(mm or bag)": "",
+    "Delivery Qty. in Ton": 560.0,
+    "OFCO INVOICE NO": "OFCO-INV-0924-345"
+  },
+  {
+    "Batch": "7",
+    "Loading Date": "2024-08-14",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-07",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "5mm",
+    "Delivery Qty. in Ton": 613.44,
+    "OFCO INVOICE NO": "OFCO-INV-0924-345"
+  },
+  {
+    "Batch": "8",
+    "Loading Date": "2024-08-17",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-08",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "20mm",
+    "Delivery Qty. in Ton": 620.38,
+    "OFCO INVOICE NO": "OFCO-INV-0924-345"
+  },
+  {
+    "Batch": "9",
+    "Loading Date": "2024-08-21",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-09",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "10mm",
+    "Delivery Qty. in Ton": 592.66,
+    "OFCO INVOICE NO": "OFCO-INV-0924-345"
+  },
+  {
+    "Batch": "10",
+    "Loading Date": "2024-08-25",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-10",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "5mm",
+    "Delivery Qty. in Ton": 610.24,
+    "OFCO INVOICE NO": "OFCO-INV-0924-345"
+  },
+  {
+    "Batch": "11",
+    "Loading Date": "2024-08-27",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-11",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "5mm",
+    "Delivery Qty. in Ton": 602.28,
+    "OFCO INVOICE NO": "OFCO-INV-0924-345"
+  },
+  {
+    "Batch": "12",
+    "Loading Date": "2024-08-30",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-12",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "20mm",
+    "Delivery Qty. in Ton": 607.86,
+    "OFCO INVOICE NO": "OFCO-INV-0924-345"
+  },
+  {
+    "Batch": "13",
+    "Loading Date": "2024-09-02",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-13",
+    "Description of Material": "Dune Sand",
+    "Size(mm or bag)": "",
+    "Delivery Qty. in Ton": 636.44,
+    "OFCO INVOICE NO": "OFCO-INV-1124-145"
+  },
+  {
+    "Batch": "14",
+    "Loading Date": "2024-09-05",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-14",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "10mm",
+    "Delivery Qty. in Ton": 634.56,
+    "OFCO INVOICE NO": "OFCO-INV-1124-145"
+  },
+  {
+    "Batch": "15",
+    "Loading Date": "2024-09-08",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-15",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "20mm",
+    "Delivery Qty. in Ton": 626.18,
+    "OFCO INVOICE NO": "OFCO-INV-1124-145"
+  },
+  {
+    "Batch": "16",
+    "Loading Date": "2024-09-11",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-16",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "5mm",
+    "Delivery Qty. in Ton": 617.88,
+    "OFCO INVOICE NO": "OFCO-INV-1124-145"
+  },
+  {
+    "Batch": "17",
+    "Loading Date": "2024-09-14",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-17",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "20mm",
+    "Delivery Qty. in Ton": 589.74,
+    "OFCO INVOICE NO": "OFCO-INV-1124-145"
+  },
+  {
+    "Batch": "18",
+    "Loading Date": "2024-09-18",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-18",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "10mm",
+    "Delivery Qty. in Ton": 605.26,
+    "OFCO INVOICE NO": "OFCO-INV-1124-145"
+  },
+  {
+    "Batch": "19",
+    "Loading Date": "2024-09-21",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-19",
+    "Description of Material": "Dune Sand",
+    "Size(mm or bag)": "",
+    "Delivery Qty. in Ton": 589.76,
+    "OFCO INVOICE NO": "OFCO-INV-1124-145"
+  },
+  {
+    "Batch": "20",
+    "Loading Date": "2024-09-23",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-20",
+    "Description of Material": "Dune Sand",
+    "Size(mm or bag)": "",
+    "Delivery Qty. in Ton": 628.74,
+    "OFCO INVOICE NO": "OFCO-INV-1124-145"
+  },
+  {
+    "Batch": "21",
+    "Loading Date": "2024-09-27",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-21",
+    "Description of Material": "Dune Sand",
+    "Size(mm or bag)": "",
+    "Delivery Qty. in Ton": 633.74,
+    "OFCO INVOICE NO": "OFCO-INV-1124-145"
+  },
+  {
+    "Batch": "22",
+    "Loading Date": "2024-09-30",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-22",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "5mm",
+    "Delivery Qty. in Ton": 631.94,
+    "OFCO INVOICE NO": "OFCO-INV-1124-145"
+  },
+  {
+    "Batch": "23",
+    "Loading Date": "2024-10-03",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-23",
+    "Description of Material": "GGBFS",
+    "Size(mm or bag)": "100",
+    "Delivery Qty. in Ton": 112.6,
+    "OFCO INVOICE NO": "OFCO-INV-1224-202"
+  },
+  {
+    "Batch": "23",
+    "Loading Date": "2024-10-03",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-23",
+    "Description of Material": "GGBFS",
+    "Size(mm or bag)": "100",
+    "Delivery Qty. in Ton": 112.6,
+    "OFCO INVOICE NO": "OFCO-INV-1224-202"
+  },
+  {
+    "Batch": "23",
+    "Loading Date": "2024-10-04",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-23",
+    "Description of Material": "OPC",
+    "Size(mm or bag)": "100",
+    "Delivery Qty. in Ton": 112.6,
+    "OFCO INVOICE NO": "OFCO-INV-1224-202"
+  },
+  {
+    "Batch": "24",
+    "Loading Date": "2024-10-08",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-24",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "5mm",
+    "Delivery Qty. in Ton": 623.56,
+    "OFCO INVOICE NO": "OFCO-INV-1224-202"
+  },
+  {
+    "Batch": "25",
+    "Loading Date": "2024-10-10",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-25",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "5mm",
+    "Delivery Qty. in Ton": 613.72,
+    "OFCO INVOICE NO": "OFCO-INV-1224-202"
+  },
+  {
+    "Batch": "26",
+    "Loading Date": "2024-10-12",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-26",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "5mm",
+    "Delivery Qty. in Ton": 620.18,
+    "OFCO INVOICE NO": "OFCO-INV-1224-202"
+  },
+  {
+    "Batch": "27",
+    "Loading Date": "2024-10-15",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-27",
+    "Description of Material": "GGBFS",
+    "Size(mm or bag)": "100",
+    "Delivery Qty. in Ton": 112.6,
+    "OFCO INVOICE NO": "OFCO-INV-1224-202"
+  },
+  {
+    "Batch": "27",
+    "Loading Date": "2024-10-15",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-27",
+    "Description of Material": "OPC",
+    "Size(mm or bag)": "100",
+    "Delivery Qty. in Ton": 112.6,
+    "OFCO INVOICE NO": "OFCO-INV-1224-202"
+  },
+  {
+    "Batch": "27",
+    "Loading Date": "2024-10-16",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-27",
+    "Description of Material": "GGBFS",
+    "Size(mm or bag)": "120",
+    "Delivery Qty. in Ton": 135.12,
+    "OFCO INVOICE NO": "OFCO-INV-1224-202"
+  },
+  {
+    "Batch": "28",
+    "Loading Date": "2024-10-19",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-28",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "20mm",
+    "Delivery Qty. in Ton": 625.78,
+    "OFCO INVOICE NO": "OFCO-INV-1224-202"
+  },
+  {
+    "Batch": "29",
+    "Loading Date": "2024-10-21",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-29",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "20mm",
+    "Delivery Qty. in Ton": 553.08,
+    "OFCO INVOICE NO": "OFCO-INV-1224-202"
+  },
+  {
+    "Batch": "30",
+    "Loading Date": "2024-10-24",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-30",
+    "Description of Material": "GGBFS",
+    "Size(mm or bag)": "100",
+    "Delivery Qty. in Ton": 112.6,
+    "OFCO INVOICE NO": "OFCO-INV-1224-202"
+  },
+  {
+    "Batch": "30",
+    "Loading Date": "2024-10-25",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-30",
+    "Description of Material": "MS",
+    "Size(mm or bag)": "100",
+    "Delivery Qty. in Ton": 112.6,
+    "OFCO INVOICE NO": "OFCO-INV-1224-202"
+  },
+  {
+    "Batch": "30",
+    "Loading Date": "2024-10-26",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-30",
+    "Description of Material": "GGBFS",
+    "Size(mm or bag)": "120",
+    "Delivery Qty. in Ton": 135.12,
+    "OFCO INVOICE NO": "OFCO-INV-1224-202"
+  },
+  {
+    "Batch": "31",
+    "Loading Date": "2024-11-02",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-31",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "10mm",
+    "Delivery Qty. in Ton": 612.78,
+    "OFCO INVOICE NO": "OFCO-INV-0125-067"
+  },
+  {
+    "Batch": "32",
+    "Loading Date": "2024-11-05",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-32",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "10mm",
+    "Delivery Qty. in Ton": 604.44,
+    "OFCO INVOICE NO": "OFCO-INV-0125-067"
+  },
+  {
+    "Batch": "33",
+    "Loading Date": "2024-11-10",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-33",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "10mm",
+    "Delivery Qty. in Ton": 599.0,
+    "OFCO INVOICE NO": "OFCO-INV-0125-067"
+  },
+  {
+    "Batch": "34",
+    "Loading Date": "2024-11-13",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-34",
+    "Description of Material": "GGBFS",
+    "Size(mm or bag)": "100",
+    "Delivery Qty. in Ton": 109.69,
+    "OFCO INVOICE NO": "OFCO-INV-0125-067"
+  },
+  {
+    "Batch": "34",
+    "Loading Date": "2024-11-14",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-34",
+    "Description of Material": "GGBFS",
+    "Size(mm or bag)": "100",
+    "Delivery Qty. in Ton": 109.69,
+    "OFCO INVOICE NO": "OFCO-INV-0125-067"
+  },
+  {
+    "Batch": "34",
+    "Loading Date": "2024-11-15",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-34",
+    "Description of Material": "GGBFS",
+    "Size(mm or bag)": "120",
+    "Delivery Qty. in Ton": 131.62,
+    "OFCO INVOICE NO": "OFCO-INV-0125-067"
+  },
+  {
+    "Batch": "35",
+    "Loading Date": "2024-11-19",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-35",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "20mm",
+    "Delivery Qty. in Ton": 611.62,
+    "OFCO INVOICE NO": "OFCO-INV-0125-067"
+  },
+  {
+    "Batch": "36",
+    "Loading Date": "2024-11-25",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-36",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "20mm",
+    "Delivery Qty. in Ton": 581.9,
+    "OFCO INVOICE NO": "OFCO-INV-0125-067"
+  },
+  {
+    "Batch": "37",
+    "Loading Date": "2024-12-04",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-37",
+    "Description of Material": "Dune Sand",
+    "Size(mm or bag)": "",
+    "Delivery Qty. in Ton": 651.88,
+    "OFCO INVOICE NO": "OFCO-INV-0125-198"
+  },
+  {
+    "Batch": "38",
+    "Loading Date": "2024-12-06",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-38",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "10mm",
+    "Delivery Qty. in Ton": 586.4,
+    "OFCO INVOICE NO": "OFCO-INV-0125-198"
+  },
+  {
+    "Batch": "39",
+    "Loading Date": "2024-12-09",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-39",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "10mm",
+    "Delivery Qty. in Ton": 652.72,
+    "OFCO INVOICE NO": "OFCO-INV-0125-198"
+  },
+  {
+    "Batch": "D1",
+    "Loading Date": "2024-12-12",
+    "Sub-Con": "SCT",
+    "ID Number": "HVDC-DAS-J71-001",
+    "Description of Material": "Hollow Core Slab",
+    "Size(mm or bag)": "31 BUNDLE",
+    "Delivery Qty. in Ton": 235.17,
+    "OFCO INVOICE NO": "OFCO-INV-0125-196"
+  },
+  {
+    "Batch": "40",
+    "Loading Date": "2024-12-20",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-40",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "20mm",
+    "Delivery Qty. in Ton": 681.62,
+    "OFCO INVOICE NO": "OFCO-INV-0125-198"
+  },
+  {
+    "Batch": "41",
+    "Loading Date": "2024-12-23",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-41",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "5mm",
+    "Delivery Qty. in Ton": 610.26,
+    "OFCO INVOICE NO": "OFCO-INV-0125-198"
+  },
+  {
+    "Batch": "42",
+    "Loading Date": "2024-12-25",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-42",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "20mm",
+    "Delivery Qty. in Ton": 614.98,
+    "OFCO INVOICE NO": "OFCO-INV-0125-198"
+  },
+  {
+    "Batch": "43",
+    "Loading Date": "2024-12-27",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-43",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "5mm",
+    "Delivery Qty. in Ton": 634.74,
+    "OFCO INVOICE NO": "OFCO-INV-0125-198"
+  },
+  {
+    "Batch": "44",
+    "Loading Date": "2024-12-29",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-44",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "10mm",
+    "Delivery Qty. in Ton": 598.46,
+    "OFCO INVOICE NO": "OFCO-INV-0125-198"
+  },
+  {
+    "Batch": "45",
+    "Loading Date": "2025-01-05",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-45",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "5mm",
+    "Delivery Qty. in Ton": 671.82,
+    "OFCO INVOICE NO": "INV-0425-001"
+  },
+  {
+    "Batch": "46",
+    "Loading Date": "2025-01-15",
+    "Sub-Con": "GRM",
+    "ID Number": "J71-46",
+    "Description of Material": "Dune Sand",
+    "Size(mm or bag)": "",
+    "Delivery Qty. in Ton": 782.48,
+    "OFCO INVOICE NO": "INV-0425-001"
+  },
+  {
+    "Batch": "D2",
+    "Loading Date": "2025-01-23",
+    "Sub-Con": "SCT",
+    "ID Number": "HVDC-DAS-J71-002",
+    "Description of Material": "Hollow Core Slab",
+    "Size(mm or bag)": "33 BUNDLE",
+    "Delivery Qty. in Ton": 254.41,
+    "OFCO INVOICE NO": "INV-0425-001"
+  },
+  {
+    "Batch": "D3",
+    "Loading Date": "2025-01-28",
+    "Sub-Con": "SCT",
+    "ID Number": "HVDC-DAS-J71-003",
+    "Description of Material": "Hollow Core Slab",
+    "Size(mm or bag)": "41 BUNDLE",
+    "Delivery Qty. in Ton": 223.05,
+    "OFCO INVOICE NO": "INV-0425-001"
+  },
+  {
+    "Batch": "D3",
+    "Loading Date": "2025-02-01",
+    "Sub-Con": "SCT",
+    "ID Number": "HVDC-DAS-J71-003",
+    "Description of Material": "",
+    "Size(mm or bag)": "40",
+    "Delivery Qty. in Ton": 218.37,
+    "OFCO INVOICE NO": "INV-0425-052"
+  },
+  {
+    "Batch": "A1",
+    "Loading Date": "2025-02-06",
+    "Sub-Con": "SCT",
+    "ID Number": "HVDC-AGI-J71-001",
+    "Description of Material": "20ft Half Height Baske",
+    "Size(mm or bag)": "8",
+    "Delivery Qty. in Ton": 23.98,
+    "OFCO INVOICE NO": "INV-0425-052"
+  },
+  {
+    "Batch": "D4",
+    "Loading Date": "2025-02-07",
+    "Sub-Con": "SCT",
+    "ID Number": "HVDC-DAS-J71-004",
+    "Description of Material": "Hallow Core Slab",
+    "Size(mm or bag)": "25",
+    "Delivery Qty. in Ton": 134.83,
+    "OFCO INVOICE NO": "INV-0425-052"
+  },
+  {
+    "Batch": "47",
+    "Loading Date": "2025-02-13",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-047",
+    "Description of Material": "Jumbo Bag",
+    "Size(mm or bag)": "347",
+    "Delivery Qty. in Ton": 347.66,
+    "OFCO INVOICE NO": "INV-0425-052"
+  },
+  {
+    "Batch": "A2",
+    "Loading Date": "2025-02-15",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-J71-002",
+    "Description of Material": "Steel Structure",
+    "Size(mm or bag)": "12",
+    "Delivery Qty. in Ton": 100.58,
+    "OFCO INVOICE NO": "INV-0425-052"
+  },
+  {
+    "Batch": "A5",
+    "Loading Date": "2025-02-18",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-J71-005",
+    "Description of Material": "Hallow Core Slab",
+    "Size(mm or bag)": "39",
+    "Delivery Qty. in Ton": 456.61,
+    "OFCO INVOICE NO": "INV-0425-052"
+  },
+  {
+    "Batch": "A3",
+    "Loading Date": "2025-03-01",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-J71-003",
+    "Description of Material": "Hallow Core Slab",
+    "Size(mm or bag)": "38",
+    "Delivery Qty. in Ton": 170.48,
+    "OFCO INVOICE NO": "OFCO-INV-0625-292"
+  },
+  {
+    "Batch": "A6",
+    "Loading Date": "2025-03-08",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-J71-006",
+    "Description of Material": "Hallow Core Slab",
+    "Size(mm or bag)": "44",
+    "Delivery Qty. in Ton": 444.74,
+    "OFCO INVOICE NO": "OFCO-INV-0625-292"
+  },
+  {
+    "Batch": "E1",
+    "Loading Date": "2025-03-16",
+    "Sub-Con": "SCT",
+    "ID Number": "",
+    "Description of Material": "Excavated Soil",
+    "Size(mm or bag)": "Excavated Soil",
+    "Delivery Qty. in Ton": 669.0,
+    "OFCO INVOICE NO": "OFCO-INV-0625-292"
+  },
+  {
+    "Batch": "E2",
+    "Loading Date": "2025-03-17",
+    "Sub-Con": "SCT",
+    "ID Number": "",
+    "Description of Material": "Excavated Soil",
+    "Size(mm or bag)": "Excavated Soil",
+    "Delivery Qty. in Ton": 700.0,
+    "OFCO INVOICE NO": "OFCO-INV-0625-292"
+  },
+  {
+    "Batch": "A4",
+    "Loading Date": "2025-03-30",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-J71-004",
+    "Description of Material": "A Frame",
+    "Size(mm or bag)": "8",
+    "Delivery Qty. in Ton": 64.0,
+    "OFCO INVOICE NO": "OFCO-INV-0625-292"
+  },
+  {
+    "Batch": "A4",
+    "Loading Date": "2025-03-31",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-J71-004",
+    "Description of Material": "Wall Panel",
+    "Size(mm or bag)": "36",
+    "Delivery Qty. in Ton": 260.0,
+    "OFCO INVOICE NO": "OFCO-INV-0625-292"
+  },
+  {
+    "Batch": "A4",
+    "Loading Date": "2025-04-05",
+    "Sub-Con": "SCT",
+    "ID Number": "HVDC-AGI-J71-005",
+    "Description of Material": "Wall Panel",
+    "Size(mm or bag)": "32",
+    "Delivery Qty. in Ton": 272.97,
+    "OFCO INVOICE NO": "OFCO-INV- 0000181"
+  },
+  {
+    "Batch": "48",
+    "Loading Date": "2025-04-09",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-048",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "5",
+    "Delivery Qty. in Ton": 700.38,
+    "OFCO INVOICE NO": "OFCO-INV- 0000181"
+  },
+  {
+    "Batch": "49",
+    "Loading Date": "2025-04-11",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-049",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "20",
+    "Delivery Qty. in Ton": 664.14,
+    "OFCO INVOICE NO": "OFCO-INV- 0000181"
+  },
+  {
+    "Batch": "50",
+    "Loading Date": "2025-04-13",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-050",
+    "Description of Material": "Aggregate",
+    "Size(mm or bag)": "20",
+    "Delivery Qty. in Ton": 671.14,
+    "OFCO INVOICE NO": "OFCO-INV- 0000181"
+  },
+  {
+    "Batch": "6",
+    "Loading Date": "2025-04-19",
+    "Sub-Con": "SCT",
+    "ID Number": "HVDC-AGI-006",
+    "Description of Material": "Wall Panel 50, Stair Case 2",
+    "Size(mm or bag)": "52",
+    "Delivery Qty. in Ton": 345.55,
+    "OFCO INVOICE NO": "OFCO-INV- 0000181"
+  },
+  {
+    "Batch": "7",
+    "Loading Date": "2025-04-27",
+    "Sub-Con": "SCT",
+    "ID Number": "HVDC-AGI-007",
+    "Description of Material": "Wall Panel 53 units, HCS Bundles: 9 bundles)",
+    "Size(mm or bag)": "62",
+    "Delivery Qty. in Ton": 359.12,
+    "OFCO INVOICE NO": "OFCO-INV- 0000181"
+  },
+  {
+    "Batch": "51",
+    "Loading Date": "2025-05-04",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-051",
+    "Description of Material": "AGGREGATE 10MM",
+    "Size(mm or bag)": "10",
+    "Delivery Qty. in Ton": 687.28,
+    "OFCO INVOICE NO": "OFCO-INV- 0000416"
+  },
+  {
+    "Batch": "52",
+    "Loading Date": "2025-05-11",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-052",
+    "Description of Material": "AGGREGATE 10MM",
+    "Size(mm or bag)": "10",
+    "Delivery Qty. in Ton": 696.56,
+    "OFCO INVOICE NO": "OFCO-INV- 0000416"
+  },
+  {
+    "Batch": "53",
+    "Loading Date": "2025-05-13",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-053",
+    "Description of Material": "AGGREGATE 5MM",
+    "Size(mm or bag)": "5",
+    "Delivery Qty. in Ton": 715.66,
+    "OFCO INVOICE NO": "OFCO-INV- 0000416"
+  },
+  {
+    "Batch": "54",
+    "Loading Date": "2025-05-17",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-054",
+    "Description of Material": "DUNE SAND",
+    "Size(mm or bag)": "Dunesand",
+    "Delivery Qty. in Ton": 831.85,
+    "OFCO INVOICE NO": "OFCO-INV- 0000416"
+  },
+  {
+    "Batch": "55",
+    "Loading Date": "2025-07-16",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-055",
+    "Description of Material": "AGGREGATE 5MM",
+    "Size(mm or bag)": "5",
+    "Delivery Qty. in Ton": 760.56,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "56",
+    "Loading Date": "2025-07-19",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-056",
+    "Description of Material": "AGGREGATE 20MM",
+    "Size(mm or bag)": "20",
+    "Delivery Qty. in Ton": 753.74,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "57",
+    "Loading Date": "2025-07-24",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-057",
+    "Description of Material": "DUNE SAND",
+    "Size(mm or bag)": "Dunesand",
+    "Delivery Qty. in Ton": 790.74,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "58",
+    "Loading Date": "2025-07-27",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-058",
+    "Description of Material": "AGGREGATE 10MM",
+    "Size(mm or bag)": "10",
+    "Delivery Qty. in Ton": 765.64,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "59",
+    "Loading Date": "2025-07-29",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-059",
+    "Description of Material": "AGGREGATE 5MM",
+    "Size(mm or bag)": "5",
+    "Delivery Qty. in Ton": 568.36,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "60",
+    "Loading Date": "2025-08-07",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-060",
+    "Description of Material": "AGGREGATE 20MM",
+    "Size(mm or bag)": "20",
+    "Delivery Qty. in Ton": 716.74,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "61",
+    "Loading Date": "2025-08-10",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-061",
+    "Description of Material": "AGGREGATE 5MM",
+    "Size(mm or bag)": "5",
+    "Delivery Qty. in Ton": 817.62,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "62",
+    "Loading Date": "2025-08-17",
+    "Sub-Con": "SCT",
+    "ID Number": "HVDC-DAS-J71",
+    "Description of Material": "HE 16 BOX + 1SB",
+    "Size(mm or bag)": "16",
+    "Delivery Qty. in Ton": 202.18,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "63",
+    "Loading Date": "2025-08-23",
+    "Sub-Con": "SCT",
+    "ID Number": "HVDC-AGI-009",
+    "Description of Material": "HCS 36",
+    "Size(mm or bag)": "36",
+    "Delivery Qty. in Ton": 405.01,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "64",
+    "Loading Date": "2025-08-27",
+    "Sub-Con": "SCT",
+    "ID Number": "HVDC-AGI-010",
+    "Description of Material": "HCS 22 + 1SB",
+    "Size(mm or bag)": "22",
+    "Delivery Qty. in Ton": 248.65,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "65",
+    "Loading Date": "2025-09-02",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-062",
+    "Description of Material": "DUNE SAND",
+    "Size(mm or bag)": "Dunesand",
+    "Delivery Qty. in Ton": 745.32,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "66",
+    "Loading Date": "2025-09-04",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-063",
+    "Description of Material": "AGGREGATE 10MM",
+    "Size(mm or bag)": "10",
+    "Delivery Qty. in Ton": 732.72,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "67",
+    "Loading Date": "2025-09-08",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-064",
+    "Description of Material": "AGGREGATE 5MM",
+    "Size(mm or bag)": "5",
+    "Delivery Qty. in Ton": 840.86,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "68",
+    "Loading Date": "2025-09-11",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-065",
+    "Description of Material": "AGGREGATE 20MM",
+    "Size(mm or bag)": "20",
+    "Delivery Qty. in Ton": 716.38,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "69",
+    "Loading Date": "2025-09-16",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-066",
+    "Description of Material": "DUNE SAND",
+    "Size(mm or bag)": "Dunesand",
+    "Delivery Qty. in Ton": 743.88,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "70",
+    "Loading Date": "2025-09-19",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-067",
+    "Description of Material": "AGGREGATE 5MM",
+    "Size(mm or bag)": "5",
+    "Delivery Qty. in Ton": 794.14,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "71",
+    "Loading Date": "2025-09-22",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-068",
+    "Description of Material": "AGGREGATE 20MM",
+    "Size(mm or bag)": "20",
+    "Delivery Qty. in Ton": 778.74,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "72",
+    "Loading Date": "2025-09-28",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-069",
+    "Description of Material": "DUNE SAND",
+    "Size(mm or bag)": "Dunesand",
+    "Delivery Qty. in Ton": 743.0,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "73",
+    "Loading Date": "2025-10-05",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-070",
+    "Description of Material": "AGGREGATE 10MM",
+    "Size(mm or bag)": "10",
+    "Delivery Qty. in Ton": 542.18,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "74",
+    "Loading Date": "2025-10-07",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-071",
+    "Description of Material": "AGGREGATE 20MM",
+    "Size(mm or bag)": "20",
+    "Delivery Qty. in Ton": 736.8,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "75",
+    "Loading Date": "2025-10-09",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-072",
+    "Description of Material": "AGGREGATE 5MM",
+    "Size(mm or bag)": "5",
+    "Delivery Qty. in Ton": 740.0,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "76",
+    "Loading Date": "2025-10-14",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-073",
+    "Description of Material": "AGGREGATE 10MM",
+    "Size(mm or bag)": "10",
+    "Delivery Qty. in Ton": 772.5,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "77",
+    "Loading Date": "2025-10-19",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-074",
+    "Description of Material": "AGGREGATE 20MM",
+    "Size(mm or bag)": "20",
+    "Delivery Qty. in Ton": 755.46,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "78",
+    "Loading Date": "2025-10-21",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-075",
+    "Description of Material": "AGGREGATE 5MM",
+    "Size(mm or bag)": "5",
+    "Delivery Qty. in Ton": 807.48,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "79",
+    "Loading Date": "2025-10-24",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-076",
+    "Description of Material": "AGGREGATE 10MM",
+    "Size(mm or bag)": "10",
+    "Delivery Qty. in Ton": 694.7,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "80",
+    "Loading Date": "2025-10-27",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-077",
+    "Description of Material": "AGGREGATE 20MM",
+    "Size(mm or bag)": "20",
+    "Delivery Qty. in Ton": 641.58,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "81",
+    "Loading Date": "2025-10-31",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-078",
+    "Description of Material": "AGGREGATE 5MM",
+    "Size(mm or bag)": "5",
+    "Delivery Qty. in Ton": 738.7,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "82",
+    "Loading Date": "2025-11-05",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-079",
+    "Description of Material": "AGGREGATE 10MM",
+    "Size(mm or bag)": "10",
+    "Delivery Qty. in Ton": 784.96,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "83",
+    "Loading Date": "2025-11-11",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-080",
+    "Description of Material": "DUNE SAND",
+    "Size(mm or bag)": "Dunesand",
+    "Delivery Qty. in Ton": 758.56,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "89",
+    "Loading Date": "2025-11-13",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-086",
+    "Description of Material": "AGGREGATE 20MM",
+    "Size(mm or bag)": "20",
+    "Delivery Qty. in Ton": 734.12,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "84",
+    "Loading Date": "2025-11-15",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-081",
+    "Description of Material": "AGGREGATE 5MM",
+    "Size(mm or bag)": "5",
+    "Delivery Qty. in Ton": 715.48,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "85",
+    "Loading Date": "2025-11-20",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-082",
+    "Description of Material": "DUNE SAND",
+    "Size(mm or bag)": "Dunesand",
+    "Delivery Qty. in Ton": 735.62,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "86",
+    "Loading Date": "2025-11-26",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-083",
+    "Description of Material": "AGGREGATE 20MM",
+    "Size(mm or bag)": "20",
+    "Delivery Qty. in Ton": 615.74,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "87",
+    "Loading Date": "2025-12-05",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-084",
+    "Description of Material": "AGGREGATE 5MM",
+    "Size(mm or bag)": "5",
+    "Delivery Qty. in Ton": 662.04,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "88",
+    "Loading Date": "2025-12-08",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-085",
+    "Description of Material": "DUNE SAND",
+    "Size(mm or bag)": "Dunesand",
+    "Delivery Qty. in Ton": 748.62,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "90",
+    "Loading Date": "2025-12-26",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-087",
+    "Description of Material": "AGGREGATE 10MM",
+    "Size(mm or bag)": "10",
+    "Delivery Qty. in Ton": 760.14,
+    "OFCO INVOICE NO": ""
+  },
+  {
+    "Batch": "",
+    "Loading Date": "",
+    "Sub-Con": "GRM",
+    "ID Number": "HVDC-AGI-GRM-J71-088",
+    "Description of Material": "DUNE SAND",
+    "Size(mm or bag)": "Dunesand",
+    "Delivery Qty. in Ton": null,
+    "OFCO INVOICE NO": ""
+  }
+]

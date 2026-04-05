@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>JPT71 Fuel &amp; Loading Analysis v5.2</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--border:#334155;--text:#e2e8f0;--text2:#94a3b8;--accent:#3b82f6;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--purple:#a855f7;--cyan:#06b6d4;--orange:#f97316;--gray:#9ca3af;--gray2:#6b7280}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--text)}
+.header{background:linear-gradient(135deg,#1a365d,#0f172a);padding:20px 30px;border-bottom:2px solid var(--cyan)}
+.header h1{font-size:20px;font-weight:700}
+.header .sub{font-size:12px;color:var(--text2);margin-top:4px}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;margin-left:8px}
+.badge-c{background:#155e75;color:#67e8f9}
+.tabs{display:flex;gap:0;padding:0 30px;background:var(--card);border-bottom:1px solid var(--border);overflow:auto}
+.tab{padding:12px 24px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text2);border-bottom:3px solid transparent;transition:.2s;white-space:nowrap}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+.content{padding:20px 30px}
+.panel{display:none}
+.panel.active{display:block}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin-bottom:20px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px}
+.card .lbl{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.card .val{font-size:22px;font-weight:700;margin-top:4px}
+.card .note{font-size:10px;color:var(--text2);margin-top:2px}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.chart-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px}
+.chart-box h3{font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:600}
+.chart-box.full{grid-column:1/-1}
+.note-box{background:#1a2744;border-left:4px solid var(--yellow);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:12px;line-height:1.6}
+.note-box b{color:#f8fafc}
+.tbl-wrap{max-height:500px;overflow-y:auto;background:var(--card);border:1px solid var(--border);border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{background:#1a2744;color:var(--text2);padding:8px 10px;text-align:left;font-weight:600;position:sticky;top:0;border-bottom:2px solid var(--cyan)}
+td{padding:6px 10px;border-bottom:1px solid var(--border)}
+tr:hover td{background:#253349}
+.hi{color:var(--green);font-weight:700}
+.lo{color:var(--red);font-weight:700}
+@media(max-width:768px){
+  .chart-row{grid-template-columns:1fr}
+  .content{padding:16px}
+  .header{padding:18px 16px}
+  .tabs{padding:0 16px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>JPT71 JOPETWIL 71 — Fuel &amp; Loading Analysis <span class="badge badge-c">DECKLOG + VOYAGE</span></h1>
+  <div class="sub">연료 소비량 · 적재(Laden)/공선(Ballast) 비교 · LCT Sub-Con 월 선적량 · 연료효율(L/ton) · v5.2 corrected with DL_VESSEL_FLAG</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab(0)">Fuel Overview</div>
+  <div class="tab" onclick="showTab(1)">Laden vs Ballast</div>
+  <div class="tab" onclick="showTab(2)">LCT Monthly Loading</div>
+  <div class="tab" onclick="showTab(3)">Fuel Efficiency</div>
+</div>
+
+<div class="content">
+  <div class="panel active" id="p0">
+    <div class="cards">
+      <div class="card"><div class="lbl">Total Fuel</div><div class="val" id="kpiTotalFuel" style="color:var(--orange)"></div><div class="note" id="kpiTotalDays"></div></div>
+      <div class="card"><div class="lbl">Avg Daily Fuel</div><div class="val" id="kpiAvgDaily" style="color:var(--cyan)"></div><div class="note">litres/day</div></div>
+      <div class="card"><div class="lbl">Laden Avg</div><div class="val" id="kpiLadenAvg" style="color:var(--green)"></div><div class="note">L/day (적재)</div></div>
+      <div class="card"><div class="lbl">Ballast Avg</div><div class="val" id="kpiBallastAvg" style="color:var(--accent)"></div><div class="note">L/day (공선)</div></div>
+      <div class="card"><div class="lbl">L/B Ratio</div><div class="val" id="kpiLbRatio" style="color:var(--yellow)"></div><div class="note">Laden ÷ Ballast</div></div>
+      <div class="card"><div class="lbl">Blended Fuel/Ton</div><div class="val" id="kpiFpt" style="color:var(--purple)"></div><div class="note">all fuel ÷ cargo ton</div></div>
+    </div>
+    <div class="note-box" id="fixNote"></div>
+    <div class="chart-row">
+      <div class="chart-box full"><h3>Monthly Fuel Consumption — Corrected + Excluded Audit Layer</h3><canvas id="fuelStackChart"></canvas></div>
+    </div>
+    <div class="chart-row">
+      <div class="chart-box"><h3>Daily Avg Fuel (L/day)</h3><canvas id="fuelAvgChart"></canvas></div>
+      <div class="chart-box"><h3>Fuel + Fresh Water Total</h3><canvas id="fuelFwChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="panel" id="p1">
+    <div class="chart-row">
+      <div class="chart-box full"><h3>Laden vs Ballast — Daily Average Fuel (L/day)</h3><canvas id="lbAvgChart"></canvas></div>
+    </div>
+    <div class="chart-row">
+      <div class="chart-box"><h3>Laden/Ballast Days per Month</h3><canvas id="lbDaysChart"></canvas></div>
+      <div class="chart-box"><h3>Laden vs Ballast Total Fuel</h3><canvas id="lbFuelChart"></canvas></div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Month</th><th>Laden Days</th><th>Laden Fuel</th><th>Laden Avg</th><th>Ballast Days</th><th>Ballast Fuel</th><th>Ballast Avg</th><th>Ratio</th></tr></thead>
+        <tbody id="lbTbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel" id="p2">
+    <div class="chart-row">
+      <div class="chart-box full"><h3>Monthly Cargo Loading — GRM vs SCT (Tons)</h3><canvas id="loadChart"></canvas></div>
+    </div>
+    <div class="chart-row">
+      <div class="chart-box"><h3>Monthly Voyage Count</h3><canvas id="voyCountChart"></canvas></div>
+      <div class="chart-box"><h3>GRM Share of Total Tonnage (%)</h3><canvas id="grmPctChart"></canvas></div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Month</th><th>GRM Voy</th><th>GRM Ton</th><th>SCT Voy</th><th>SCT Ton</th><th>Total Ton</th><th>GRM %</th></tr></thead>
+        <tbody id="loadTbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel" id="p3">
+    <div class="chart-row">
+      <div class="chart-box full"><h3>Fuel per Cargo Ton (L/ton) — Total vs Laden Only</h3><canvas id="effChart"></canvas></div>
+    </div>
+    <div class="chart-row">
+      <div class="chart-box full"><h3>Cargo Tonnage vs Fuel Consumption</h3><canvas id="effScatterChart"></canvas></div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Month</th><th>Total Fuel</th><th>Laden Fuel</th><th>Cargo Ton</th><th>Voyages</th><th>Total F/T</th><th>Laden F/T</th><th>Rating</th></tr></thead>
+        <tbody id="effTbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const D={
+  mf:[
+    {month:"2024-11",days:30,total:9267,avg:331,max:810,laden:9044,ballast:145,port:78,unknown:0,excluded:0,fw:14740},
+    {month:"2024-12",days:31,total:13345.2,avg:430.5,max:809.6,laden:12973.4,ballast:198,port:174,unknown:0,excluded:0,fw:18260},
+    {month:"2025-01",days:31,total:8784.2,avg:283.4,max:825,laden:5365.8,ballast:1342,port:106,unknown:1971,excluded:0,fw:16060},
+    {month:"2025-02",days:28,total:10045.6,avg:358.8,max:840.4,laden:7381.4,ballast:1445.4,port:526,unknown:693,excluded:0,fw:18480},
+    {month:"2025-03",days:31,total:6414,avg:206.9,max:527,laden:5022,ballast:0,port:99,unknown:1293,excluded:0,fw:17916},
+    {month:"2025-04",days:30,total:6019,avg:200.6,max:409,laden:5657,ballast:0,port:162,unknown:200,excluded:0,fw:17050},
+    {month:"2025-05",days:23,total:3514,avg:152.8,max:413,laden:3164,ballast:0,port:350,unknown:0,excluded:0,fw:12360},
+    {month:"2025-07",days:18,total:6512.4,avg:361.8,max:575,laden:5878.2,ballast:0,port:92,unknown:542,excluded:0,fw:8600},
+    {month:"2025-08",days:31,total:9230,avg:297.7,max:840,laden:7160,ballast:0,port:1331,unknown:739,excluded:0,fw:17380},
+    {month:"2025-10",days:31,total:10812,avg:348.8,max:792,laden:9852,ballast:0,port:960,unknown:0,excluded:0,fw:18260},
+    {month:"2025-11",days:30,total:8645,avg:288.2,max:616,laden:7887,ballast:0,port:604,unknown:154,excluded:0,fw:14740},
+    {month:"2025-12",days:31,total:9702,avg:313,max:696,laden:7785,ballast:0,port:560,unknown:1357,excluded:0,fw:19360},
+    {month:"2026-01",days:2,total:154,avg:77,max:77,laden:0,ballast:0,port:154,unknown:0,excluded:65600,fw:1760},
+    {month:"2026-02",days:27,total:10219.5,avg:378.5,max:810,laden:8994.5,ballast:0,port:389,unknown:836,excluded:0,fw:16060},
+    {month:"2026-03",days:8,total:1261,avg:157.6,max:636,laden:0,ballast:636,port:0,unknown:625,excluded:0,fw:4400}
+  ],
+  lb:[
+    {month:"2024-11",l_days:23,l_fuel:9044,l_avg:411.1,b_days:1,b_fuel:145,b_avg:145},
+    {month:"2024-12",l_days:24,l_fuel:12973.4,l_avg:540.6,b_days:1,b_fuel:198,b_avg:198},
+    {month:"2025-01",l_days:13,l_fuel:5365.8,l_avg:412.8,b_days:3,b_fuel:1342,b_avg:447.3},
+    {month:"2025-02",l_days:19,l_fuel:7381.4,l_avg:388.5,b_days:3,b_fuel:1445.4,b_avg:481.8},
+    {month:"2025-03",l_days:19,l_fuel:5022,l_avg:264.3,b_days:0,b_fuel:0,b_avg:0},
+    {month:"2025-04",l_days:27,l_fuel:5657,l_avg:209.5,b_days:0,b_fuel:0,b_avg:0},
+    {month:"2025-05",l_days:14,l_fuel:3164,l_avg:226,b_days:0,b_fuel:0,b_avg:0},
+    {month:"2025-07",l_days:14,l_fuel:5878.2,l_avg:419.9,b_days:0,b_fuel:0,b_avg:0},
+    {month:"2025-08",l_days:24,l_fuel:7160,l_avg:298.3,b_days:0,b_fuel:0,b_avg:0},
+    {month:"2025-10",l_days:25,l_fuel:9852,l_avg:394.1,b_days:0,b_fuel:0,b_avg:0},
+    {month:"2025-11",l_days:26,l_fuel:7887,l_avg:303.3,b_days:0,b_fuel:0,b_avg:0},
+    {month:"2025-12",l_days:18,l_fuel:7785,l_avg:432.5,b_days:0,b_fuel:0,b_avg:0},
+    {month:"2026-01",l_days:0,l_fuel:0,l_avg:0,b_days:0,b_fuel:0,b_avg:0},
+    {month:"2026-02",l_days:20,l_fuel:8994.5,l_avg:449.7,b_days:0,b_fuel:0,b_avg:0},
+    {month:"2026-03",l_days:0,l_fuel:0,l_avg:0,b_days:1,b_fuel:636,b_avg:636}
+  ],
+  loading:[
+    {month:"2024-07",grm_voy:2,grm_ton:1223,sct_voy:0,sct_ton:0,total_ton:1223},
+    {month:"2024-08",grm_voy:10,grm_ton:6066.3,sct_voy:0,sct_ton:0,total_ton:6066.3},
+    {month:"2024-09",grm_voy:10,grm_ton:6194.2,sct_voy:0,sct_ton:0,total_ton:6194.2},
+    {month:"2024-10",grm_voy:14,grm_ton:4094.8,sct_voy:0,sct_ton:0,total_ton:4094.8},
+    {month:"2024-11",grm_voy:8,grm_ton:3360.7,sct_voy:0,sct_ton:0,total_ton:3360.7},
+    {month:"2024-12",grm_voy:8,grm_ton:5031.1,sct_voy:1,sct_ton:235.2,total_ton:5266.3},
+    {month:"2025-01",grm_voy:2,grm_ton:1454.3,sct_voy:2,sct_ton:477.5,total_ton:1931.8},
+    {month:"2025-02",grm_voy:1,grm_ton:347.7,sct_voy:5,sct_ton:934.4,total_ton:1282.1},
+    {month:"2025-03",grm_voy:2,grm_ton:615.2,sct_voy:4,sct_ton:1693,total_ton:2308.2},
+    {month:"2025-04",grm_voy:3,grm_ton:2035.7,sct_voy:3,sct_ton:977.6,total_ton:3013.3},
+    {month:"2025-05",grm_voy:4,grm_ton:2931.4,sct_voy:0,sct_ton:0,total_ton:2931.4},
+    {month:"2025-07",grm_voy:5,grm_ton:3639,sct_voy:0,sct_ton:0,total_ton:3639},
+    {month:"2025-08",grm_voy:2,grm_ton:1534.4,sct_voy:3,sct_ton:855.8,total_ton:2390.2},
+    {month:"2025-09",grm_voy:8,grm_ton:6095,sct_voy:0,sct_ton:0,total_ton:6095},
+    {month:"2025-10",grm_voy:9,grm_ton:6429.4,sct_voy:0,sct_ton:0,total_ton:6429.4},
+    {month:"2025-11",grm_voy:5,grm_ton:3610.4,sct_voy:4,sct_ton:1750,total_ton:5360.4},
+    {month:"2025-12",grm_voy:4,grm_ton:2929.5,sct_voy:3,sct_ton:1584.5,total_ton:4514},
+    {month:"2026-01",grm_voy:5,grm_ton:3070.8,sct_voy:4,sct_ton:1840,total_ton:4910.8},
+    {month:"2026-12",grm_voy:1,grm_ton:748.6,sct_voy:1,sct_ton:550,total_ton:1298.6}
+  ],
+  fe:[
+    {month:"2024-11",total_fuel:9267,laden_fuel:9044,cargo_ton:3360.7,voyages:8,fpt:2.76,lfpt:2.69},
+    {month:"2024-12",total_fuel:13345.2,laden_fuel:12973.4,cargo_ton:5266.3,voyages:9,fpt:2.53,lfpt:2.46},
+    {month:"2025-01",total_fuel:8784.2,laden_fuel:5365.8,cargo_ton:1931.8,voyages:4,fpt:4.55,lfpt:2.78},
+    {month:"2025-02",total_fuel:10045.6,laden_fuel:7381.4,cargo_ton:1282.1,voyages:6,fpt:7.84,lfpt:5.76},
+    {month:"2025-03",total_fuel:6414,laden_fuel:5022,cargo_ton:2308.2,voyages:6,fpt:2.78,lfpt:2.18},
+    {month:"2025-04",total_fuel:6019,laden_fuel:5657,cargo_ton:3013.3,voyages:6,fpt:2.00,lfpt:1.88},
+    {month:"2025-05",total_fuel:3514,laden_fuel:3164,cargo_ton:2931.4,voyages:4,fpt:1.20,lfpt:1.08},
+    {month:"2025-07",total_fuel:6512.4,laden_fuel:5878.2,cargo_ton:3639,voyages:5,fpt:1.79,lfpt:1.62},
+    {month:"2025-08",total_fuel:9230,laden_fuel:7160,cargo_ton:2390.2,voyages:5,fpt:3.86,lfpt:3.00},
+    {month:"2025-10",total_fuel:10812,laden_fuel:9852,cargo_ton:6429.4,voyages:9,fpt:1.68,lfpt:1.53},
+    {month:"2025-11",total_fuel:8645,laden_fuel:7887,cargo_ton:5360.4,voyages:9,fpt:1.61,lfpt:1.47},
+    {month:"2025-12",total_fuel:9702,laden_fuel:7785,cargo_ton:4514,voyages:7,fpt:2.15,lfpt:1.72},
+    {month:"2026-01",total_fuel:154,laden_fuel:0,cargo_ton:4910.8,voyages:9,fpt:0.03,lfpt:0.00},
+    {month:"2026-02",total_fuel:10219.5,laden_fuel:8994.5,cargo_ton:0,voyages:0,fpt:null,lfpt:null},
+    {month:"2026-03",total_fuel:1261,laden_fuel:0,cargo_ton:0,voyages:0,fpt:null,lfpt:null}
+  ],
+  stats:{total_fuel:113924.9,total_days:382,avg_daily:298.2,laden_avg:361.5,ballast_avg:418.5,lb_ratio:0.86,blended_fpt:2.41,laden_fpt:2.03},
+  fixNote:"<b>v5.2 FIX:</b> JPT-reconciled_v5.2.xlsx added <b>DL_VESSEL_FLAG</b> to DECKLOG. ADNOC 225 non-project rows (31) are excluded and shown in gray. 2026-01 fuel is corrected from <b>65,754 L</b> to <b>154 L</b>, fresh water from <b>1,946 L</b> to <b>1,760 L</b>, and period total from <b>179,525 L</b> to <b>113,925 L</b>. Included operating days are corrected from <b>413</b> to <b>382</b>."
+};
+
+function showTab(n){
+  document.querySelectorAll(".tab").forEach((tab,i)=>tab.classList.toggle("active",i===n));
+  document.querySelectorAll(".panel").forEach((panel,i)=>panel.classList.toggle("active",i===n));
+}
+
+function fmtNum(v,d=1){
+  if(v==null) return "N/A";
+  return Number(v).toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d});
+}
+
+function fmtSmart(v){
+  if(v==null) return "N/A";
+  const n=Number(v);
+  return Number.isInteger(n) ? n.toLocaleString() : n.toLocaleString(undefined,{maximumFractionDigits:1});
+}
+
+function fmtRatio(n){
+  return n>0 ? n.toFixed(2)+"x" : "N/A";
+}
+
+function rating(lfpt){
+  if(lfpt==null) return "N/A";
+  if(lfpt<2) return '<span class="hi">Good</span>';
+  if(lfpt>4) return '<span class="lo">High</span>';
+  return "Normal";
+}
+
+document.getElementById("kpiTotalFuel").textContent=fmtSmart(D.stats.total_fuel)+" L";
+document.getElementById("kpiTotalDays").textContent=fmtSmart(D.stats.total_days)+" op days";
+document.getElementById("kpiAvgDaily").textContent=fmtNum(D.stats.avg_daily,1);
+document.getElementById("kpiLadenAvg").textContent=fmtNum(D.stats.laden_avg,1);
+document.getElementById("kpiBallastAvg").textContent=fmtNum(D.stats.ballast_avg,1);
+document.getElementById("kpiLbRatio").textContent=fmtNum(D.stats.lb_ratio,2)+"x";
+document.getElementById("kpiFpt").textContent=fmtNum(D.stats.blended_fpt,2);
+document.getElementById("fixNote").innerHTML=D.fixNote;
+
+const months=D.mf.map(m=>m.month);
+
+new Chart(document.getElementById("fuelStackChart"),{
+  type:"bar",
+  data:{labels:months,datasets:[
+    {label:"Laden",data:D.mf.map(m=>m.laden),backgroundColor:"#22c55e",stack:"fuel"},
+    {label:"Ballast",data:D.mf.map(m=>m.ballast),backgroundColor:"#3b82f6",stack:"fuel"},
+    {label:"Port Ops",data:D.mf.map(m=>m.port),backgroundColor:"#eab308",stack:"fuel"},
+    {label:"Unknown",data:D.mf.map(m=>m.unknown),backgroundColor:"#6b7280",stack:"fuel"},
+    {label:"Excluded ADNOC 225",data:D.mf.map(m=>m.excluded),backgroundColor:"#9ca3af",stack:"fuel"}
+  ]},
+  options:{
+    responsive:true,
+    plugins:{legend:{labels:{color:"#94a3b8"}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmtSmart(c.raw)} L`}}},
+    scales:{
+      x:{stacked:true,ticks:{color:"#94a3b8"}},
+      y:{stacked:true,ticks:{color:"#94a3b8",callback:v=>(v/1000)+"K"},grid:{color:"#1e293b"}}
+    }
+  }
+});
+
+new Chart(document.getElementById("fuelAvgChart"),{
+  type:"line",
+  data:{labels:months,datasets:[
+    {label:"Avg Daily",data:D.mf.map(m=>m.avg),borderColor:"#06b6d4",tension:.3,pointRadius:4},
+    {label:"Max Daily",data:D.mf.map(m=>m.max),borderColor:"#ef4444",borderDash:[5,3],tension:.3,pointRadius:3}
+  ]},
+  options:{responsive:true,plugins:{legend:{labels:{color:"#94a3b8"}}},scales:{x:{ticks:{color:"#94a3b8",font:{size:9}}},y:{ticks:{color:"#94a3b8"},grid:{color:"#1e293b"}}}}
+});
+
+new Chart(document.getElementById("fuelFwChart"),{
+  type:"bar",
+  data:{labels:months,datasets:[
+    {label:"Fuel (L)",data:D.mf.map(m=>m.total),backgroundColor:"#f97316"},
+    {label:"Fresh Water (L)",data:D.mf.map(m=>m.fw),backgroundColor:"#3b82f6"}
+  ]},
+  options:{responsive:true,plugins:{legend:{labels:{color:"#94a3b8"}}},scales:{x:{ticks:{color:"#94a3b8",font:{size:9}}},y:{ticks:{color:"#94a3b8",callback:v=>(v/1000)+"K"},grid:{color:"#1e293b"}}}}
+});
+
+const lbMonths=D.lb.map(r=>r.month);
+new Chart(document.getElementById("lbAvgChart"),{
+  type:"bar",
+  data:{labels:lbMonths,datasets:[
+    {label:"Laden Avg (L/day)",data:D.lb.map(r=>r.l_avg),backgroundColor:"#22c55e"},
+    {label:"Ballast Avg (L/day)",data:D.lb.map(r=>r.b_avg),backgroundColor:"#3b82f6"}
+  ]},
+  options:{responsive:true,plugins:{legend:{labels:{color:"#94a3b8"}}},scales:{x:{ticks:{color:"#94a3b8",font:{size:9}}},y:{ticks:{color:"#94a3b8"},grid:{color:"#1e293b"}}}}
+});
+
+new Chart(document.getElementById("lbDaysChart"),{
+  type:"bar",
+  data:{labels:lbMonths,datasets:[
+    {label:"Laden Days",data:D.lb.map(r=>r.l_days),backgroundColor:"#22c55e",stack:"days"},
+    {label:"Ballast Days",data:D.lb.map(r=>r.b_days),backgroundColor:"#3b82f6",stack:"days"}
+  ]},
+  options:{responsive:true,plugins:{legend:{labels:{color:"#94a3b8"}}},scales:{x:{stacked:true,ticks:{color:"#94a3b8",font:{size:9}}},y:{stacked:true,ticks:{color:"#94a3b8"},grid:{color:"#1e293b"}}}}
+});
+
+new Chart(document.getElementById("lbFuelChart"),{
+  type:"bar",
+  data:{labels:lbMonths,datasets:[
+    {label:"Laden Fuel",data:D.lb.map(r=>r.l_fuel),backgroundColor:"#22c55e"},
+    {label:"Ballast Fuel",data:D.lb.map(r=>r.b_fuel),backgroundColor:"#3b82f6"}
+  ]},
+  options:{responsive:true,plugins:{legend:{labels:{color:"#94a3b8"}}},scales:{x:{ticks:{color:"#94a3b8",font:{size:9}}},y:{ticks:{color:"#94a3b8",callback:v=>(v/1000)+"K"},grid:{color:"#1e293b"}}}}
+});
+
+const lbTbody=document.getElementById("lbTbody");
+D.lb.forEach(r=>{
+  const ratio=r.b_avg>0 ? (r.l_avg/r.b_avg) : 0;
+  lbTbody.innerHTML+=`<tr><td>${r.month}</td><td>${fmtSmart(r.l_days)}</td><td>${fmtSmart(r.l_fuel)}</td><td>${fmtNum(r.l_avg,1)}</td><td>${fmtSmart(r.b_days)}</td><td>${fmtSmart(r.b_fuel)}</td><td>${fmtNum(r.b_avg,1)}</td><td>${r.b_avg>0 ? fmtRatio(ratio) : "N/A"}</td></tr>`;
+});
+
+const loadMonths=D.loading.map(r=>r.month);
+new Chart(document.getElementById("loadChart"),{
+  type:"bar",
+  data:{labels:loadMonths,datasets:[
+    {label:"GRM (tons)",data:D.loading.map(r=>r.grm_ton),backgroundColor:"#22c55e",stack:"ton"},
+    {label:"SCT (tons)",data:D.loading.map(r=>r.sct_ton),backgroundColor:"#f97316",stack:"ton"}
+  ]},
+  options:{responsive:true,plugins:{legend:{labels:{color:"#94a3b8"}}},scales:{x:{stacked:true,ticks:{color:"#94a3b8",font:{size:9}}},y:{stacked:true,ticks:{color:"#94a3b8",callback:v=>(v/1000)+"K"},grid:{color:"#1e293b"}}}}
+});
+
+new Chart(document.getElementById("voyCountChart"),{
+  type:"bar",
+  data:{labels:loadMonths,datasets:[
+    {label:"GRM",data:D.loading.map(r=>r.grm_voy),backgroundColor:"#22c55e"},
+    {label:"SCT",data:D.loading.map(r=>r.sct_voy),backgroundColor:"#f97316"}
+  ]},
+  options:{responsive:true,plugins:{legend:{labels:{color:"#94a3b8"}}},scales:{x:{ticks:{color:"#94a3b8",font:{size:9}}},y:{ticks:{color:"#94a3b8"},grid:{color:"#1e293b"}}}}
+});
+
+new Chart(document.getElementById("grmPctChart"),{
+  type:"line",
+  data:{labels:loadMonths,datasets:[{label:"GRM %",data:D.loading.map(r=>r.total_ton>0?Math.round(r.grm_ton/r.total_ton*100):0),borderColor:"#22c55e",fill:true,backgroundColor:"rgba(34,197,94,0.10)",tension:.3}]},
+  options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:"#94a3b8",font:{size:9}}},y:{min:0,max:100,ticks:{color:"#94a3b8",callback:v=>v+"%"},grid:{color:"#1e293b"}}}}
+});
+
+const loadTbody=document.getElementById("loadTbody");
+D.loading.forEach(r=>{
+  const pct=r.total_ton>0 ? Math.round(r.grm_ton/r.total_ton*100)+"%" : "0%";
+  loadTbody.innerHTML+=`<tr><td>${r.month}</td><td>${fmtSmart(r.grm_voy)}</td><td>${fmtSmart(r.grm_ton)}</td><td>${fmtSmart(r.sct_voy)}</td><td>${fmtSmart(r.sct_ton)}</td><td style="font-weight:700">${fmtSmart(r.total_ton)}</td><td>${pct}</td></tr>`;
+});
+
+const effMonths=D.fe.map(r=>r.month);
+new Chart(document.getElementById("effChart"),{
+  type:"bar",
+  data:{labels:effMonths,datasets:[
+    {label:"Total Fuel/Ton",data:D.fe.map(r=>r.fpt),backgroundColor:"#f97316"},
+    {label:"Laden Fuel/Ton",data:D.fe.map(r=>r.lfpt),backgroundColor:"#22c55e"}
+  ]},
+  options:{responsive:true,plugins:{legend:{labels:{color:"#94a3b8"}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw==null?"N/A":c.raw+" L/ton"}`}}},scales:{x:{ticks:{color:"#94a3b8",font:{size:9}}},y:{ticks:{color:"#94a3b8"},grid:{color:"#1e293b"}}}}
+});
+
+new Chart(document.getElementById("effScatterChart"),{
+  type:"scatter",
+  data:{datasets:[{label:"Monthly",data:D.fe.filter(r=>r.cargo_ton>0).map(r=>({x:r.cargo_ton,y:r.total_fuel,label:r.month})),backgroundColor:"#3b82f6",pointRadius:6}]},
+  options:{
+    responsive:true,
+    plugins:{tooltip:{callbacks:{label:c=>`${c.raw.label}: ${fmtSmart(c.raw.x)} ton, ${fmtSmart(c.raw.y)} L`}}},
+    scales:{
+      x:{title:{display:true,text:"Cargo Ton",color:"#94a3b8"},ticks:{color:"#94a3b8"},grid:{color:"#1e293b"}},
+      y:{title:{display:true,text:"Total Fuel (L)",color:"#94a3b8"},ticks:{color:"#94a3b8"},grid:{color:"#1e293b"}}
+    }
+  }
+});
+
+const effTbody=document.getElementById("effTbody");
+D.fe.forEach(r=>{
+  effTbody.innerHTML+=`<tr><td>${r.month}</td><td>${fmtSmart(r.total_fuel)}</td><td>${fmtSmart(r.laden_fuel)}</td><td>${fmtSmart(r.cargo_ton)}</td><td>${fmtSmart(r.voyages)}</td><td>${r.fpt==null?"N/A":fmtNum(r.fpt,2)}</td><td>${r.lfpt==null?"N/A":fmtNum(r.lfpt,2)}</td><td>${rating(r.lfpt)}</td></tr>`;
+});
+</script>
+</body>
+</html>

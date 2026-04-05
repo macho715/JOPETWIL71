@@ -1,0 +1,20 @@
+[Unit]
+Description=JPT71 MyAgent Copilot Standalone Proxy
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/jpt71-ai-proxy
+Environment=MYAGENT_PROXY_HOST=0.0.0.0
+Environment=MYAGENT_PROXY_PORT=3010
+Environment=MYAGENT_PROXY_AUTH_TOKEN=replace-with-strong-secret
+Environment=MYAGENT_PROXY_CORS_ORIGINS=https://your-vercel-project.vercel.app
+Environment=MYAGENT_PROXY_ALLOW_SANITIZED_TO_COPILOT=0
+ExecStart=/usr/bin/node /opt/jpt71-ai-proxy/dist/cli.js serve --host 0.0.0.0 --port 3010
+Restart=always
+RestartSec=5
+User=www-data
+Group=www-data
+
+[Install]
+WantedBy=multi-user.target

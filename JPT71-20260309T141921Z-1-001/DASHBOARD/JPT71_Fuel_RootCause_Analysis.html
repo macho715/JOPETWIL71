@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>JPT71 Fuel Root-Cause Analysis — v5.2 RAW</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--border:#334155;--text:#e2e8f0;--text2:#94a3b8;--accent:#3b82f6;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--purple:#a855f7;--cyan:#06b6d4;--orange:#f97316}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text)}
+.header{background:linear-gradient(135deg,#1a2744,#0f172a);padding:20px 30px;border-bottom:2px solid var(--orange)}
+.header h1{font-size:20px;font-weight:700}
+.header .sub{font-size:12px;color:var(--text2);margin-top:4px}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;margin-left:8px}
+.badge-o{background:#7c2d12;color:#fed7aa}
+.tabs{display:flex;gap:0;padding:0 30px;background:var(--card);border-bottom:1px solid var(--border)}
+.tab{padding:12px 20px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text2);border-bottom:3px solid transparent;transition:.2s}
+.tab.active{color:var(--orange);border-bottom-color:var(--orange)}
+.tab:hover{color:var(--text)}
+.content{padding:20px 30px}
+.panel{display:none}.panel.active{display:block}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px}
+.card .lbl{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.card .val{font-size:20px;font-weight:700;margin-top:4px}
+.card .note{font-size:10px;color:var(--text2);margin-top:2px}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.chart-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px}
+.chart-box h3{font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:600}
+.chart-box.full{grid-column:1/-1}
+.insight{background:#1a2744;border-left:4px solid var(--orange);padding:12px 16px;margin:16px 0;border-radius:0 8px 8px 0;font-size:12px;line-height:1.6}
+.insight strong{color:var(--orange)}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{background:#1a2744;color:var(--text2);padding:8px 10px;text-align:left;font-weight:600;border-bottom:2px solid var(--orange)}
+td{padding:6px 10px;border-bottom:1px solid var(--border)}
+tr:hover td{background:#253349}
+.tbl-wrap{max-height:450px;overflow-y:auto;background:var(--card);border:1px solid var(--border);border-radius:8px;margin-top:12px}
+@media(max-width:768px){.chart-row{grid-template-columns:1fr}}
+</style></head><body>
+
+<div class="header">
+<h1>Laden/Ballast Fuel — Root-Cause Analysis <span class="badge badge-o">v5.2 RAW</span></h1>
+<div class="sub">57 Trips · EXCLUDED_NON_JPT71 제거 · Route별 · 하역시간별 · Activity별 · 풍속별 연료 분석</div>
+</div>
+
+<div class="tabs">
+<div class="tab active" onclick="showTab(0)">Route Analysis</div>
+<div class="tab" onclick="showTab(1)">Activity Fuel</div>
+<div class="tab" onclick="showTab(2)">Handling Time</div>
+<div class="tab" onclick="showTab(3)">Wind Impact</div>
+<div class="tab" onclick="showTab(4)">Findings</div>
+</div>
+
+<div class="content">
+
+<!-- TAB 0: ROUTE -->
+<div class="panel active" id="p0">
+<div class="cards">
+<div class="card"><div class="lbl">Total Trips</div><div class="val">57</div><div class="note">DECKLOG trip segmentation</div></div>
+<div class="card"><div class="lbl">AGI Field</div><div class="val" style="color:var(--green)">43</div><div class="note">avg 1,921.8 L/trip</div></div>
+<div class="card"><div class="lbl">DAS Island</div><div class="val" style="color:var(--accent)">2</div><div class="note">avg 8,710.8 L/trip</div></div>
+<div class="card"><div class="lbl">Disc vs Load</div><div class="val" style="color:var(--red)">1.23x</div><div class="note">하역 일평균 / 선적 일평균</div></div>
+<div class="card"><div class="lbl">Anchor Surge</div><div class="val" style="color:var(--yellow)">1.2x</div><div class="note">AT_ANCHOR vs LOADING L/day</div></div>
+</div>
+<div class="chart-row">
+<div class="chart-box"><h3>Trip Count & Avg Fuel by Destination</h3><canvas id="routeBarChart"></canvas></div>
+<div class="chart-box"><h3>Fuel/Day by Activity Phase & Route</h3><canvas id="routePhaseChart"></canvas></div>
+</div>
+<div class="insight">
+<strong>Key Finding — Route:</strong> AGI Field 루트(43 trips, avg 1,921.8L/trip)가 주력입니다. DAS Island는 2 trips로 적지만 avg 8,710.8L/trip로 더 무겁습니다. <strong>AGI anchor 452.2L/day / DAS anchor 309.0L/day</strong> 수준이며, v5.2 기준으로 2026-01 제외행 제거 후 route 편차가 정상 범위로 되돌아왔습니다.
+</div>
+<div class="tbl-wrap"><table>
+<thead><tr><th>Destination</th><th>Trips</th><th>Total Days</th><th>Load</th><th>Disc</th><th>Sail</th><th>Anchor</th><th>Total Fuel</th><th>Avg/Trip</th><th>Load L/d</th><th>Disc L/d</th><th>Sail L/d</th><th>Anchor L/d</th></tr></thead>
+<tbody id="routeTbody"></tbody>
+</table></div>
+</div>
+
+<!-- TAB 1: ACTIVITY -->
+<div class="panel" id="p1">
+<div class="chart-row">
+<div class="chart-box full"><h3>Daily Fuel by Activity Type (L/day avg)</h3><canvas id="actBarChart"></canvas></div>
+</div>
+<div class="chart-row">
+<div class="chart-box"><h3>Total Fuel Share by Activity</h3><canvas id="actDonutChart"></canvas></div>
+<div class="chart-box"><h3>Activity Days Distribution</h3><canvas id="actDaysChart"></canvas></div>
+</div>
+<div class="insight">
+<strong>Key Finding — Activity:</strong> AT_ANCHOR가 <strong>382.8 L/day</strong>로 높고, DISCHARGING 390.9 &gt; LOADING 317.7 입니다. SAILING은 423.7L/day 수준으로 중간대이며, EXCLUDED ADNOC 225 제거 후 앵커 이상치가 크게 완화됐습니다.
+</div>
+<div class="tbl-wrap"><table>
+<thead><tr><th>Activity</th><th>Days</th><th>Avg L/day</th><th>Median L/day</th><th>Max L/day</th><th>Total Fuel</th></tr></thead>
+<tbody id="actTbody"></tbody>
+</table></div>
+</div>
+
+<!-- TAB 2: HANDLING TIME -->
+<div class="panel" id="p2">
+<div class="chart-row">
+<div class="chart-box"><h3>Loading Duration vs Total Trip Fuel</h3><canvas id="loadDurChart"></canvas></div>
+<div class="chart-box"><h3>Discharge Duration vs Total Trip Fuel</h3><canvas id="discDurChart"></canvas></div>
+</div>
+<div class="insight">
+<strong>Key Finding — 하역시간:</strong> 1일 선적 Trip(29건)이 가장 흔합니다. 하역 0일 Trip은 38건이며 avg 1,750.2L로, 선적/하역보다 이동·대기 구성의 영향이 더 크다는 점을 보여줍니다.
+</div>
+<div class="tbl-wrap"><table>
+<thead><tr><th>Load Days</th><th>Trips</th><th>Avg Trip Days</th><th>Avg Total Fuel</th><th>Avg Load Fuel</th></tr></thead>
+<tbody id="handleTbody"></tbody>
+</table></div>
+</div>
+
+<!-- TAB 3: WIND -->
+<div class="panel" id="p3">
+<div class="chart-row">
+<div class="chart-box full"><h3>Wind Speed vs Fuel Consumption (L/day)</h3><canvas id="windChart"></canvas></div>
+</div>
+<div class="insight">
+<strong>Key Finding — 풍속:</strong> Moderate(8-12) 구간이 avg 303.1L/day로 가장 높습니다. 강풍 자체보다, 대기 전환과 작업 중단이 연료패턴을 바꾸는 간접 요인으로 보입니다.
+</div>
+<div class="tbl-wrap"><table>
+<thead><tr><th>Wind</th><th>Days</th><th>Avg Fuel L/day</th><th>Median L/day</th></tr></thead>
+<tbody id="windTbody"></tbody>
+</table></div>
+</div>
+
+<!-- TAB 4: FINDINGS -->
+<div class="panel" id="p4">
+<div class="insight" style="border-left-color:var(--red)"><strong>#1 — Anchor waiting remains the largest inefficiency block</strong><br>AT_ANCHOR 382.8 L/day, 22,967L across 60 days. 항차 자체보다 선석/입항 지연 관리가 더 직접적인 절감 레버입니다.</div>
+<div class="insight" style="border-left-color:var(--orange)"><strong>#2 — Discharge still burns more than loading</strong><br>DISCHARGING 390.9 vs LOADING 317.7 L/day (1.23x). 하역 장비/밸러스트 조정 구간을 별도 개선 대상으로 보는 것이 맞습니다.</div>
+<div class="insight" style="border-left-color:var(--yellow)"><strong>#3 — DAS route is small-volume but fuel-heavy</strong><br>DAS avg 8,710.8L/trip vs AGI avg 1,921.8L/trip. 장거리 배선과 anchorage 체류가 겹칠 때 편차가 커집니다.</div>
+<div class="insight" style="border-left-color:var(--green)"><strong>#4 — Loading-duration alone does not explain total trip fuel</strong><br>가장 흔한 패턴은 1일 loading trip이며, total fuel은 대기/항해 구성에 더 민감합니다. Root cause는 작업시간보다 sequence 관리 쪽에 가깝습니다.</div>
+<div class="insight" style="border-left-color:var(--accent)"><strong>#5 — v5.2 correction normalized January efficiency</strong><br>DL_VESSEL_FLAG 기반 EXCLUDED 제거 후 January anchor/route distortion이 사라졌고, chart scale도 정상 범위로 복원됐습니다.</div>
+
+<div class="chart-row" style="margin-top:20px">
+<div class="chart-box full"><h3>Fuel Driver Waterfall — 핵심 원인별 일평균 연료 기여도</h3><canvas id="waterfallChart"></canvas></div>
+</div>
+</div>
+
+</div>
+<script>
+const D = {"routes": [{"dest": "AGI_FIELD","trips": 43,"total_days": 290,"load_days": 78,"disc_days": 32,"sail_days": 47,"anchor_days": 30,"total_fuel": 82636.5,"avg_trip_fuel": 1921.8,"load_fpd": 312.0,"disc_fpd": 393.1,"sail_fpd": 393.7,"anchor_fpd": 452.2},{"dest": "MW4_MUSAFFAH","trips": 6,"total_days": 14,"load_days": 11,"disc_days": 1,"sail_days": 1,"anchor_days": 0,"total_fuel": 5814.3,"avg_trip_fuel": 969.1,"load_fpd": 424.3,"disc_fpd": 333.0,"sail_fpd": 440.0,"anchor_fpd": 0},{"dest": "JPW_BASE","trips": 4,"total_days": 16,"load_days": 4,"disc_days": 0,"sail_days": 6,"anchor_days": 1,"total_fuel": 4526.0,"avg_trip_fuel": 1131.5,"load_fpd": 247.5,"disc_fpd": 0,"sail_fpd": 452.0,"anchor_fpd": 440.0},{"dest": "DAS_ISLAND","trips": 2,"total_days": 54,"load_days": 2,"disc_days": 1,"sail_days": 14,"anchor_days": 29,"total_fuel": 17421.6,"avg_trip_fuel": 8710.8,"load_fpd": 250.0,"disc_fpd": 380.6,"sail_fpd": 454.5,"anchor_fpd": 309.0},{"dest": "FREE_PORT","trips": 1,"total_days": 2,"load_days": 1,"disc_days": 0,"sail_days": 1,"anchor_days": 0,"total_fuel": 977.0,"avg_trip_fuel": 977.0,"load_fpd": 137.0,"disc_fpd": 0,"sail_fpd": 840.0,"anchor_fpd": 0},{"dest": "OTHER","trips": 1,"total_days": 6,"load_days": 1,"disc_days": 0,"sail_days": 3,"anchor_days": 0,"total_fuel": 2549.5,"avg_trip_fuel": 2549.5,"load_fpd": 191.0,"disc_fpd": 0,"sail_fpd": 550.2,"anchor_fpd": 0}],"act_fuel": [{"act": "LOADING","days": 97,"avg": 317.7,"med": 290.4,"total": 30817.8,"max": 810.0},{"act": "DISCHARGING","days": 34,"avg": 390.9,"med": 364.0,"total": 13291.6,"max": 810.0},{"act": "SAILING","days": 72,"avg": 423.7,"med": 395.9,"total": 30508.7,"max": 840.4},{"act": "AT_ANCHOR","days": 60,"avg": 382.8,"med": 381.6,"total": 22966.6,"max": 781.0},{"act": "AT_BERTH","days": 49,"avg": 101.5,"med": 77.0,"total": 4975.0,"max": 664.0},{"act": "MAINTENANCE","days": 45,"avg": 123.5,"med": 77.0,"total": 5558.4,"max": 575.0},{"act": "BUNKERING","days": 21,"avg": 260.6,"med": 231.0,"total": 5472.8,"max": 631.0},{"act": "OTHER","days": 4,"avg": 83.5,"med": 73.7,"total": 334.0,"max": 116.6}],"port_data": [{"port": "AGI_FIELD","state": "AT_ANCHOR","days": 24,"avg": 374.3,"total": 8983.2},{"port": "AGI_FIELD","state": "AT_BERTH","days": 7,"avg": 128.6,"total": 900.0},{"port": "AGI_FIELD","state": "BUNKERING","days": 4,"avg": 234.2,"total": 936.6},{"port": "AGI_FIELD","state": "DISCHARGING","days": 14,"avg": 368.7,"total": 5162.0},{"port": "AGI_FIELD","state": "LOADING","days": 38,"avg": 303.4,"total": 11527.5},{"port": "AGI_FIELD","state": "MAINTENANCE","days": 16,"avg": 141.3,"total": 2261.0},{"port": "AGI_FIELD","state": "SAILING","days": 24,"avg": 423.3,"total": 10158.4},{"port": "DAS_ISLAND","state": "AT_ANCHOR","days": 17,"avg": 344.5,"total": 5857.0},{"port": "DAS_ISLAND","state": "BUNKERING","days": 1,"avg": 389.4,"total": 389.4},{"port": "DAS_ISLAND","state": "DISCHARGING","days": 1,"avg": 380.6,"total": 380.6},{"port": "DAS_ISLAND","state": "LOADING","days": 3,"avg": 266.3,"total": 799.0},{"port": "DAS_ISLAND","state": "SAILING","days": 3,"avg": 672.5,"total": 2017.4},{"port": "FREE_PORT","state": "AT_ANCHOR","days": 5,"avg": 499.8,"total": 2499.0},{"port": "FREE_PORT","state": "AT_BERTH","days": 1,"avg": 77.0,"total": 77.0},{"port": "FREE_PORT","state": "DISCHARGING","days": 4,"avg": 245.5,"total": 982.0},{"port": "FREE_PORT","state": "LOADING","days": 5,"avg": 396.0,"total": 1980.0},{"port": "FREE_PORT","state": "MAINTENANCE","days": 1,"avg": 462.0,"total": 462.0},{"port": "FREE_PORT","state": "SAILING","days": 1,"avg": 840.0,"total": 840.0},{"port": "JPW_BASE","state": "AT_ANCHOR","days": 9,"avg": 451.0,"total": 4058.8},{"port": "JPW_BASE","state": "AT_BERTH","days": 30,"avg": 88.7,"total": 2660.2},{"port": "JPW_BASE","state": "BUNKERING","days": 8,"avg": 139.2,"total": 1114.0},{"port": "JPW_BASE","state": "DISCHARGING","days": 2,"avg": 587.0,"total": 1174.0},{"port": "JPW_BASE","state": "LOADING","days": 9,"avg": 282.7,"total": 2544.0},{"port": "JPW_BASE","state": "MAINTENANCE","days": 20,"avg": 97.6,"total": 1951.8},{"port": "JPW_BASE","state": "OTHER","days": 1,"avg": 70.0,"total": 70.0},{"port": "JPW_BASE","state": "SAILING","days": 28,"avg": 358.9,"total": 10049.4},{"port": "MUSAFFAH","state": "DISCHARGING","days": 2,"avg": 160.0,"total": 320.0},{"port": "MUSAFFAH","state": "LOADING","days": 4,"avg": 276.2,"total": 1105.0},{"port": "MW4_MUSAFFAH","state": "AT_ANCHOR","days": 2,"avg": 563.2,"total": 1126.4},{"port": "MW4_MUSAFFAH","state": "AT_BERTH","days": 9,"avg": 130.8,"total": 1177.2},{"port": "MW4_MUSAFFAH","state": "BUNKERING","days": 7,"avg": 386.7,"total": 2707.2},{"port": "MW4_MUSAFFAH","state": "DISCHARGING","days": 11,"avg": 479.4,"total": 5273.0},{"port": "MW4_MUSAFFAH","state": "LOADING","days": 38,"avg": 338.5,"total": 12862.3},{"port": "MW4_MUSAFFAH","state": "MAINTENANCE","days": 8,"avg": 110.5,"total": 883.6},{"port": "MW4_MUSAFFAH","state": "OTHER","days": 2,"avg": 96.8,"total": 193.6},{"port": "MW4_MUSAFFAH","state": "SAILING","days": 12,"avg": 463.6,"total": 5562.6},{"port": "OTHER","state": "AT_ANCHOR","days": 3,"avg": 147.4,"total": 442.2},{"port": "OTHER","state": "AT_BERTH","days": 2,"avg": 80.3,"total": 160.6},{"port": "OTHER","state": "BUNKERING","days": 1,"avg": 325.6,"total": 325.6},{"port": "OTHER","state": "OTHER","days": 1,"avg": 70.4,"total": 70.4},{"port": "OTHER","state": "SAILING","days": 4,"avg": 470.2,"total": 1880.9}],"handle": [{"load_days": 0,"trips": 3,"avg_total_fuel": 2101.0,"avg_load_fuel": 0.0,"avg_trip_days": 6.7},{"load_days": 1,"trips": 29,"avg_total_fuel": 2275.5,"avg_load_fuel": 256.1,"avg_trip_days": 7.5},{"load_days": 2,"trips": 10,"avg_total_fuel": 1584.5,"avg_load_fuel": 608.0,"avg_trip_days": 6.3},{"load_days": 3,"trips": 12,"avg_total_fuel": 1627.9,"avg_load_fuel": 1057.2,"avg_trip_days": 5.2},{"load_days": 4,"trips": 3,"avg_total_fuel": 2084.3,"avg_load_fuel": 1541.6,"avg_trip_days": 6.0}],"disc": [{"disc_days": 0,"trips": 38,"avg_total_fuel": 1750.2,"avg_disc_fuel": 0.0},{"disc_days": 1,"trips": 11,"avg_total_fuel": 2886.4,"avg_disc_fuel": 429.5},{"disc_days": 2,"trips": 5,"avg_total_fuel": 1594.4,"avg_disc_fuel": 760.6},{"disc_days": 4,"trips": 2,"avg_total_fuel": 2038.0,"avg_disc_fuel": 957.0},{"disc_days": 5,"trips": 1,"avg_total_fuel": 3618.0,"avg_disc_fuel": 2850.0}],"wind": [{"label": "Light(<8)","days": 44,"avg": 288.5,"med": 209.0},{"label": "Moderate(8-12)","days": 209,"avg": 303.1,"med": 286.0},{"label": "Fresh(12-16)","days": 75,"avg": 293.0,"med": 224.0},{"label": "Strong(16+)","days": 13,"avg": 110.5,"med": 90.0}],"findings": {"total_trips": 57,"agi_trips": 43,"das_trips": 2,"agi_avg_fuel": 1921.8,"das_avg_fuel": 8710.8,"load_fpd": 317.7,"disc_fpd": 390.9,"sail_fpd": 423.7,"anchor_fpd": 382.8,"disc_vs_load": 1.23,"anchor_vs_load": 1.2}};
+function showTab(n){document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===n))}
+
+const destColors={'AGI_FIELD':'#22c55e','DAS_ISLAND':'#3b82f6','MW4_MUSAFFAH':'#f97316','JPW_BASE':'#a855f7','MUSAFFAH':'#06b6d4','FREE_PORT':'#eab308','OTHER':'#6b7280'};
+
+// TAB 0: Route
+new Chart(document.getElementById('routeBarChart'),{type:'bar',data:{
+labels:D.routes.map(r=>r.dest),datasets:[
+{label:'Trips',data:D.routes.map(r=>r.trips),backgroundColor:D.routes.map(r=>destColors[r.dest]||'#64748b'),yAxisID:'y'},
+{type:'line',label:'Avg Fuel/Trip',data:D.routes.map(r=>r.avg_trip_fuel),borderColor:'#ef4444',pointRadius:5,yAxisID:'y1'}
+]},options:{plugins:{legend:{labels:{color:'#94a3b8'}}},scales:{x:{ticks:{color:'#94a3b8',font:{size:9}}},y:{ticks:{color:'#94a3b8'},grid:{color:'#1e293b'}},y1:{position:'right',ticks:{color:'#94a3b8'},grid:{display:false}}}}});
+
+const mainRoutes=D.routes.filter(r=>r.trips>=4);
+new Chart(document.getElementById('routePhaseChart'),{type:'bar',data:{
+labels:mainRoutes.map(r=>r.dest),datasets:[
+{label:'Load L/d',data:mainRoutes.map(r=>r.load_fpd),backgroundColor:'#22c55e'},
+{label:'Disc L/d',data:mainRoutes.map(r=>r.disc_fpd),backgroundColor:'#ef4444'},
+{label:'Sail L/d',data:mainRoutes.map(r=>r.sail_fpd),backgroundColor:'#3b82f6'},
+{label:'Anchor L/d',data:mainRoutes.map(r=>r.anchor_fpd),backgroundColor:'#eab308'}
+]},options:{plugins:{legend:{labels:{color:'#94a3b8'}}},scales:{x:{ticks:{color:'#94a3b8',font:{size:9}}},y:{ticks:{color:'#94a3b8'},grid:{color:'#1e293b'}}}}});
+
+const rt=document.getElementById('routeTbody');
+D.routes.forEach(r=>{rt.innerHTML+='<tr><td style="font-weight:700;color:'+(destColors[r.dest]||'#fff')+'">'+r.dest+'</td><td>'+r.trips+'</td><td>'+r.total_days+'</td><td>'+r.load_days+'</td><td>'+r.disc_days+'</td><td>'+r.sail_days+'</td><td>'+r.anchor_days+'</td><td style="font-weight:700">'+r.total_fuel.toLocaleString()+'</td><td>'+r.avg_trip_fuel.toLocaleString()+'</td><td>'+r.load_fpd+'</td><td>'+r.disc_fpd+'</td><td>'+r.sail_fpd+'</td><td>'+r.anchor_fpd+'</td></tr>'});
+
+// TAB 1: Activity
+const actColors={'LOADING':'#22c55e','DISCHARGING':'#ef4444','SAILING':'#3b82f6','SAILING_LADEN':'#06b6d4','AT_ANCHOR':'#eab308','AT_BERTH':'#a855f7','MAINTENANCE':'#6b7280','BUNKERING':'#f97316','OTHER':'#64748b'};
+new Chart(document.getElementById('actBarChart'),{type:'bar',data:{
+labels:D.act_fuel.map(a=>a.act),datasets:[
+{label:'Avg L/day',data:D.act_fuel.map(a=>a.avg),backgroundColor:D.act_fuel.map(a=>actColors[a.act]||'#64748b')},
+{label:'Median L/day',data:D.act_fuel.map(a=>a.med),backgroundColor:D.act_fuel.map(a=>(actColors[a.act]||'#64748b')+'88')}
+]},options:{plugins:{legend:{labels:{color:'#94a3b8'}}},scales:{x:{ticks:{color:'#94a3b8',font:{size:9}}},y:{ticks:{color:'#94a3b8'},grid:{color:'#1e293b'}}}}});
+
+new Chart(document.getElementById('actDonutChart'),{type:'doughnut',data:{
+labels:D.act_fuel.map(a=>a.act),datasets:[{data:D.act_fuel.map(a=>a.total),backgroundColor:D.act_fuel.map(a=>actColors[a.act]||'#64748b')}]
+},options:{plugins:{legend:{position:'right',labels:{color:'#94a3b8',font:{size:9}}},tooltip:{callbacks:{label:c=>c.label+': '+c.raw.toLocaleString()+' L'}}},cutout:'50%'}});
+
+new Chart(document.getElementById('actDaysChart'),{type:'doughnut',data:{
+labels:D.act_fuel.map(a=>a.act),datasets:[{data:D.act_fuel.map(a=>a.days),backgroundColor:D.act_fuel.map(a=>actColors[a.act]||'#64748b')}]
+},options:{plugins:{legend:{position:'right',labels:{color:'#94a3b8',font:{size:9}}},tooltip:{callbacks:{label:c=>c.label+': '+c.raw+' days'}}},cutout:'50%'}});
+
+const at=document.getElementById('actTbody');
+D.act_fuel.forEach(a=>{at.innerHTML+='<tr><td style="color:'+(actColors[a.act]||'#fff')+';font-weight:700">'+a.act+'</td><td>'+a.days+'</td><td style="font-weight:700">'+a.avg+'</td><td>'+a.med+'</td><td>'+a.max+'</td><td>'+a.total.toLocaleString()+'</td></tr>'});
+
+// TAB 2: Handling
+new Chart(document.getElementById('loadDurChart'),{type:'bar',data:{
+labels:D.handle.map(h=>h.load_days+'d'),datasets:[
+{label:'Avg Total Trip Fuel',data:D.handle.map(h=>h.avg_total_fuel),backgroundColor:'#3b82f6'},
+{label:'Avg Load Fuel Only',data:D.handle.map(h=>h.avg_load_fuel),backgroundColor:'#22c55e'}
+]},options:{plugins:{legend:{labels:{color:'#94a3b8'}}},scales:{x:{title:{display:true,text:'Loading Days',color:'#94a3b8'},ticks:{color:'#94a3b8'}},y:{ticks:{color:'#94a3b8',callback:v=>(v/1000)+'K'},grid:{color:'#1e293b'}}}}});
+
+new Chart(document.getElementById('discDurChart'),{type:'bar',data:{
+labels:D.disc.map(d=>d.disc_days+'d'),datasets:[
+{label:'Avg Total Trip Fuel',data:D.disc.map(d=>d.avg_total_fuel),backgroundColor:'#ef4444'},
+{label:'Avg Disc Fuel Only',data:D.disc.map(d=>d.avg_disc_fuel),backgroundColor:'#f97316'}
+]},options:{plugins:{legend:{labels:{color:'#94a3b8'}}},scales:{x:{title:{display:true,text:'Discharge Days',color:'#94a3b8'},ticks:{color:'#94a3b8'}},y:{ticks:{color:'#94a3b8',callback:v=>(v/1000)+'K'},grid:{color:'#1e293b'}}}}});
+
+const ht=document.getElementById('handleTbody');
+D.handle.forEach(h=>{ht.innerHTML+='<tr><td>'+h.load_days+'</td><td>'+h.trips+'</td><td>'+h.avg_trip_days+'</td><td>'+h.avg_total_fuel.toLocaleString()+'</td><td>'+h.avg_load_fuel.toLocaleString()+'</td></tr>'});
+
+// TAB 3: Wind
+new Chart(document.getElementById('windChart'),{type:'bar',data:{
+labels:D.wind.map(w=>w.label),datasets:[
+{label:'Avg L/day',data:D.wind.map(w=>w.avg),backgroundColor:['#22c55e','#3b82f6','#f97316','#ef4444']},
+{label:'Median L/day',data:D.wind.map(w=>w.med),backgroundColor:['#22c55e88','#3b82f688','#f9731688','#ef444488']}
+]},options:{plugins:{legend:{labels:{color:'#94a3b8'}}},scales:{x:{ticks:{color:'#94a3b8'}},y:{ticks:{color:'#94a3b8'},grid:{color:'#1e293b'}}}}});
+
+const wt=document.getElementById('windTbody');
+D.wind.forEach(w=>{wt.innerHTML+='<tr><td>'+w.label+'</td><td>'+w.days+'</td><td style="font-weight:700">'+w.avg+'</td><td>'+w.med+'</td></tr>'});
+
+// TAB 4: Waterfall
+new Chart(document.getElementById('waterfallChart'),{type:'bar',data:{labels:['Baseline\\n(At Berth)','+ Loading','+ Sailing','+ Discharging','+ Anchor Wait','Peak Day'],datasets:[{label:'L/day',data:[101.5, 317.7, 423.7, 390.9, 382.8, 840.4],backgroundColor:['#6b7280','#22c55e','#3b82f6','#ef4444','#eab308','#f97316']}]},options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+' L/day'}}},scales:{x:{ticks:{color:'#94a3b8',font:{size:10}}},y:{ticks:{color:'#94a3b8'},grid:{color:'#1e293b'}}}}});
+
+</script></body></html>

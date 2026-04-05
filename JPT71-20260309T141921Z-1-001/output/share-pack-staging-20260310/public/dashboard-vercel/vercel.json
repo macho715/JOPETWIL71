@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/jpt71-runtime-config.js",
+      "destination": "/api/runtime-config.js"
+    }
+  ]
+}

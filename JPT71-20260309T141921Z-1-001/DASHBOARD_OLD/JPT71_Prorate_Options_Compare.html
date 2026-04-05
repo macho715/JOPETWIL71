@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JPT71 PRORATE Options Comparison</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
+<style>
+:root{--bg:#0b0d13;--card:#141720;--card2:#1a1e2c;--border:#252a3a;--text:#e8eaf0;--text2:#7c829a;
+--a:#5b8def;--b:#34d399;--c:#fbbf24;--red:#f87171;--purple:#a78bfa;--gap:12px;--r:10px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;}
+.c{max-width:1500px;margin:0 auto;padding:var(--gap);}
+.hdr{background:linear-gradient(135deg,#141720,#1e2640);padding:20px 28px;border-radius:var(--r);margin-bottom:var(--gap);border:1px solid var(--border);}
+.hdr h1{font-size:20px;font-weight:700;background:linear-gradient(135deg,#5b8def,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hdr .sub{font-size:12px;color:var(--text2);margin-top:4px;}
+.kr{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--gap);margin-bottom:var(--gap);}
+.k{background:var(--card);border-radius:var(--r);padding:16px 20px;border:1px solid var(--border);}
+.k .lb{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px;}
+.k .vl{font-size:22px;font-weight:700;}
+.k .sm{font-size:11px;color:var(--text2);margin-top:2px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);margin-bottom:var(--gap);}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--gap);margin-bottom:var(--gap);}
+.card{background:var(--card);border-radius:var(--r);padding:18px;border:1px solid var(--border);}
+.card h3{font-size:13px;font-weight:600;margin-bottom:12px;}
+.card canvas{max-height:320px;}
+/* Option cards */
+.opt-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--gap);margin-bottom:var(--gap);}
+.opt{background:var(--card);border-radius:var(--r);padding:20px;border:2px solid var(--border);transition:all .2s;}
+.opt:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3);}
+.opt.rec{border-color:var(--a);box-shadow:0 0 20px rgba(91,141,239,.15);}
+.opt h4{font-size:15px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.opt .tag{font-size:10px;padding:2px 8px;border-radius:4px;font-weight:600;}
+.tag-a{background:rgba(91,141,239,.15);color:var(--a);}
+.tag-b{background:rgba(52,211,153,.15);color:var(--b);}
+.tag-c{background:rgba(251,191,36,.15);color:var(--c);}
+.tag-rec{background:rgba(91,141,239,.25);color:var(--a);}
+.opt p{font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.6;}
+.opt .metric{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #1e2130;font-size:12px;}
+.opt .metric:last-child{border:none;}
+.opt .metric .ml{color:var(--text2);}
+.opt .metric .mv{font-weight:600;}
+/* Table */
+.tw{overflow-x:auto;max-height:480px;overflow-y:auto;}
+.tb{width:100%;border-collapse:collapse;font-size:11px;white-space:nowrap;}
+.tb th{position:sticky;top:0;background:var(--card2);padding:7px 8px;text-align:left;color:var(--text2);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.4px;cursor:pointer;user-select:none;border-bottom:2px solid var(--border);z-index:2;}
+.tb th:hover{color:var(--text);}
+.tb td{padding:6px 8px;border-bottom:1px solid #1a1e2c;}
+.tb tr:hover td{background:rgba(91,141,239,.05);}
+.tb .num{text-align:right;font-variant-numeric:tabular-nums;}
+.pos{color:var(--b);} .neg{color:var(--red);}
+.footer{text-align:center;padding:14px;font-size:10px;color:var(--text2);}
+.tabs{display:flex;gap:2px;margin-bottom:var(--gap);}
+.tab{padding:8px 20px;border:none;border-radius:7px 7px 0 0;cursor:pointer;font-size:12px;font-weight:600;background:#1a1e2c;color:var(--text2);transition:all .2s;}
+.tab.on{background:var(--a);color:#fff;}
+.tp{display:none;}.tp.on{display:block;}
+</style>
+</head>
+<body>
+<div class="c">
+  <div class="hdr">
+    <h1>PRORATE Options Comparison — 37건 / 1,071,661 AED</h1>
+    <div class="sub">JPT71 HVDC — 톤수비례 vs 균등배분 vs 기간균등 | 43 Voyages Affected</div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kr">
+    <div class="k"><div class="lb">Prorate Total</div><div class="vl">1,071,661</div><div class="sm">AED across 37 items</div></div>
+    <div class="k"><div class="lb">CORRUPTED_SHARED</div><div class="vl" style="color:var(--red)">563,349</div><div class="sm">8 items (52.6%)</div></div>
+    <div class="k"><div class="lb">SHARED_ALL</div><div class="vl" style="color:var(--a)">321,954</div><div class="sm">18 items (30.0%)</div></div>
+    <div class="k"><div class="lb">PERIODIC_COST</div><div class="vl" style="color:var(--c)">186,359</div><div class="sm">11 items (17.4%)</div></div>
+    <div class="k"><div class="lb">Max Δ(A-B)</div><div class="vl" style="color:var(--red)">89,878</div><div class="sm">Largest single-voyage variance</div></div>
+  </div>
+
+  <!-- 3 Option Cards -->
+  <div class="opt-grid">
+    <div class="opt rec">
+      <h4><span class="tag tag-a">A</span> Tonnage Proportional <span class="tag tag-rec">RECOMMENDED</span></h4>
+      <p>항차별 톤수 비례로 배분. 대톤수 항차일수록 더 많이 부담 — 원가영향원칙(cost causation) 부합</p>
+      <div class="metric"><span class="ml">CV (Dispersion)</span><span class="mv">0.956</span></div>
+      <div class="metric"><span class="ml">Max Single Alloc</span><span class="mv">164,240 AED</span></div>
+      <div class="metric"><span class="ml">Favors</span><span class="mv">소톤수 항차 (낮은 부담)</span></div>
+      <div class="metric"><span class="ml">Audit Risk</span><span class="mv" style="color:var(--b)">LOW</span></div>
+    </div>
+    <div class="opt">
+      <h4><span class="tag tag-b">B</span> Trip-Count Equal</h4>
+      <p>항차 수 균등 분할. 톤수 무관하게 모든 항차에 동일 금액 배분</p>
+      <div class="metric"><span class="ml">CV (Dispersion)</span><span class="mv">0.644</span></div>
+      <div class="metric"><span class="ml">Max Single Alloc</span><span class="mv">74,361 AED</span></div>
+      <div class="metric"><span class="ml">Favors</span><span class="mv">대톤수 항차 (낮은 부담)</span></div>
+      <div class="metric"><span class="ml">Audit Risk</span><span class="mv" style="color:var(--c)">MEDIUM</span></div>
+    </div>
+    <div class="opt">
+      <h4><span class="tag tag-c">C</span> Period Equal</h4>
+      <p>월별 균등 배분 → 월 내 항차 균등. 단일 월 scope에서는 B와 동일</p>
+      <div class="metric"><span class="ml">CV (Dispersion)</span><span class="mv">0.644</span></div>
+      <div class="metric"><span class="ml">Max Single Alloc</span><span class="mv">74,361 AED</span></div>
+      <div class="metric"><span class="ml">Favors</span><span class="mv">B와 동일 (단일월 scope)</span></div>
+      <div class="metric"><span class="ml">Audit Risk</span><span class="mv" style="color:var(--c)">MEDIUM</span></div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab on" onclick="sw('charts')">Comparison Charts</button>
+    <button class="tab" onclick="sw('table')">Voyage Detail Table</button>
+    <button class="tab" onclick="sw('items')">37 Prorate Items</button>
+  </div>
+
+  <!-- Tab: Charts -->
+  <div id="t-charts" class="tp on">
+    <div class="g2">
+      <div class="card"><h3>Per-Voyage Prorate Allocation: A vs B</h3><canvas id="ch-scatter"></canvas></div>
+      <div class="card"><h3>Top 15 Voyages: Option A vs B Δ</h3><canvas id="ch-delta"></canvas></div>
+    </div>
+    <div class="g2">
+      <div class="card"><h3>AED/Ton Impact by Option (after prorate)</h3><canvas id="ch-impact"></canvas></div>
+      <div class="card"><h3>Category Breakdown</h3><canvas id="ch-cat"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Tab: Table -->
+  <div id="t-table" class="tp">
+    <div class="card">
+      <h3>43 Affected Voyages — All 3 Options Compared</h3>
+      <div class="tw"><table class="tb"><thead id="th1"></thead><tbody id="tb1"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- Tab: Items -->
+  <div id="t-items" class="tp">
+    <div class="card">
+      <h3>37 Prorate Source Items</h3>
+      <div class="tw"><table class="tb"><thead id="th2"></thead><tbody id="tb2"></tbody></table></div>
+    </div>
+  </div>
+
+  <div class="footer">JPT71 PRORATE Options Comparison — Generated 2026-03-09 19:44 — HVDC Project / Samsung C&T</div>
+</div>
+
+<script>
+const D = {"items": [{"idx": 0, "cat": "CORRUPTED_SHARED", "ym": "2024-08", "subject": "FUEL SUPPLY (10,000GL)", "cost_main": "AT COST", "aed": 137280.0, "n_voy": 10, "ton_scope": 6066.0}, {"idx": 1, "cat": "CORRUPTED_SHARED", "ym": "2024-08", "subject": "OFCO Handling Fees -port charges trip 1-12", "cost_main": "CONTRACT", "aed": 15266.95, "n_voy": 10, "ton_scope": 6066.0}, {"idx": 2, "cat": "CORRUPTED_SHARED", "ym": "2024-09", "subject": "FUEL SUPPLY (10,000GL)", "cost_main": "AT COST", "aed": 130006.5, "n_voy": 10, "ton_scope": 6194.0}, {"idx": 3, "cat": "CORRUPTED_SHARED", "ym": "2024-09", "subject": "FUEL SUPPLY (10,000GL)", "cost_main": "AT COST", "aed": 130006.5, "n_voy": 10, "ton_scope": 6194.0}, {"idx": 4, "cat": "CORRUPTED_SHARED", "ym": "2024-09", "subject": "OFCO Handling Fees -port charges trip 13-22", "cost_main": "CONTRACT", "aed": 13707.5, "n_voy": 10, "ton_scope": 6194.0}, {"idx": 5, "cat": "CORRUPTED_SHARED", "ym": "2024-10", "subject": "FUEL SUPPLY (10,000GL)", "cost_main": "AT COST", "aed": 120825.25, "n_voy": 8, "ton_scope": 4095.0}, {"idx": 6, "cat": "CORRUPTED_SHARED", "ym": "2024-10", "subject": "OFCO Handling Fees-FORKLIFT", "cost_main": "CONTRACT", "aed": 3115.0, "n_voy": 8, "ton_scope": 4095.0}, {"idx": 7, "cat": "CORRUPTED_SHARED", "ym": "2024-10", "subject": "OFCO Handling Fees -Port charges trip 23-30", "cost_main": "CONTRACT", "aed": 13140.96, "n_voy": 8, "ton_scope": 4095.0}, {"idx": 8, "cat": "SHARED_ALL", "ym": "2025-01", "subject": "OFCO Handling Fees -port charges trip 45-52", "cost_main": "CONTRACT", "aed": 7401.3, "n_voy": 2, "ton_scope": 1454.0}, {"idx": 9, "cat": "SHARED_ALL", "ym": "2025-02", "subject": "Supply of 5000 IG FW on 06-Feb-2025", "cost_main": "AT COST", "aed": 454.58, "n_voy": 3, "ton_scope": 472.0}, {"idx": 10, "cat": "SHARED_ALL", "ym": "2025-02", "subject": "MGO Supply as Per Prevailing ADNOC Rate on Time of Request +", "cost_main": "AT COST", "aed": 131339.62, "n_voy": 3, "ton_scope": 472.0}, {"idx": 11, "cat": "SHARED_ALL", "ym": "2025-02", "subject": "PTW Application Fee", "cost_main": "CONTRACT", "aed": 149.98, "n_voy": 3, "ton_scope": 472.0}, {"idx": 12, "cat": "SHARED_ALL", "ym": "2025-02", "subject": "Supply of 5000 IG FW on 12-02-2025", "cost_main": "AT COST", "aed": 454.58, "n_voy": 3, "ton_scope": 472.0}, {"idx": 13, "cat": "SHARED_ALL", "ym": "2025-02", "subject": "Agency fee: Arranging FW Supply on 12-02-2025", "cost_main": "CONTRACT", "aed": 200.0, "n_voy": 3, "ton_scope": 472.0}, {"idx": 14, "cat": "SHARED_ALL", "ym": "2025-02", "subject": "Supply of 5000 IG FW on 24-02-2025", "cost_main": "AT COST", "aed": 454.58, "n_voy": 3, "ton_scope": 472.0}, {"idx": 15, "cat": "SHARED_ALL", "ym": "2025-02", "subject": "Yard Storage-Monthly Rental Charges (01.02.2025 to 28.02.202", "cost_main": "CONTRACT", "aed": 75000.02, "n_voy": 3, "ton_scope": 472.0}, {"idx": 16, "cat": "SHARED_ALL", "ym": "2025-02", "subject": "Pass Arrangement (details as per attached summary)", "cost_main": "PORT HANDLING", "aed": 3579.99, "n_voy": 3, "ton_scope": 472.0}, {"idx": 17, "cat": "SHARED_ALL", "ym": "2025-02", "subject": "Agency Fee: Gate Pass Arrangement", "cost_main": "PORT HANDLING", "aed": 140.0, "n_voy": 3, "ton_scope": 472.0}, {"idx": 18, "cat": "SHARED_ALL", "ym": "2025-02", "subject": "Agency fee: Equipment Pass Arrangement", "cost_main": "PORT HANDLING", "aed": 1650.02, "n_voy": 3, "ton_scope": 472.0}, {"idx": 19, "cat": "SHARED_ALL", "ym": "2025-02", "subject": "OFCO Handling Fees -port charges trip 52-59", "cost_main": "CONTRACT", "aed": 9660.33, "n_voy": 3, "ton_scope": 472.0}, {"idx": 20, "cat": "SHARED_ALL", "ym": "2025-03", "subject": "Yard storage \u2013 monthly rental (01\u201331 Mar 2025)", "cost_main": "CONTRACT", "aed": 75000.02, "n_voy": 2, "ton_scope": 494.0}, {"idx": 21, "cat": "SHARED_ALL", "ym": "2025-03", "subject": "Pass arrangement (summary)", "cost_main": "PORT HANDLING", "aed": 4780.02, "n_voy": 2, "ton_scope": 494.0}, {"idx": 22, "cat": "SHARED_ALL", "ym": "2025-03", "subject": "Agency fee: Gate Pass arrangement", "cost_main": "CONTRACT", "aed": 90.01, "n_voy": 2, "ton_scope": 494.0}, {"idx": 23, "cat": "SHARED_ALL", "ym": "2025-03", "subject": "Agency fee: Equipment Pass arrangement", "cost_main": "CONTRACT", "aed": 1800.0, "n_voy": 2, "ton_scope": 494.0}, {"idx": 24, "cat": "SHARED_ALL", "ym": "2025-03", "subject": "Agency fee: Short\u2011term Pass arrangement", "cost_main": "CONTRACT", "aed": 500.0, "n_voy": 2, "ton_scope": 494.0}, {"idx": 25, "cat": "SHARED_ALL", "ym": "2025-03", "subject": "OFCO handling fees \u2013 port charges trip 60\u201365", "cost_main": "CONTRACT", "aed": 9298.66, "n_voy": 2, "ton_scope": 494.0}, {"idx": 26, "cat": "PERIODIC_COST", "ym": "2025-05", "subject": "Yard Storage \u2013 Monthly Rental (01\u201331 May 2025) \u2013 3,000 m\u00b2 \u00d7 ", "cost_main": "CONTRACT", "aed": 75000.02, "n_voy": 3, "ton_scope": 2100.0}, {"idx": 27, "cat": "PERIODIC_COST", "ym": "2025-05", "subject": "Pass Arrangement (details as per attached summary)", "cost_main": "CONTRACT", "aed": 2340.01, "n_voy": 3, "ton_scope": 2100.0}, {"idx": 28, "cat": "PERIODIC_COST", "ym": "2025-05", "subject": "Agency Fee: Gate Pass Arrangement", "cost_main": "CONTRACT", "aed": 489.98, "n_voy": 3, "ton_scope": 2100.0}, {"idx": 29, "cat": "PERIODIC_COST", "ym": "2025-05", "subject": "Agency fee: Equipment Pass Arrangement", "cost_main": "CONTRACT", "aed": 9799.99, "n_voy": 3, "ton_scope": 2100.0}, {"idx": 30, "cat": "PERIODIC_COST", "ym": "2025-05", "subject": "Agency Fee: Short Term Pass Arrangement", "cost_main": "CONTRACT", "aed": 3200.0, "n_voy": 3, "ton_scope": 2100.0}, {"idx": 31, "cat": "PERIODIC_COST", "ym": "2025-05", "subject": "OFCO Handling Fees \u2013 port charges trip", "cost_main": "CONTRACT", "aed": 8495.23, "n_voy": 3, "ton_scope": 2100.0}, {"idx": 32, "cat": "PERIODIC_COST", "ym": "2025-07", "subject": "Yard Storage-Monthly Rental Charges (01.07.2025 to 31.07.202", "cost_main": "CONTRACT", "aed": 75000.02, "n_voy": 5, "ton_scope": 3639.0}, {"idx": 33, "cat": "PERIODIC_COST", "ym": "2025-07", "subject": "Pass Arrangement (details as per attached summary)", "cost_main": "CONTRACT", "aed": 2680.01, "n_voy": 5, "ton_scope": 3639.0}, {"idx": 34, "cat": "PERIODIC_COST", "ym": "2025-07", "subject": "Agency Fee: Gate Pass Arrangement", "cost_main": "CONTRACT", "aed": 489.98, "n_voy": 5, "ton_scope": 3639.0}, {"idx": 35, "cat": "PERIODIC_COST", "ym": "2025-07", "subject": "Agency fee: Equipment Pass Arrangement", "cost_main": "CONTRACT", "aed": 850.0, "n_voy": 5, "ton_scope": 3639.0}, {"idx": 36, "cat": "PERIODIC_COST", "ym": "2025-07", "subject": "OFCO - Handling Fee port charges trip", "cost_main": "CONTRACT", "aed": 8013.57, "n_voy": 5, "ton_scope": 3639.0}], "comparison": [{"voyage": "HVDC-AGI-GRM-71-003", "short": "GRM-71-003", "direct_aed": 19528.0, "tonnage": 619.0, "direct_per_ton": 31.5, "add_A": 15565.0, "add_B": 15255.0, "add_C": 15255.0, "total_A": 35092.0, "total_B": 34782.0, "total_C": 34782.0, "per_ton_A": 56.7, "per_ton_B": 56.2, "per_ton_C": 56.2, "delta_AB": 310.0, "delta_AC": 310.0}, {"voyage": "HVDC-AGI-GRM-71-004", "short": "GRM-71-004", "direct_aed": 15028.0, "tonnage": 626.3, "direct_per_ton": 24.0, "add_A": 15749.0, "add_B": 15255.0, "add_C": 15255.0, "total_A": 30777.0, "total_B": 30282.0, "total_C": 30282.0, "per_ton_A": 49.1, "per_ton_B": 48.4, "per_ton_C": 48.4, "delta_AB": 495.0, "delta_AC": 495.0}, {"voyage": "HVDC-AGI-GRM-71-005", "short": "GRM-71-005", "direct_aed": 19282.0, "tonnage": 614.2, "direct_per_ton": 31.4, "add_A": 15445.0, "add_B": 15255.0, "add_C": 15255.0, "total_A": 34728.0, "total_B": 34537.0, "total_C": 34537.0, "per_ton_A": 56.5, "per_ton_B": 56.2, "per_ton_C": 56.2, "delta_AB": 191.0, "delta_AC": 191.0}, {"voyage": "HVDC-AGI-GRM-71-006", "short": "GRM-71-006", "direct_aed": 15008.0, "tonnage": 560.0, "direct_per_ton": 26.8, "add_A": 14082.0, "add_B": 15255.0, "add_C": 15255.0, "total_A": 29090.0, "total_B": 30262.0, "total_C": 30262.0, "per_ton_A": 51.9, "per_ton_B": 54.0, "per_ton_C": 54.0, "delta_AB": -1173.0, "delta_AC": -1173.0}, {"voyage": "HVDC-AGI-GRM-71-007", "short": "GRM-71-007", "direct_aed": 15922.0, "tonnage": 613.4, "direct_per_ton": 26.0, "add_A": 15426.0, "add_B": 15255.0, "add_C": 15255.0, "total_A": 31348.0, "total_B": 31177.0, "total_C": 31177.0, "per_ton_A": 51.1, "per_ton_B": 50.8, "per_ton_C": 50.8, "delta_AB": 171.0, "delta_AC": 171.0}, {"voyage": "HVDC-AGI-GRM-71-008", "short": "GRM-71-008", "direct_aed": 18722.0, "tonnage": 620.4, "direct_per_ton": 30.2, "add_A": 15600.0, "add_B": 15255.0, "add_C": 15255.0, "total_A": 34322.0, "total_B": 33977.0, "total_C": 33977.0, "per_ton_A": 55.3, "per_ton_B": 54.8, "per_ton_C": 54.8, "delta_AB": 346.0, "delta_AC": 346.0}, {"voyage": "HVDC-AGI-GRM-71-009", "short": "GRM-71-009", "direct_aed": 14018.0, "tonnage": 592.7, "direct_per_ton": 23.7, "add_A": 14903.0, "add_B": 15255.0, "add_C": 15255.0, "total_A": 28921.0, "total_B": 29272.0, "total_C": 29272.0, "per_ton_A": 48.8, "per_ton_B": 49.4, "per_ton_C": 49.4, "delta_AB": -351.0, "delta_AC": -351.0}, {"voyage": "HVDC-AGI-GRM-71-010", "short": "GRM-71-010", "direct_aed": 19528.0, "tonnage": 610.2, "direct_per_ton": 32.0, "add_A": 15345.0, "add_B": 15255.0, "add_C": 15255.0, "total_A": 34873.0, "total_B": 34782.0, "total_C": 34782.0, "per_ton_A": 57.1, "per_ton_B": 57.0, "per_ton_C": 57.0, "delta_AB": 91.0, "delta_AC": 91.0}, {"voyage": "HVDC-AGI-GRM-71-011", "short": "GRM-71-011", "direct_aed": 14932.0, "tonnage": 602.3, "direct_per_ton": 24.8, "add_A": 15145.0, "add_B": 15255.0, "add_C": 15255.0, "total_A": 30077.0, "total_B": 30187.0, "total_C": 30187.0, "per_ton_A": 49.9, "per_ton_B": 50.1, "per_ton_C": 50.1, "delta_AB": -109.0, "delta_AC": -109.0}, {"voyage": "HVDC-AGI-GRM-71-012", "short": "GRM-71-012", "direct_aed": 18452.0, "tonnage": 607.9, "direct_per_ton": 30.4, "add_A": 15286.0, "add_B": 15255.0, "add_C": 15255.0, "total_A": 33738.0, "total_B": 33707.0, "total_C": 33707.0, "per_ton_A": 55.5, "per_ton_B": 55.5, "per_ton_C": 55.5, "delta_AB": 31.0, "delta_AC": 31.0}, {"voyage": "HVDC-AGI-GRM-71-013", "short": "GRM-71-013", "direct_aed": 18028.0, "tonnage": 636.4, "direct_per_ton": 28.3, "add_A": 28124.0, "add_B": 27372.0, "add_C": 27372.0, "total_A": 46151.0, "total_B": 45400.0, "total_C": 45400.0, "per_ton_A": 72.5, "per_ton_B": 71.3, "per_ton_C": 71.3, "delta_AB": 752.0, "delta_AC": 752.0}, {"voyage": "HVDC-AGI-GRM-71-014", "short": "GRM-71-014", "direct_aed": 16182.0, "tonnage": 634.6, "direct_per_ton": 25.5, "add_A": 28041.0, "add_B": 27372.0, "add_C": 27372.0, "total_A": 44223.0, "total_B": 43554.0, "total_C": 43554.0, "per_ton_A": 69.7, "per_ton_B": 68.6, "per_ton_C": 68.6, "delta_AB": 669.0, "delta_AC": 669.0}, {"voyage": "HVDC-AGI-GRM-71-015", "short": "GRM-71-015", "direct_aed": 15678.0, "tonnage": 626.2, "direct_per_ton": 25.0, "add_A": 27671.0, "add_B": 27372.0, "add_C": 27372.0, "total_A": 43348.0, "total_B": 43050.0, "total_C": 43050.0, "per_ton_A": 69.2, "per_ton_B": 68.7, "per_ton_C": 68.7, "delta_AB": 299.0, "delta_AC": 299.0}, {"voyage": "HVDC-AGI-GRM-71-016", "short": "GRM-71-016", "direct_aed": 15678.0, "tonnage": 617.9, "direct_per_ton": 25.4, "add_A": 27304.0, "add_B": 27372.0, "add_C": 27372.0, "total_A": 42981.0, "total_B": 43050.0, "total_C": 43050.0, "per_ton_A": 69.6, "per_ton_B": 69.7, "per_ton_C": 69.7, "delta_AB": -68.0, "delta_AC": -68.0}, {"voyage": "HVDC-AGI-GRM-71-017", "short": "GRM-71-017", "direct_aed": 20182.0, "tonnage": 589.7, "direct_per_ton": 34.2, "add_A": 26060.0, "add_B": 27372.0, "add_C": 27372.0, "total_A": 46242.0, "total_B": 47554.0, "total_C": 47554.0, "per_ton_A": 78.4, "per_ton_B": 80.6, "per_ton_C": 80.6, "delta_AB": -1312.0, "delta_AC": -1312.0}, {"voyage": "HVDC-AGI-GRM-71-018", "short": "GRM-71-018", "direct_aed": 15678.0, "tonnage": 605.3, "direct_per_ton": 25.9, "add_A": 26746.0, "add_B": 27372.0, "add_C": 27372.0, "total_A": 42424.0, "total_B": 43050.0, "total_C": 43050.0, "per_ton_A": 70.1, "per_ton_B": 71.1, "per_ton_C": 71.1, "delta_AB": -626.0, "delta_AC": -626.0}, {"voyage": "HVDC-AGI-GRM-71-019", "short": "GRM-71-019", "direct_aed": 14278.0, "tonnage": 589.8, "direct_per_ton": 24.2, "add_A": 26061.0, "add_B": 27372.0, "add_C": 27372.0, "total_A": 40339.0, "total_B": 41650.0, "total_C": 41650.0, "per_ton_A": 68.4, "per_ton_B": 70.6, "per_ton_C": 70.6, "delta_AB": -1311.0, "delta_AC": -1311.0}, {"voyage": "HVDC-AGI-GRM-71-020", "short": "GRM-71-020", "direct_aed": 14932.0, "tonnage": 628.7, "direct_per_ton": 23.7, "add_A": 27784.0, "add_B": 27372.0, "add_C": 27372.0, "total_A": 42716.0, "total_B": 42304.0, "total_C": 42304.0, "per_ton_A": 67.9, "per_ton_B": 67.3, "per_ton_C": 67.3, "delta_AB": 412.0, "delta_AC": 412.0}, {"voyage": "HVDC-AGI-GRM-71-021", "short": "GRM-71-021", "direct_aed": 16028.0, "tonnage": 633.7, "direct_per_ton": 25.3, "add_A": 28005.0, "add_B": 27372.0, "add_C": 27372.0, "total_A": 44032.0, "total_B": 43400.0, "total_C": 43400.0, "per_ton_A": 69.5, "per_ton_B": 68.5, "per_ton_C": 68.5, "delta_AB": 633.0, "delta_AC": 633.0}, {"voyage": "HVDC-AGI-GRM-71-022", "short": "GRM-71-022", "direct_aed": 15678.0, "tonnage": 631.9, "direct_per_ton": 24.8, "add_A": 27925.0, "add_B": 27372.0, "add_C": 27372.0, "total_A": 43603.0, "total_B": 43050.0, "total_C": 43050.0, "per_ton_A": 69.0, "per_ton_B": 68.1, "per_ton_C": 68.1, "delta_AB": 553.0, "delta_AC": 553.0}, {"voyage": "HVDC-AGI-GRM-71-023", "short": "GRM-71-023", "direct_aed": 26895.0, "tonnage": 337.8, "direct_per_ton": 79.6, "add_A": 11309.0, "add_B": 17135.0, "add_C": 17135.0, "total_A": 38204.0, "total_B": 44030.0, "total_C": 44030.0, "per_ton_A": 113.1, "per_ton_B": 130.3, "per_ton_C": 130.3, "delta_AB": -5827.0, "delta_AC": -5827.0}, {"voyage": "HVDC-AGI-GRM-71-024", "short": "GRM-71-024", "direct_aed": 15678.0, "tonnage": 623.6, "direct_per_ton": 25.1, "add_A": 20875.0, "add_B": 17135.0, "add_C": 17135.0, "total_A": 36553.0, "total_B": 32813.0, "total_C": 32813.0, "per_ton_A": 58.6, "per_ton_B": 52.6, "per_ton_C": 52.6, "delta_AB": 3740.0, "delta_AC": 3740.0}, {"voyage": "HVDC-AGI-GRM-71-025", "short": "GRM-71-025", "direct_aed": 14278.0, "tonnage": 613.7, "direct_per_ton": 23.3, "add_A": 20546.0, "add_B": 17135.0, "add_C": 17135.0, "total_A": 34823.0, "total_B": 31413.0, "total_C": 31413.0, "per_ton_A": 56.7, "per_ton_B": 51.2, "per_ton_C": 51.2, "delta_AB": 3410.0, "delta_AC": 3410.0}, {"voyage": "HVDC-AGI-GRM-71-026", "short": "GRM-71-026", "direct_aed": 14932.0, "tonnage": 620.2, "direct_per_ton": 24.1, "add_A": 20762.0, "add_B": 17135.0, "add_C": 17135.0, "total_A": 35694.0, "total_B": 32067.0, "total_C": 32067.0, "per_ton_A": 57.6, "per_ton_B": 51.7, "per_ton_C": 51.7, "delta_AB": 3627.0, "delta_AC": 3627.0}, {"voyage": "HVDC-AGI-GRM-71-027", "short": "GRM-71-027", "direct_aed": 38639.0, "tonnage": 360.3, "direct_per_ton": 107.2, "add_A": 12063.0, "add_B": 17135.0, "add_C": 17135.0, "total_A": 50702.0, "total_B": 55774.0, "total_C": 55774.0, "per_ton_A": 140.7, "per_ton_B": 154.8, "per_ton_C": 154.8, "delta_AB": -5073.0, "delta_AC": -5073.0}, {"voyage": "HVDC-AGI-GRM-71-028", "short": "GRM-71-028", "direct_aed": 12478.0, "tonnage": 625.8, "direct_per_ton": 19.9, "add_A": 20949.0, "add_B": 17135.0, "add_C": 17135.0, "total_A": 33427.0, "total_B": 29613.0, "total_C": 29613.0, "per_ton_A": 53.4, "per_ton_B": 47.3, "per_ton_C": 47.3, "delta_AB": 3814.0, "delta_AC": 3814.0}, {"voyage": "HVDC-AGI-GRM-71-029", "short": "GRM-71-029", "direct_aed": 20162.0, "tonnage": 553.1, "direct_per_ton": 36.5, "add_A": 18516.0, "add_B": 17135.0, "add_C": 17135.0, "total_A": 38678.0, "total_B": 37297.0, "total_C": 37297.0, "per_ton_A": 69.9, "per_ton_B": 67.4, "per_ton_C": 67.4, "delta_AB": 1380.0, "delta_AC": 1380.0}, {"voyage": "HVDC-AGI-GRM-71-030", "short": "GRM-71-030", "direct_aed": 40660.0, "tonnage": 360.3, "direct_per_ton": 112.8, "add_A": 12063.0, "add_B": 17135.0, "add_C": 17135.0, "total_A": 52723.0, "total_B": 57795.0, "total_C": 57795.0, "per_ton_A": 146.3, "per_ton_B": 160.4, "per_ton_C": 160.4, "delta_AB": -5073.0, "delta_AC": -5073.0}, {"voyage": "HVDC-AGI-GRM-71-045", "short": "GRM-71-045", "direct_aed": 19196.0, "tonnage": 671.8, "direct_per_ton": 28.6, "add_A": 3419.0, "add_B": 3701.0, "add_C": 3701.0, "total_A": 22615.0, "total_B": 22897.0, "total_C": 22897.0, "per_ton_A": 33.7, "per_ton_B": 34.1, "per_ton_C": 34.1, "delta_AB": -282.0, "delta_AC": -282.0}, {"voyage": "HVDC-AGI-GRM-71-046", "short": "GRM-71-046", "direct_aed": 4991.0, "tonnage": 782.5, "direct_per_ton": 6.4, "add_A": 3982.0, "add_B": 3701.0, "add_C": 3701.0, "total_A": 8974.0, "total_B": 8692.0, "total_C": 8692.0, "per_ton_A": 11.5, "per_ton_B": 11.1, "per_ton_C": 11.1, "delta_AB": 282.0, "delta_AC": 282.0}, {"voyage": "HVDC-AGI-GRM-J71-047", "short": "GRM-J71-047", "direct_aed": 63459.0, "tonnage": 347.7, "direct_per_ton": 182.5, "add_A": 164240.0, "add_B": 74361.0, "add_C": 74361.0, "total_A": 227698.0, "total_B": 137820.0, "total_C": 137820.0, "per_ton_A": 654.9, "per_ton_B": 396.4, "per_ton_C": 396.4, "delta_AB": 89878.0, "delta_AC": 89878.0}, {"voyage": "HVDC-AGI-GRM-J71-051", "short": "GRM-J71-051", "direct_aed": 73915.0, "tonnage": 687.3, "direct_per_ton": 107.5, "add_A": 32515.0, "add_B": 33108.0, "add_C": 33108.0, "total_A": 106430.0, "total_B": 107024.0, "total_C": 107024.0, "per_ton_A": 154.9, "per_ton_B": 155.7, "per_ton_C": 155.7, "delta_AB": -594.0, "delta_AC": -594.0}, {"voyage": "HVDC-AGI-GRM-J71-052", "short": "GRM-J71-052", "direct_aed": 52903.0, "tonnage": 696.6, "direct_per_ton": 75.9, "add_A": 32954.0, "add_B": 33108.0, "add_C": 33108.0, "total_A": 85857.0, "total_B": 86012.0, "total_C": 86012.0, "per_ton_A": 123.3, "per_ton_B": 123.5, "per_ton_C": 123.5, "delta_AB": -155.0, "delta_AC": -155.0}, {"voyage": "HVDC-AGI-GRM-J71-053", "short": "GRM-J71-053", "direct_aed": 30679.0, "tonnage": 715.7, "direct_per_ton": 42.9, "add_A": 33857.0, "add_B": 33108.0, "add_C": 33108.0, "total_A": 64536.0, "total_B": 63787.0, "total_C": 63787.0, "per_ton_A": 90.2, "per_ton_B": 89.1, "per_ton_C": 89.1, "delta_AB": 749.0, "delta_AC": 749.0}, {"voyage": "HVDC-AGI-GRM-J71-055", "short": "GRM-J71-055", "direct_aed": 11466.0, "tonnage": 760.6, "direct_per_ton": 15.1, "add_A": 18190.0, "add_B": 17407.0, "add_C": 17407.0, "total_A": 29656.0, "total_B": 28873.0, "total_C": 28873.0, "per_ton_A": 39.0, "per_ton_B": 38.0, "per_ton_C": 38.0, "delta_AB": 783.0, "delta_AC": 783.0}, {"voyage": "HVDC-AGI-GRM-J71-056", "short": "GRM-J71-056", "direct_aed": 144198.0, "tonnage": 753.7, "direct_per_ton": 191.3, "add_A": 18027.0, "add_B": 17407.0, "add_C": 17407.0, "total_A": 162225.0, "total_B": 161605.0, "total_C": 161605.0, "per_ton_A": 215.2, "per_ton_B": 214.4, "per_ton_C": 214.4, "delta_AB": 620.0, "delta_AC": 620.0}, {"voyage": "HVDC-AGI-GRM-J71-057", "short": "GRM-J71-057", "direct_aed": 12816.0, "tonnage": 790.7, "direct_per_ton": 16.2, "add_A": 18912.0, "add_B": 17407.0, "add_C": 17407.0, "total_A": 31728.0, "total_B": 30223.0, "total_C": 30223.0, "per_ton_A": 40.1, "per_ton_B": 38.2, "per_ton_C": 38.2, "delta_AB": 1505.0, "delta_AC": 1505.0}, {"voyage": "HVDC-AGI-GRM-J71-058", "short": "GRM-J71-058", "direct_aed": 22009.0, "tonnage": 765.6, "direct_per_ton": 28.7, "add_A": 18312.0, "add_B": 17407.0, "add_C": 17407.0, "total_A": 40320.0, "total_B": 39415.0, "total_C": 39415.0, "per_ton_A": 52.7, "per_ton_B": 51.5, "per_ton_C": 51.5, "delta_AB": 905.0, "delta_AC": 905.0}, {"voyage": "HVDC-AGI-GRM-J71-059", "short": "GRM-J71-059", "direct_aed": 13810.0, "tonnage": 568.4, "direct_per_ton": 24.3, "add_A": 13593.0, "add_B": 17407.0, "add_C": 17407.0, "total_A": 27403.0, "total_B": 31216.0, "total_C": 31216.0, "per_ton_A": 48.2, "per_ton_B": 54.9, "per_ton_C": 54.9, "delta_AB": -3813.0, "delta_AC": -3813.0}, {"voyage": "HVDC-AGI-J71-001", "short": "J71-001", "direct_aed": 42745.0, "tonnage": 24.0, "direct_per_ton": 1782.5, "add_A": 11329.0, "add_B": 74361.0, "add_C": 74361.0, "total_A": 54074.0, "total_B": 117106.0, "total_C": 117106.0, "per_ton_A": 2254.9, "per_ton_B": 4883.5, "per_ton_C": 4883.5, "delta_AB": -63033.0, "delta_AC": -63033.0}, {"voyage": "HVDC-AGI-J71-002", "short": "J71-002", "direct_aed": 34623.0, "tonnage": 100.6, "direct_per_ton": 344.2, "add_A": 47515.0, "add_B": 74361.0, "add_C": 74361.0, "total_A": 82139.0, "total_B": 108985.0, "total_C": 108985.0, "per_ton_A": 816.7, "per_ton_B": 1083.6, "per_ton_C": 1083.6, "delta_AB": -26846.0, "delta_AC": -26846.0}, {"voyage": "HVDC-AGI-J71-003", "short": "J71-003", "direct_aed": 51902.0, "tonnage": 170.5, "direct_per_ton": 304.4, "add_A": 31535.0, "add_B": 45734.0, "add_C": 45734.0, "total_A": 83438.0, "total_B": 97637.0, "total_C": 97637.0, "per_ton_A": 489.4, "per_ton_B": 572.7, "per_ton_C": 572.7, "delta_AB": -14199.0, "delta_AC": -14199.0}, {"voyage": "HVDC-AGI-J71-004", "short": "J71-004", "direct_aed": 56477.0, "tonnage": 324.0, "direct_per_ton": 174.3, "add_A": 59933.0, "add_B": 45734.0, "add_C": 45734.0, "total_A": 116410.0, "total_B": 102211.0, "total_C": 102211.0, "per_ton_A": 359.3, "per_ton_B": 315.5, "per_ton_C": 315.5, "delta_AB": 14199.0, "delta_AC": 14199.0}], "monthly": [{"month": "2024-08", "n_voy": 10, "direct": 170420.0, "ton": 6066.0, "add_A": 152546.0, "add_B": 152550.0, "add_C": 152550.0}, {"month": "2024-09", "n_voy": 10, "direct": 162342.0, "ton": 6194.0, "add_A": 273721.0, "add_B": 273720.0, "add_C": 273720.0}, {"month": "2024-10", "n_voy": 8, "direct": 183722.0, "ton": 4095.0, "add_A": 137083.0, "add_B": 137080.0, "add_C": 137080.0}, {"month": "2025-01", "n_voy": 2, "direct": 24187.0, "ton": 1454.0, "add_A": 7401.0, "add_B": 7402.0, "add_C": 7402.0}, {"month": "2025-02", "n_voy": 3, "direct": 140827.0, "ton": 472.0, "add_A": 223084.0, "add_B": 223083.0, "add_C": 223083.0}, {"month": "2025-03", "n_voy": 2, "direct": 108379.0, "ton": 494.0, "add_A": 91468.0, "add_B": 91468.0, "add_C": 91468.0}, {"month": "2025-05", "n_voy": 3, "direct": 157497.0, "ton": 2100.0, "add_A": 99326.0, "add_B": 99324.0, "add_C": 99324.0}, {"month": "2025-07", "n_voy": 5, "direct": 204299.0, "ton": 3639.0, "add_A": 87034.0, "add_B": 87035.0, "add_C": 87035.0}], "summary": {"total_prorate_aed": 1071661.0, "n_items": 37, "n_affected_voyages": 43, "sum_A": 1071663.0, "sum_B": 1071662.0, "sum_C": 1071662.0, "gini_A": 0.956, "gini_B": 0.644, "max_delta_AB": 89878.0, "categories": {"CORRUPTED_SHARED": {"n": 8, "aed": 563349.0}, "SHARED_ALL": {"n": 18, "aed": 321954.0}, "PERIODIC_COST": {"n": 11, "aed": 186359.0}}}};
+const COMP = D.comparison.sort((a,b) => b.add_A - a.add_A);
+const ITEMS = D.items;
+let charts = {};
+
+function fmt(v,d=0){return v.toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d});}
+
+// ===== CHARTS =====
+function initCharts(){
+  // Scatter: A vs B
+  const sCtx = document.getElementById('ch-scatter').getContext('2d');
+  const maxVal = Math.max(...COMP.map(c=>Math.max(c.add_A,c.add_B)));
+  charts.scatter = new Chart(sCtx, {
+    type:'scatter',
+    data:{
+      datasets:[
+        {label:'Voyages',data:COMP.map(c=>({x:c.add_A,y:c.add_B})),backgroundColor:'#5b8def88',pointRadius:5},
+        {label:'45° line',data:[{x:0,y:0},{x:maxVal,y:maxVal}],type:'line',borderColor:'#ffffff33',borderDash:[5,5],borderWidth:1,pointRadius:0,fill:false}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:ctx=>{const i=ctx.dataIndex;if(ctx.datasetIndex>0)return'';return`${COMP[i].short}: A=${fmt(COMP[i].add_A)} B=${fmt(COMP[i].add_B)}`;}}}
+      },
+      scales:{
+        x:{title:{display:true,text:'Option A (Tonnage)',color:'#7c829a'},grid:{color:'#1e2130'},ticks:{color:'#7c829a',callback:v=>(v/1000).toFixed(0)+'K'}},
+        y:{title:{display:true,text:'Option B (Equal)',color:'#7c829a'},grid:{color:'#1e2130'},ticks:{color:'#7c829a',callback:v=>(v/1000).toFixed(0)+'K'}}
+      }
+    }
+  });
+
+  // Delta bar: top 15
+  const top15 = [...COMP].sort((a,b)=>Math.abs(b.delta_AB)-Math.abs(a.delta_AB)).slice(0,15);
+  const dCtx = document.getElementById('ch-delta').getContext('2d');
+  charts.delta = new Chart(dCtx, {
+    type:'bar',
+    data:{
+      labels:top15.map(c=>c.short),
+      datasets:[{data:top15.map(c=>c.delta_AB),backgroundColor:top15.map(c=>c.delta_AB>0?'#5b8defCC':'#f87171CC'),borderRadius:3}]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>'Δ(A-B): '+fmt(ctx.parsed.x)+' AED'}}},
+      scales:{
+        x:{grid:{color:'#1e2130'},ticks:{color:'#7c829a',callback:v=>(v/1000).toFixed(0)+'K'}},
+        y:{grid:{display:false},ticks:{color:'#e8eaf0',font:{size:10}}}
+      }
+    }
+  });
+
+  // Impact: per_ton comparison for top 20 voyages
+  const top20 = COMP.filter(c=>c.tonnage>0).slice(0,20);
+  const iCtx = document.getElementById('ch-impact').getContext('2d');
+  charts.impact = new Chart(iCtx, {
+    type:'bar',
+    data:{
+      labels:top20.map(c=>c.short),
+      datasets:[
+        {label:'Direct Only',data:top20.map(c=>c.direct_per_ton),backgroundColor:'#ffffff33',borderRadius:2},
+        {label:'+Option A',data:top20.map(c=>c.per_ton_A),backgroundColor:'#5b8def88',borderRadius:2},
+        {label:'+Option B',data:top20.map(c=>c.per_ton_B),backgroundColor:'#34d39988',borderRadius:2}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#e8eaf0',usePointStyle:true,font:{size:10}}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.parsed.y,1)+' AED/ton'}}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:'#e8eaf0',font:{size:9},maxRotation:45}},
+        y:{grid:{color:'#1e2130'},ticks:{color:'#7c829a',callback:v=>v+' AED/t'}}
+      }
+    }
+  });
+
+  // Category donut
+  const cats = D.summary.categories;
+  const cCtx = document.getElementById('ch-cat').getContext('2d');
+  charts.cat = new Chart(cCtx, {
+    type:'doughnut',
+    data:{
+      labels:Object.keys(cats).map(k=>`${k} (${cats[k].n})`),
+      datasets:[{data:Object.values(cats).map(v=>v.aed),backgroundColor:['#f87171CC','#5b8defCC','#fbbf24CC'],borderColor:'#141720',borderWidth:2}]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,cutout:'55%',
+      plugins:{
+        legend:{position:'bottom',labels:{color:'#e8eaf0',usePointStyle:true,font:{size:11}}},
+        tooltip:{callbacks:{label:ctx=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return `${ctx.label}: ${fmt(ctx.parsed)} AED (${(ctx.parsed/t*100).toFixed(1)}%)`;}}}
+      }
+    }
+  });
+}
+
+// ===== TABLES =====
+let sort1={col:'delta_AB',dir:'desc'};
+let sort2={col:'aed',dir:'desc'};
+
+function renderTable1(){
+  const cols=[
+    {k:'short',l:'Voyage'},
+    {k:'tonnage',l:'Tonnage',n:true,f:v=>fmt(v,0)},
+    {k:'direct_aed',l:'Direct AED',n:true,f:v=>fmt(v)},
+    {k:'direct_per_ton',l:'Direct/Ton',n:true,f:v=>fmt(v,1)},
+    {k:'add_A',l:'+A(Tonnage)',n:true,f:v=>fmt(v)},
+    {k:'add_B',l:'+B(Equal)',n:true,f:v=>fmt(v)},
+    {k:'delta_AB',l:'Δ(A-B)',n:true,f:v=>{const c=v>0?'pos':v<0?'neg':'';return `<span class="${c}">${v>0?'+':''}${fmt(v)}</span>`;}},
+    {k:'per_ton_A',l:'A AED/Ton',n:true,f:v=>fmt(v,1)},
+    {k:'per_ton_B',l:'B AED/Ton',n:true,f:v=>fmt(v,1)},
+    {k:'total_A',l:'Total A',n:true,f:v=>fmt(v)},
+    {k:'total_B',l:'Total B',n:true,f:v=>fmt(v)}
+  ];
+  if(!document.getElementById('th1').innerHTML){
+    let h='<tr>';cols.forEach(c=>{h+=`<th class="${c.n?'num':''}" onclick="doSort1('${c.k}')">${c.l}</th>`;});h+='</tr>';
+    document.getElementById('th1').innerHTML=h;
+  }
+  const sorted=[...COMP].sort((a,b)=>{
+    const av=a[sort1.col],bv=b[sort1.col];
+    const cmp=typeof av==='string'?av.localeCompare(bv):av-bv;
+    return sort1.dir==='asc'?cmp:-cmp;
+  });
+  let html='';
+  sorted.forEach(r=>{
+    html+='<tr>';
+    cols.forEach(c=>{
+      const raw=r[c.k];const val=c.f?c.f(raw):raw;
+      html+=`<td class="${c.n?'num':''}">${val}</td>`;
+    });
+    html+='</tr>';
+  });
+  document.getElementById('tb1').innerHTML=html;
+}
+function doSort1(col){if(sort1.col===col)sort1.dir=sort1.dir==='asc'?'desc':'asc';else{sort1.col=col;sort1.dir='desc';}renderTable1();}
+
+function renderTable2(){
+  const cols=[
+    {k:'idx',l:'#'},
+    {k:'cat',l:'Category'},
+    {k:'ym',l:'Year-Month'},
+    {k:'cost_main',l:'Cost Main'},
+    {k:'aed',l:'AED',n:true,f:v=>fmt(v)},
+    {k:'n_voy',l:'Scope Voyages',n:true},
+    {k:'ton_scope',l:'Scope Tonnage',n:true,f:v=>fmt(v)},
+    {k:'subject',l:'SUBJECT'}
+  ];
+  if(!document.getElementById('th2').innerHTML){
+    let h='<tr>';cols.forEach(c=>{h+=`<th class="${c.n?'num':''}" onclick="doSort2('${c.k}')">${c.l}</th>`;});h+='</tr>';
+    document.getElementById('th2').innerHTML=h;
+  }
+  const sorted=[...ITEMS].sort((a,b)=>{
+    const av=a[sort2.col],bv=b[sort2.col];
+    const cmp=typeof av==='string'?av.localeCompare(bv):av-bv;
+    return sort2.dir==='asc'?cmp:-cmp;
+  });
+  let html='';
+  sorted.forEach(r=>{
+    html+='<tr>';
+    cols.forEach(c=>{
+      const raw=r[c.k];const val=c.f?c.f(raw):raw;
+      html+=`<td class="${c.n?'num':''}" style="${c.k==='subject'?'max-width:200px;overflow:hidden;text-overflow:ellipsis':''}">${val}</td>`;
+    });
+    html+='</tr>';
+  });
+  document.getElementById('tb2').innerHTML=html;
+}
+function doSort2(col){if(sort2.col===col)sort2.dir=sort2.dir==='asc'?'desc':'asc';else{sort2.col=col;sort2.dir='desc';}renderTable2();}
+
+// ===== TABS =====
+function sw(tab){
+  document.querySelectorAll('.tp').forEach(el=>el.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('on'));
+  document.getElementById('t-'+tab).classList.add('on');
+  event.target.classList.add('on');
+}
+
+// INIT
+initCharts();
+renderTable1();
+renderTable2();
+</script>
+</body>
+</html>

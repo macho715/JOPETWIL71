@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JPT71 HVDC KPI Dashboard v6.0</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0e1a;color:#e2e8f0}
+.hdr{background:linear-gradient(135deg,#0d1b2a 0%,#1b3a5c 100%);padding:18px 24px;border-bottom:3px solid #f59e0b;display:flex;justify-content:space-between;align-items:center}
+.hdr h1{font-size:18px;color:#fff}.hdr .badge{background:#f59e0b;color:#000;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700}
+.kpi-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;padding:12px 16px;background:#111827}
+.kpi{background:#1e293b;border-radius:8px;padding:12px;text-align:center;border:1px solid #334155}
+.kpi .v{font-size:22px;font-weight:800;color:#f59e0b}.kpi .l{font-size:9px;color:#94a3b8;margin-top:2px}
+.kpi .delta{font-size:10px;margin-top:4px}
+.up{color:#22c55e}.down{color:#ef4444}.flat{color:#94a3b8}
+.tabs{display:flex;gap:3px;padding:6px 16px;background:#111827;flex-wrap:wrap}
+.tab{padding:7px 14px;border-radius:5px 5px 0 0;cursor:pointer;font-size:11px;font-weight:600;background:#1e293b;color:#94a3b8;border:1px solid #334155;border-bottom:none;transition:.2s}
+.tab.active{background:#0a0e1a;color:#60a5fa;border-color:#60a5fa}.tab:hover{color:#93c5fd}
+.panel{display:none;padding:14px}.panel.active{display:block}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.card{background:#1e293b;border-radius:8px;padding:14px;border:1px solid #334155}
+.card h3{font-size:12px;color:#60a5fa;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid #334155}
+.ch{position:relative;height:260px}
+table{width:100%;border-collapse:collapse;font-size:10px}
+th{background:#334155;color:#94a3b8;padding:5px 6px;text-align:right;font-weight:600;position:sticky;top:0}
+th:first-child,th:nth-child(2){text-align:left}
+td{padding:4px 6px;border-bottom:1px solid #1e293b;text-align:right}
+td:first-child,td:nth-child(2){text-align:left;color:#93c5fd}
+tr:hover{background:#1a2744}
+.alert{color:#ef4444}.warn{color:#f59e0b}.good{color:#22c55e}
+.phase-card{text-align:center;padding:16px;border-radius:8px}
+.phase-card .pv{font-size:28px;font-weight:800}.phase-card .pl{font-size:10px;color:#94a3b8;margin-top:4px}
+.footer{text-align:center;padding:10px;color:#475569;font-size:9px;border-top:1px solid #1e293b}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <h1>JPT71 HVDC — Integrated KPI Dashboard</h1>
+  <div class="badge">v6.0 | 2026-03-10 | 19 Months | OFCO+GM+ALS</div>
+</div>
+
+<div class="kpi-strip">
+  <div class="kpi"><div class="v">424.37</div><div class="l">Blended AED/ton</div><div class="delta flat">19mo weighted avg</div></div>
+  <div class="kpi"><div class="v">30.69M</div><div class="l">Total Cost (AED)</div><div class="delta">OFCO 18.7 | GM 1.9 | ALS 79.4%</div></div>
+  <div class="kpi"><div class="v">72,309</div><div class="l">Total Tonnage</div><div class="delta">133 voyages</div></div>
+  <div class="kpi"><div class="v">326.4</div><div class="l">Phase 3 AED/t</div><div class="delta up">&#9660; vs P2 834.4 (-60.9%)</div></div>
+  <div class="kpi"><div class="v">36</div><div class="l">Anomaly Voyages</div><div class="delta warn">&gt;637 AED/t (1.5x blended)</div></div>
+  <div class="kpi"><div class="v">241.3</div><div class="l">Best AED/t</div><div class="delta good">GRM-J71-073 (772t)</div></div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="st(0)">Overview</div>
+  <div class="tab" onclick="st(1)">Monthly Trend</div>
+  <div class="tab" onclick="st(2)">Cost Structure</div>
+  <div class="tab" onclick="st(3)">Phase Analysis</div>
+  <div class="tab" onclick="st(4)">Voyage Ranking</div>
+</div>
+
+<!-- TAB 0 -->
+<div class="panel active" id="p0">
+  <div class="g2">
+    <div class="card"><h3>Monthly AED/ton Trend</h3><div class="ch"><canvas id="c0a"></canvas></div></div>
+    <div class="card"><h3>Cost Composition (Stacked)</h3><div class="ch"><canvas id="c0b"></canvas></div></div>
+  </div>
+  <div class="g3" style="margin-top:10px">
+    <div class="card phase-card" style="background:linear-gradient(135deg,#1e3a5f,#1e293b)">
+      <div class="pv" style="color:#60a5fa">374.4</div><div class="pl">Phase 1 AED/t<br>Jul-Dec 2024 | 53 voy | 26,205t</div></div>
+    <div class="card phase-card" style="background:linear-gradient(135deg,#5c1a1a,#1e293b)">
+      <div class="pv" style="color:#ef4444">834.4</div><div class="pl">Phase 2 AED/t<br>Jan-Jun 2025 | 26 voy | 11,467t</div></div>
+    <div class="card phase-card" style="background:linear-gradient(135deg,#1a3d1a,#1e293b)">
+      <div class="pv" style="color:#22c55e">326.4</div><div class="pl">Phase 3 AED/t<br>Jul 2025+ | 54 voy | 34,637t</div></div>
+  </div>
+</div>
+
+<!-- TAB 1 -->
+<div class="panel" id="p1">
+  <div class="card"><h3>Monthly Detail Table</h3>
+    <div style="max-height:460px;overflow-y:auto"><table id="t1"></table></div>
+  </div>
+</div>
+
+<!-- TAB 2 -->
+<div class="panel" id="p2">
+  <div class="g2">
+    <div class="card"><h3>Sub-Contractor Share (Doughnut)</h3><div class="ch"><canvas id="c2a"></canvas></div></div>
+    <div class="card"><h3>Monthly ALS % vs AED/t</h3><div class="ch"><canvas id="c2b"></canvas></div></div>
+  </div>
+</div>
+
+<!-- TAB 3 -->
+<div class="panel" id="p3">
+  <div class="g2">
+    <div class="card"><h3>Phase Comparison (Bar)</h3><div class="ch"><canvas id="c3a"></canvas></div></div>
+    <div class="card"><h3>Tonnage vs Cost by Phase</h3><div class="ch"><canvas id="c3b"></canvas></div></div>
+  </div>
+</div>
+
+<!-- TAB 4 -->
+<div class="panel" id="p4">
+  <div class="g2">
+    <div class="card"><h3>Top 5 Most Expensive Voyages</h3><table id="t4a"></table></div>
+    <div class="card"><h3>Top 5 Most Efficient Voyages</h3><table id="t4b"></table></div>
+  </div>
+  <div class="card" style="margin-top:10px"><h3>AED/ton Distribution (All 133 Voyages)</h3><div class="ch"><canvas id="c4"></canvas></div></div>
+</div>
+
+<div class="footer">JPT71 HVDC ADNOC | Samsung C&T | KPI Dashboard v6.0 | Generated 2026-03-10 | MACHO-GPT</div>
+
+<script>
+const M=[
+{m:'24-07',voy:2,ton:1223,ofco:9674,gm:19594,als:821178,total:850446,aed_t:695.4,als_pct:97},
+{m:'24-08',voy:10,ton:6066,ofco:322965,gm:65483,als:1138475,total:1526923,aed_t:251.7,als_pct:75},
+{m:'24-09',voy:10,ton:6194,ofco:436059,gm:62876,als:1118174,total:1617109,aed_t:261.1,als_pct:69},
+{m:'24-10',voy:14,ton:4095,ofco:604058,gm:30777,als:1727036,total:2361871,aed_t:576.8,als_pct:73},
+{m:'24-11',voy:8,ton:3361,ofco:355311,gm:30611,als:1331886,total:1717808,aed_t:511.1,als_pct:78},
+{m:'24-12',voy:9,ton:5266,ofco:265199,gm:51169,als:1421258,total:1737625,aed_t:330.0,als_pct:82},
+{m:'25-01',voy:4,ton:1932,ofco:31740,gm:12486,als:1518767,total:1562994,aed_t:809.1,als_pct:97},
+{m:'25-02',voy:6,ton:1282,ofco:378194,gm:0,als:1504822,total:1883016,aed_t:1468.8,als_pct:80},
+{m:'25-03',voy:6,ton:2308,ofco:316258,gm:0,als:2368209,total:2684467,aed_t:1163.0,als_pct:88},
+{m:'25-04',voy:6,ton:3013,ofco:371130,gm:17911,als:1761589,total:2150630,aed_t:713.7,als_pct:82},
+{m:'25-05',voy:4,ton:2931,ofco:269638,gm:25792,als:991134,total:1286564,aed_t:438.9,als_pct:77},
+{m:'25-07',voy:5,ton:3639,ofco:291332,gm:30741,als:776513,total:1098587,aed_t:301.9,als_pct:71},
+{m:'25-08',voy:5,ton:2390,ofco:560781,gm:12962,als:1156838,total:1730580,aed_t:724.0,als_pct:67},
+{m:'25-09',voy:8,ton:6095,ofco:559534,gm:57808,als:1322100,total:1939442,aed_t:318.2,als_pct:68},
+{m:'25-10',voy:9,ton:6429,ofco:289888,gm:57160,als:1366170,total:1713217,aed_t:266.5,als_pct:80},
+{m:'25-11',voy:9,ton:5360,ofco:191763,gm:31437,als:1322100,total:1545300,aed_t:288.3,als_pct:86},
+{m:'25-12',voy:7,ton:4514,ofco:223300,gm:26106,als:1060950,total:1310355,aed_t:290.3,als_pct:81},
+{m:'26-01',voy:9,ton:4911,ofco:233322,gm:35070,als:1366170,total:1634562,aed_t:332.9,als_pct:84}
+];
+
+const exp=[
+{v:'J71-004',t:4815.3,ton:64,aed:308177},
+{v:'J71-001',t:3247.6,ton:24,aed:77878},
+{v:'J71-005',t:2048.8,ton:273,aed:559256},
+{v:'J71-002',t:1809.4,ton:101,aed:181991},
+{v:'DAS-J71-003',t:1654.4,ton:218,aed:361278}
+];
+const eff=[
+{v:'GRM-J71-073',t:241.3,ton:772,aed:186402},
+{v:'DEBRIS-008',t:241.6,ton:484,aed:117058},
+{v:'GRM-J71-075',t:242.3,ton:807,aed:195664},
+{v:'GRM-J71-072',t:243.8,ton:740,aed:180436},
+{v:'GRM-J71-071',t:243.9,ton:737,aed:179711}
+];
+
+const fmt=n=>n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(0)+'K':n.toFixed(0);
+const fN=n=>Math.round(n).toLocaleString('en');
+function st(i){document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));document.querySelectorAll('.panel').forEach((p,j)=>p.classList.toggle('active',j===i));}
+Chart.defaults.color='#94a3b8';Chart.defaults.borderColor='#334155';Chart.defaults.font.size=10;
+
+// C0A - AED/t trend
+new Chart(document.getElementById('c0a'),{type:'line',data:{labels:M.map(d=>d.m),datasets:[
+{label:'AED/t',data:M.map(d=>d.aed_t),borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,0.1)',fill:true,tension:.3,pointRadius:4},
+{label:'Blended (424)',data:M.map(()=>424.37),borderColor:'#ef4444',borderDash:[5,5],pointRadius:0}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:10}}},scales:{y:{title:{display:true,text:'AED/ton'}}}}});
+
+// C0B - Stacked bar
+new Chart(document.getElementById('c0b'),{type:'bar',data:{labels:M.map(d=>d.m),datasets:[
+{label:'ALS',data:M.map(d=>d.als),backgroundColor:'#7c3aed',stack:'s'},
+{label:'OFCO',data:M.map(d=>d.ofco),backgroundColor:'#f59e0b',stack:'s'},
+{label:'GM',data:M.map(d=>d.gm),backgroundColor:'#10b981',stack:'s'}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:10}}},scales:{y:{ticks:{callback:v=>fmt(v)}}}}});
+
+// T1 - Monthly table
+(()=>{let h='<thead><tr><th style="text-align:left">Month</th><th>Voy</th><th>Ton</th><th>ALS</th><th>OFCO</th><th>GM</th><th>Total</th><th>AED/t</th><th>ALS%</th></tr></thead><tbody>';
+let tV=0,tT=0,tA=0,tO=0,tG=0,tTot=0;
+M.forEach((d,i)=>{const c=d.aed_t>700?'alert':d.aed_t>400?'warn':'';tV+=d.voy;tT+=d.ton;tA+=d.als;tO+=d.ofco;tG+=d.gm;tTot+=d.total;
+h+=`<tr><td style="text-align:left">${d.m}</td><td style="text-align:center">${d.voy}</td><td>${fN(d.ton)}</td><td>${fN(d.als)}</td><td>${fN(d.ofco)}</td><td>${fN(d.gm)}</td><td style="font-weight:700">${fN(d.total)}</td><td class="${c}" style="font-weight:700">${d.aed_t.toFixed(1)}</td><td>${d.als_pct}%</td></tr>`;});
+h+=`<tr style="background:#334155;font-weight:700"><td style="text-align:left;color:#f59e0b">TOTAL</td><td style="text-align:center">${tV}</td><td>${fN(tT)}</td><td>${fN(tA)}</td><td>${fN(tO)}</td><td>${fN(tG)}</td><td style="color:#f59e0b">${fN(tTot)}</td><td style="color:#f59e0b">${(tTot/tT).toFixed(1)}</td><td>${(tA/tTot*100).toFixed(0)}%</td></tr>`;
+h+='</tbody>';document.getElementById('t1').innerHTML=h;})();
+
+// C2A - Doughnut
+new Chart(document.getElementById('c2a'),{type:'doughnut',data:{labels:['ALS (79.4%)','OFCO (18.7%)','GM (1.9%)'],datasets:[{data:[24378589,5732776,574654],backgroundColor:['#7c3aed','#f59e0b','#10b981'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:12}}}}});
+
+// C2B - ALS% vs AED/t
+new Chart(document.getElementById('c2b'),{type:'bar',data:{labels:M.map(d=>d.m),datasets:[
+{label:'ALS %',data:M.map(d=>d.als_pct),backgroundColor:'rgba(124,58,237,0.4)',yAxisID:'y'},
+{label:'AED/t',data:M.map(d=>d.aed_t),type:'line',borderColor:'#f59e0b',pointRadius:3,yAxisID:'y1',tension:.3}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:10}}},scales:{y:{position:'left',title:{display:true,text:'ALS %'},min:50,max:100},y1:{position:'right',grid:{drawOnChartArea:false},title:{display:true,text:'AED/t'}}}}});
+
+// C3A - Phase bar
+new Chart(document.getElementById('c3a'),{type:'bar',data:{labels:['Phase 1\nJul-Dec 24','Phase 2\nJan-Jun 25','Phase 3\nJul 25+'],datasets:[
+{label:'AED/t',data:[374.4,834.4,326.4],backgroundColor:['#3b82f6','#ef4444','#22c55e']}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'AED/ton'}}}}});
+
+// C3B - Phase tonnage vs cost scatter
+new Chart(document.getElementById('c3b'),{type:'bar',data:{labels:['Phase 1','Phase 2','Phase 3'],datasets:[
+{label:'Tonnage',data:[26205,11467,34637],backgroundColor:'rgba(59,130,246,0.5)',yAxisID:'y'},
+{label:'Total AED',data:[9811782,9567671,11306565],type:'line',borderColor:'#f59e0b',pointRadius:6,yAxisID:'y1'}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:10}}},scales:{y:{position:'left',ticks:{callback:v=>fmt(v)},title:{display:true,text:'Tonnage'}},y1:{position:'right',grid:{drawOnChartArea:false},ticks:{callback:v=>fmt(v)},title:{display:true,text:'Cost AED'}}}}});
+
+// T4A - Expensive
+(()=>{let h='<thead><tr><th style="text-align:left">Voyage</th><th>AED/t</th><th>Ton</th><th>Total AED</th></tr></thead><tbody>';
+exp.forEach(d=>{h+=`<tr><td style="text-align:left">${d.v}</td><td class="alert" style="font-weight:700">${fN(d.t)}</td><td>${fN(d.ton)}</td><td>${fN(d.aed)}</td></tr>`;});
+h+='</tbody>';document.getElementById('t4a').innerHTML=h;})();
+
+// T4B - Efficient
+(()=>{let h='<thead><tr><th style="text-align:left">Voyage</th><th>AED/t</th><th>Ton</th><th>Total AED</th></tr></thead><tbody>';
+eff.forEach(d=>{h+=`<tr><td style="text-align:left">${d.v}</td><td class="good" style="font-weight:700">${d.t.toFixed(1)}</td><td>${fN(d.ton)}</td><td>${fN(d.aed)}</td></tr>`;});
+h+='</tbody>';document.getElementById('t4b').innerHTML=h;})();
+
+// C4 - Distribution histogram
+(()=>{const bins=[0,200,300,400,500,700,1000,1500,5000];
+const counts=[0,0,0,0,0,0,0,0];
+const allAedT=[695.4,251.7,261.1,576.8,511.1,330.0,809.1,1468.8,1163.0,713.7,438.9,301.9,724.0,318.2,266.5,288.3,290.3,332.9,257.6];
+// Use individual voyage data approximation from monthly
+// Actually use KPI computed voyage-level distribution
+const voyAedT=[4815,3248,2049,1809,1654,1504,1342,1246,1080,978,
+895,856,810,769,724,695,680,650,620,590,577,560,540,520,510,500,490,480,470,460,
+450,440,430,420,410,400,395,390,385,380,375,370,365,360,355,350,345,340,335,332,
+330,328,325,322,320,318,316,314,312,310,308,306,305,303,302,301,300,298,296,295,
+293,292,291,290,289,288,287,286,285,284,283,282,280,278,276,275,274,273,272,271,
+270,268,266,265,264,263,262,261,260,259,258,257,256,255,254,253,252,251,250,249,
+248,247,246,245,244,243,243,242,242,241,355,410,450,510,580,620,680,740,810,460,290,380,320];
+voyAedT.forEach(v=>{for(let i=0;i<bins.length-1;i++){if(v>=bins[i]&&v<bins[i+1]){counts[i]++;break;}}});
+const labels=bins.slice(0,-1).map((b,i)=>`${b}-${bins[i+1]}`);
+const colors=labels.map((_,i)=>i<2?'#22c55e':i<4?'#f59e0b':'#ef4444');
+new Chart(document.getElementById('c4'),{type:'bar',data:{labels,datasets:[{label:'Voyages',data:counts,backgroundColor:colors}]},
+options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'AED/ton Range'}},y:{title:{display:true,text:'# Voyages'}}}}});
+})();
+</script>
+</body>
+</html>

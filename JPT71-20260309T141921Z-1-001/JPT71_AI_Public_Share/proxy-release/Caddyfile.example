@@ -1,0 +1,16 @@
+api.your-domain.com {
+  encode gzip zstd
+
+  @health path /api/ai/health
+  @chat path /api/ai/chat
+
+  reverse_proxy @health 127.0.0.1:3010
+  reverse_proxy @chat 127.0.0.1:3010
+
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    X-Content-Type-Options "nosniff"
+    X-Frame-Options "DENY"
+    Referrer-Policy "same-origin"
+  }
+}

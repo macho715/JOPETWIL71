@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>JPT71 Fuel & Loading Analysis v5.1</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f0;padding:16px}
+.header{text-align:center;padding:12px 0;border-bottom:2px solid #334155;margin-bottom:16px}
+.header h1{font-size:22px;color:#38bdf8}
+.header .ver{color:#94a3b8;font-size:13px}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px}
+.kpi{background:#1e293b;border-radius:10px;padding:14px;text-align:center;border-left:4px solid #38bdf8}
+.kpi .val{font-size:22px;font-weight:700;color:#f1f5f9}
+.kpi .lbl{font-size:11px;color:#94a3b8}
+.kpi.orange{border-color:#f97316}
+.kpi.green{border-color:#22c55e}
+.kpi.red{border-color:#ef4444}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.card{background:#1e293b;border-radius:10px;padding:16px;margin-bottom:14px}
+.card h3{font-size:14px;color:#38bdf8;margin-bottom:10px}
+canvas{max-height:300px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:#334155;padding:6px 8px;text-align:left;color:#94a3b8}
+td{padding:5px 8px;border-bottom:1px solid #334155}
+.r{text-align:right}
+tr:hover{background:#334155}
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.tag-red{background:#7f1d1d;color:#fca5a5}
+.tag-green{background:#14532d;color:#86efac}
+@media(max-width:768px){.grid2{grid-template-columns:1fr}}
+</style></head><body>
+<div class="header"><h1>JPT71 Fuel & Loading Analysis</h1>
+<div class="ver">v5.1 final | Source: JPT-reconciled_v5.1_final.xlsx</div></div>
+<div class="kpi-row">
+<div class="kpi orange"><div class="val">179,525</div><div class="lbl">Total Fuel (L)</div></div>
+<div class="kpi"><div class="val">413</div><div class="lbl">Total Days</div></div>
+<div class="kpi green"><div class="val">434.7</div><div class="lbl">Avg L/day</div></div>
+<div class="kpi red"><div class="val">AT_ANCHOR</div><div class="lbl">Top Driver (1,226 L/d)</div></div>
+<div class="kpi"><div class="val">30</div><div class="lbl">Trips Analyzed</div></div>
+</div>
+<div class="grid2">
+<div class="card"><h3>Monthly Fuel Consumption</h3><canvas id="monthlyFuel"></canvas></div>
+<div class="card"><h3>Activity Fuel per Day</h3><canvas id="actFuel"></canvas></div>
+</div>
+<div class="card"><h3>Trip Analysis (Top 30)</h3>
+<table><tr><th>Trip</th><th>Dest</th><th>Month</th><th class="r">Days</th><th class="r">Load Days</th><th class="r">Anchor Days</th><th class="r">Sail Fuel</th><th class="r">Load Fuel</th></tr>
+<tr><td>1</td><td>AGI_FIELD</td><td>2024-11</td><td class="r">10.0</td><td class="r">8.0</td><td class="r"><span class="tag tag-green">0.0</span></td><td class="r">444</td><td class="r">3,805</td></tr>
+<tr><td>2</td><td>AGI_FIELD</td><td>2024-11</td><td class="r">6.0</td><td class="r">5.0</td><td class="r"><span class="tag tag-green">0.0</span></td><td class="r">0</td><td class="r">1,209</td></tr>
+<tr><td>3</td><td>AGI_FIELD</td><td>2024-11</td><td class="r">7.0</td><td class="r">5.0</td><td class="r"><span class="tag tag-green">0.0</span></td><td class="r">145</td><td class="r">2,510</td></tr>
+<tr><td>4</td><td>AGI_FIELD</td><td>2024-11</td><td class="r">10.0</td><td class="r">3.0</td><td class="r"><span class="tag tag-green">0.0</span></td><td class="r">0</td><td class="r">1,076</td></tr>
+<tr><td>5</td><td>AGI_FIELD</td><td>2024-12</td><td class="r">5.0</td><td class="r">1.0</td><td class="r"><span class="tag tag-green">0.0</span></td><td class="r">1,098</td><td class="r">436</td></tr>
+<tr><td>6</td><td>AGI_FIELD</td><td>2024-12</td><td class="r">3.0</td><td class="r">1.0</td><td class="r"><span class="tag tag-green">0.0</span></td><td class="r">781</td><td class="r">290</td></tr>
+<tr><td>7</td><td>DAS_ISLAND</td><td>2024-12</td><td class="r">4.0</td><td class="r">1.0</td><td class="r"><span class="tag tag-green">1.0</span></td><td class="r">0</td><td class="r">389</td></tr>
+<tr><td>8</td><td>AGI_FIELD</td><td>2024-12</td><td class="r">7.0</td><td class="r">1.0</td><td class="r"><span class="tag tag-green">0.0</span></td><td class="r">444</td><td class="r">117</td></tr>
+<tr><td>9</td><td>AGI_FIELD</td><td>2024-12</td><td class="r">2.0</td><td class="r">1.0</td><td class="r"><span class="tag tag-green">0.0</span></td><td class="r">0</td><td class="r">301</td></tr>
+<tr><td>10</td><td>AGI_FIELD</td><td>2024-12</td><td class="r">8.0</td><td class="r">1.0</td><td class="r"><span class="tag tag-green">0.0</span></td><td class="r">1,041</td><td class="r">438</td></tr>
+<tr><td>11</td><td>AGI_FIELD</td><td>2025-01</td><td class="r">13.0</td><td class="r">1.0</td><td class="r"><span class="tag tag-green">0.0</span></td><td class="r">0</td><td class="r">222</td></tr>
+<tr><td>12</td><td>AGI_FIELD</td><td>2025-01</td><td class="r">8.0</td><td class="r">1.0</td><td class="r"><span class="tag tag-green">0.0</span></td><td class="r">1,232</td><td class="r">308</td></tr>
+<tr><td>13</td><td>DAS_ISLAND</td><td>2025-01</td><td class="r">5.0</td><td class="r">1.0</td><td class="r"><span class="tag tag-green">1.0</span></td><td class="r">1,305</td><td class="r">363</td></tr>
+<tr><td>14</td><td>DAS_ISLAND</td><td>2025-02</td><td class="r">14.0</td><td class="r">1.0</td><td class="r"><span class="tag tag-red">5.0</span></td><td class="r">2,000</td><td class="r">191</td></tr>
+<tr><td>15</td><td>DAS_ISLAND</td><td>2025-02</td><td class="r">2.0</td><td class="r">1.0</td><td class="r"><span class="tag tag-green">0.0</span></td><td class="r">627</td><td class="r">381</td></tr>
+<tr><td>16</td><td>MUSAFFAH</td><td>2025-02</td><td class="r">2.0</td><td class="r">1.0</td><td class="r"><span class="tag tag-green">0.0</span></td><td class="r">0</td><td class="r">251</td></tr>
+<tr><td>17</td><td>OTHER</td><td>2025-02</td><td class="r">3.0</td><td class="r">1.0</td><td class="r"><span class="tag tag-green">0.0</span></td><td class="r">260</td><td class="r">260</td></tr>
+<tr><td>18</td><td>DAS_ISLAND</td><td>2025-02</td><td class="r">22.0</td><td class="r">1.0</td><td class="r"><span class="tag tag-green">2.0</span></td><td class="r">3,082</td><td class="r">189</td></tr>
+<tr><td>19</td><td>AGI_FIELD</td><td>2025-03</td><td class="r">4.0</td><td class="r">1.0</td><td class="r"><span class="tag tag-green">0.0</span></td><td class="r">702</td><td class="r">154</td></tr>
+<tr><td>20</td><td>AGI_FIELD</td><td>2025-03</td><td class="r">14.0</td><td class="r">5.0</td><td class="r"><span class="tag tag-green">3.0</span></td><td class="r">0</td><td class="r">1,323</td></tr>
+<tr><td>21</td><td>AGI_FIELD</td><td>2025-04</td><td class="r">8.0</td><td class="r">7.0</td><td class="r"><span class="tag tag-green">0.0</span></td><td class="r">263</td><td class="r">1,577</td></tr>
+<tr><td>22</td><td>AGI_FIELD</td><td>2025-04</td><td class="r">10.0</td><td class="r">9.0</td><td class="r"><span class="tag tag-green">0.0</span></td><td class="r">0</td><td class="r">2,408</td></tr>
+<tr><td>23</td><td>AGI_FIELD</td><td>2025-04</td><td class="r">5.0</td><td class="r">4.0</td><td class="r"><span class="tag tag-green">0.0</span></td><td class="r">178</td><td class="r">517</td></tr>
+<tr><td>24</td><td>AGI_FIELD</td><td>2025-04</td><td class="r">4.0</td><td class="r">2.0</td><td class="r"><span class="tag tag-green">0.0</span></td><td class="r">0</td><td class="r">519</td></tr>
+<tr><td>25</td><td>AGI_FIELD</td><td>2025-04</td><td class="r">5.0</td><td class="r">2.0</td><td class="r"><span class="tag tag-green">2.0</span></td><td class="r">0</td><td class="r">284</td></tr>
+<tr><td>26</td><td>AGI_FIELD</td><td>2025-05</td><td class="r">5.0</td><td class="r">4.0</td><td class="r"><span class="tag tag-green">0.0</span></td><td class="r">0</td><td class="r">727</td></tr>
+<tr><td>27</td><td>AGI_FIELD</td><td>2025-05</td><td class="r">6.0</td><td class="r">1.0</td><td class="r"><span class="tag tag-green">0.0</span></td><td class="r">154</td><td class="r">114</td></tr>
+<tr><td>28</td><td>AGI_FIELD</td><td>2025-05</td><td class="r">4.0</td><td class="r">3.0</td><td class="r"><span class="tag tag-green">0.0</span></td><td class="r">308</td><td class="r">706</td></tr>
+<tr><td>29</td><td>MW4_MUSAFFAH</td><td>2025-05</td><td class="r">2.0</td><td class="r">1.0</td><td class="r"><span class="tag tag-green">0.0</span></td><td class="r">0</td><td class="r">77</td></tr>
+<tr><td>30</td><td>AGI_FIELD</td><td>2025-05</td><td class="r">8.0</td><td class="r">2.0</td><td class="r"><span class="tag tag-green">0.0</span></td><td class="r">0</td><td class="r">743</td></tr>
+</table></div>
+<script>
+var DATA = {"monthly": [{"month": "2024-11", "total_fuel": 9267, "days": 30, "fuel_per_day": 331.0}, {"month": "2024-12", "total_fuel": 13345, "days": 31, "fuel_per_day": 430.5}, {"month": "2025-01", "total_fuel": 8784, "days": 31, "fuel_per_day": 283.4}, {"month": "2025-02", "total_fuel": 10046, "days": 28, "fuel_per_day": 358.8}, {"month": "2025-03", "total_fuel": 6414, "days": 31, "fuel_per_day": 206.9}, {"month": "2025-04", "total_fuel": 6019, "days": 30, "fuel_per_day": 200.6}, {"month": "2025-05", "total_fuel": 3514, "days": 23, "fuel_per_day": 152.8}, {"month": "2025-07", "total_fuel": 6512, "days": 18, "fuel_per_day": 361.8}, {"month": "2025-08", "total_fuel": 9230, "days": 31, "fuel_per_day": 297.7}, {"month": "2025-10", "total_fuel": 10812, "days": 31, "fuel_per_day": 348.8}, {"month": "2025-11", "total_fuel": 8645, "days": 30, "fuel_per_day": 288.2}, {"month": "2025-12", "total_fuel": 9702, "days": 31, "fuel_per_day": 313.0}, {"month": "2026-01", "total_fuel": 65754, "days": 33, "fuel_per_day": 1992.5}, {"month": "2026-02", "total_fuel": 10220, "days": 27, "fuel_per_day": 378.5}, {"month": "2026-03", "total_fuel": 1261, "days": 8, "fuel_per_day": 157.6}], "activities": [{"activity": "AT_ANCHOR", "total_fuel": 66225, "days": 54.0, "fuel_per_day": 1226.4}, {"activity": "SAILING_LADEN", "total_fuel": 6758, "days": 10.0, "fuel_per_day": 675.8}, {"activity": "DISCHARGING", "total_fuel": 42711, "days": 97.0, "fuel_per_day": 440.3}, {"activity": "SAILING", "total_fuel": 12409, "days": 33.0, "fuel_per_day": 376.0}, {"activity": "LOADING", "total_fuel": 38938, "days": 119.0, "fuel_per_day": 327.2}, {"activity": "OTHER", "total_fuel": 7055, "days": 47.0, "fuel_per_day": 150.1}, {"activity": "BUNKERING", "total_fuel": 888, "days": 7.0, "fuel_per_day": 126.9}, {"activity": "MAINTENANCE", "total_fuel": 1457, "days": 13.0, "fuel_per_day": 112.1}, {"activity": "AT_BERTH", "total_fuel": 3086, "days": 33.0, "fuel_per_day": 93.5}], "trips": [{"trip": "1", "dest": "AGI_FIELD", "month": "2024-11", "days": 10.0, "load_days": 8.0, "anchor_days": 0.0, "sail_fuel": 444, "load_fuel": 3805}, {"trip": "2", "dest": "AGI_FIELD", "month": "2024-11", "days": 6.0, "load_days": 5.0, "anchor_days": 0.0, "sail_fuel": 0, "load_fuel": 1209}, {"trip": "3", "dest": "AGI_FIELD", "month": "2024-11", "days": 7.0, "load_days": 5.0, "anchor_days": 0.0, "sail_fuel": 145, "load_fuel": 2510}, {"trip": "4", "dest": "AGI_FIELD", "month": "2024-11", "days": 10.0, "load_days": 3.0, "anchor_days": 0.0, "sail_fuel": 0, "load_fuel": 1076}, {"trip": "5", "dest": "AGI_FIELD", "month": "2024-12", "days": 5.0, "load_days": 1.0, "anchor_days": 0.0, "sail_fuel": 1098, "load_fuel": 436}, {"trip": "6", "dest": "AGI_FIELD", "month": "2024-12", "days": 3.0, "load_days": 1.0, "anchor_days": 0.0, "sail_fuel": 781, "load_fuel": 290}, {"trip": "7", "dest": "DAS_ISLAND", "month": "2024-12", "days": 4.0, "load_days": 1.0, "anchor_days": 1.0, "sail_fuel": 0, "load_fuel": 389}, {"trip": "8", "dest": "AGI_FIELD", "month": "2024-12", "days": 7.0, "load_days": 1.0, "anchor_days": 0.0, "sail_fuel": 444, "load_fuel": 117}, {"trip": "9", "dest": "AGI_FIELD", "month": "2024-12", "days": 2.0, "load_days": 1.0, "anchor_days": 0.0, "sail_fuel": 0, "load_fuel": 301}, {"trip": "10", "dest": "AGI_FIELD", "month": "2024-12", "days": 8.0, "load_days": 1.0, "anchor_days": 0.0, "sail_fuel": 1041, "load_fuel": 438}, {"trip": "11", "dest": "AGI_FIELD", "month": "2025-01", "days": 13.0, "load_days": 1.0, "anchor_days": 0.0, "sail_fuel": 0, "load_fuel": 222}, {"trip": "12", "dest": "AGI_FIELD", "month": "2025-01", "days": 8.0, "load_days": 1.0, "anchor_days": 0.0, "sail_fuel": 1232, "load_fuel": 308}, {"trip": "13", "dest": "DAS_ISLAND", "month": "2025-01", "days": 5.0, "load_days": 1.0, "anchor_days": 1.0, "sail_fuel": 1305, "load_fuel": 363}, {"trip": "14", "dest": "DAS_ISLAND", "month": "2025-02", "days": 14.0, "load_days": 1.0, "anchor_days": 5.0, "sail_fuel": 2000, "load_fuel": 191}, {"trip": "15", "dest": "DAS_ISLAND", "month": "2025-02", "days": 2.0, "load_days": 1.0, "anchor_days": 0.0, "sail_fuel": 627, "load_fuel": 381}, {"trip": "16", "dest": "MUSAFFAH", "month": "2025-02", "days": 2.0, "load_days": 1.0, "anchor_days": 0.0, "sail_fuel": 0, "load_fuel": 251}, {"trip": "17", "dest": "OTHER", "month": "2025-02", "days": 3.0, "load_days": 1.0, "anchor_days": 0.0, "sail_fuel": 260, "load_fuel": 260}, {"trip": "18", "dest": "DAS_ISLAND", "month": "2025-02", "days": 22.0, "load_days": 1.0, "anchor_days": 2.0, "sail_fuel": 3082, "load_fuel": 189}, {"trip": "19", "dest": "AGI_FIELD", "month": "2025-03", "days": 4.0, "load_days": 1.0, "anchor_days": 0.0, "sail_fuel": 702, "load_fuel": 154}, {"trip": "20", "dest": "AGI_FIELD", "month": "2025-03", "days": 14.0, "load_days": 5.0, "anchor_days": 3.0, "sail_fuel": 0, "load_fuel": 1323}, {"trip": "21", "dest": "AGI_FIELD", "month": "2025-04", "days": 8.0, "load_days": 7.0, "anchor_days": 0.0, "sail_fuel": 263, "load_fuel": 1577}, {"trip": "22", "dest": "AGI_FIELD", "month": "2025-04", "days": 10.0, "load_days": 9.0, "anchor_days": 0.0, "sail_fuel": 0, "load_fuel": 2408}, {"trip": "23", "dest": "AGI_FIELD", "month": "2025-04", "days": 5.0, "load_days": 4.0, "anchor_days": 0.0, "sail_fuel": 178, "load_fuel": 517}, {"trip": "24", "dest": "AGI_FIELD", "month": "2025-04", "days": 4.0, "load_days": 2.0, "anchor_days": 0.0, "sail_fuel": 0, "load_fuel": 519}, {"trip": "25", "dest": "AGI_FIELD", "month": "2025-04", "days": 5.0, "load_days": 2.0, "anchor_days": 2.0, "sail_fuel": 0, "load_fuel": 284}, {"trip": "26", "dest": "AGI_FIELD", "month": "2025-05", "days": 5.0, "load_days": 4.0, "anchor_days": 0.0, "sail_fuel": 0, "load_fuel": 727}, {"trip": "27", "dest": "AGI_FIELD", "month": "2025-05", "days": 6.0, "load_days": 1.0, "anchor_days": 0.0, "sail_fuel": 154, "load_fuel": 114}, {"trip": "28", "dest": "AGI_FIELD", "month": "2025-05", "days": 4.0, "load_days": 3.0, "anchor_days": 0.0, "sail_fuel": 308, "load_fuel": 706}, {"trip": "29", "dest": "MW4_MUSAFFAH", "month": "2025-05", "days": 2.0, "load_days": 1.0, "anchor_days": 0.0, "sail_fuel": 0, "load_fuel": 77}, {"trip": "30", "dest": "AGI_FIELD", "month": "2025-05", "days": 8.0, "load_days": 2.0, "anchor_days": 0.0, "sail_fuel": 0, "load_fuel": 743}]};
+
+var mLabels = DATA.monthly.map(function(m){return m.month});
+var mFuel = DATA.monthly.map(function(m){return m.total_fuel});
+var mFPD = DATA.monthly.map(function(m){return m.fuel_per_day});
+
+new Chart(document.getElementById('monthlyFuel'), {type:'bar', data:{
+    labels:mLabels,
+    datasets:[
+        {label:'Total Fuel (L)', data:mFuel, backgroundColor:'#f97316', yAxisID:'y', order:2},
+        {label:'L/day', data:mFPD, type:'line', borderColor:'#22c55e', backgroundColor:'transparent', yAxisID:'y1', order:1, pointRadius:3}
+    ]
+}, options:{responsive:true, scales:{
+    y:{position:'left', ticks:{color:'#94a3b8', callback:function(v){return (v/1000)+'K';}}, grid:{color:'#334155'}},
+    y1:{position:'right', ticks:{color:'#22c55e'}, grid:{display:false}},
+    x:{ticks:{color:'#94a3b8', maxRotation:45}, grid:{color:'#334155'}}
+}, plugins:{legend:{labels:{color:'#94a3b8'}}}}});
+
+var aLabels = DATA.activities.map(function(a){return a.activity});
+var aFPD = DATA.activities.map(function(a){return a.fuel_per_day});
+var aColors = aFPD.map(function(v){return v>1000 ? '#ef4444' : v>500 ? '#f97316' : '#22c55e';});
+
+new Chart(document.getElementById('actFuel'), {type:'bar', data:{
+    labels:aLabels, datasets:[{label:'Fuel/Day (L)', data:aFPD, backgroundColor:aColors}]
+}, options:{responsive:true, indexAxis:'y', scales:{
+    x:{ticks:{color:'#94a3b8'}, grid:{color:'#334155'}},
+    y:{ticks:{color:'#94a3b8'}}
+}, plugins:{legend:{display:false}}}});
+</script></body></html>

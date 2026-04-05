@@ -1,0 +1,2549 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JPT71 HVDC — Fuel & Loading Dashboard v6.0</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root{
+      --bg:#0a0e1a;
+      --bg2:#111827;
+      --card:#1e293b;
+      --card2:#1e293b;
+      --card3:#334155;
+      --border:#334155;
+      --grid:rgba(148,163,184,.12);
+      --text:#e2e8f0;
+      --muted:#94a3b8;
+      --subtle:#94a3b8;
+      --accent:#60a5fa;
+      --accent2:#60a5fa;
+      --green:#22c55e;
+      --yellow:#f59e0b;
+      --red:#ef4444;
+      --purple:#7c3aed;
+      --orange:#fb923c;
+      --cyan:#06b6d4;
+      --shadow:0 2px 8px rgba(0,0,0,.3);
+      --radius:8px;
+    }
+
+    :root[data-theme="light"]{
+      --bg:#f1f5f9;
+      --bg2:#f8fafc;
+      --card:#ffffff;
+      --card2:#f8fafc;
+      --card3:#e2e8f0;
+      --border:#cbd5e1;
+      --grid:rgba(71,85,105,.10);
+      --text:#1e293b;
+      --muted:#64748b;
+      --subtle:#64748b;
+      --accent:#3b82f6;
+      --accent2:#2563eb;
+      --green:#16a34a;
+      --yellow:#d97706;
+      --red:#dc2626;
+      --purple:#7c3aed;
+      --orange:#ea580c;
+      --cyan:#0891b2;
+      --shadow:0 2px 8px rgba(0,0,0,.06);
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:'Segoe UI',system-ui,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      min-height:100vh;
+    }
+
+    button,input,select{font:inherit}
+
+    .app-shell{
+      max-width:1560px;
+      margin:0 auto;
+      padding:0;
+    }
+
+    /* === HEADER — matches KPI v6.0 gradient header === */
+    .header{
+      background:linear-gradient(135deg,#0d1b2a 0%,#1b3a5c 100%);
+      padding:18px 24px;
+      border-bottom:3px solid #f59e0b;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      flex-wrap:wrap;
+      gap:12px;
+    }
+    .title-wrap{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-width:0;
+    }
+
+    :root[data-theme="light"] .header{
+      background:linear-gradient(135deg,#e2e8f0 0%,#cbd5e1 100%);
+      border-bottom-color:#d97706;
+    }
+
+    .title-wrap h1{
+      margin:0;
+      font-size:34px;
+      color:#fff;
+      line-height:1.1;
+    }
+
+    :root[data-theme="light"] .title-wrap h1{color:#1e293b}
+
+    .title-wrap .sub{
+      margin-top:6px;
+      color:#94a3b8;
+      font-size:11px;
+      line-height:1.5;
+      max-width:800px;
+    }
+
+    :root[data-theme="light"] .title-wrap .sub{color:#64748b}
+
+    /* === BADGES / CHIPS / PILLS === */
+    .badge-row,.chip-row,.pill-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      align-items:center;
+    }
+
+    .badge,.chip,.pill{
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      padding:4px 10px;
+      border-radius:4px;
+      font-size:11px;
+      font-weight:700;
+      white-space:nowrap;
+    }
+
+    .badge{
+      background:#f59e0b;
+      color:#000;
+    }
+
+    .chip{
+      background:rgba(148,163,184,.15);
+      color:var(--muted);
+      border:1px solid rgba(148,163,184,.2);
+      border-radius:4px;
+    }
+
+    .pill-neutral{background:rgba(148,163,184,.12);color:var(--muted)}
+    .pill-success{background:rgba(34,197,94,.12);color:var(--green)}
+    .pill-warn{background:rgba(245,158,11,.12);color:var(--yellow)}
+    .pill-danger{background:rgba(239,68,68,.12);color:var(--red)}
+    .pill-info{background:rgba(6,182,212,.12);color:var(--cyan)}
+
+    /* === TOOLBAR === */
+    .toolbar{
+      background:var(--bg2);
+      padding:12px 16px;
+      display:grid;
+      grid-template-columns:repeat(12,1fr);
+      gap:10px;
+      border-bottom:1px solid var(--border);
+    }
+
+    .control-group{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width:0;
+    }
+
+    .control-group label{
+      font-size:9px;
+      font-weight:600;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+      color:var(--muted);
+    }
+
+    .control-group.span-2{grid-column:span 2}
+    .control-group.span-3{grid-column:span 3}
+    .control-group.span-4{grid-column:span 4}
+    .control-group.span-5{grid-column:span 5}
+
+    select,.ghost-btn,.primary-btn{
+      height:34px;
+      border-radius:5px;
+      border:1px solid var(--border);
+      background:var(--card);
+      color:var(--text);
+      padding:0 10px;
+      outline:none;
+      font-size:11px;
+      cursor:pointer;
+      transition:.15s;
+    }
+
+    select:focus,.ghost-btn:hover,.primary-btn:hover{
+      border-color:var(--accent);
+    }
+
+    .quick-actions{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+
+    .primary-btn{
+      background:var(--accent);
+      color:#fff;
+      border-color:var(--accent);
+      font-weight:700;
+    }
+
+    .switch{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:0 10px;
+      min-height:34px;
+      border:1px solid var(--border);
+      border-radius:5px;
+      background:var(--card);
+      color:var(--text);
+      cursor:pointer;
+      user-select:none;
+      font-size:11px;
+    }
+
+    .switch input{
+      width:16px;height:16px;
+      accent-color:var(--accent);
+      cursor:pointer;margin:0;
+    }
+
+    /* === STATUSBAR === */
+    .statusbar{
+      background:var(--bg2);
+      padding:8px 16px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      border-bottom:1px solid var(--border);
+    }
+
+    .statusline{color:var(--muted);font-size:11px;line-height:1.4}
+    .statusline strong{color:var(--text)}
+
+    /* === TABS — matches KPI v6.0 tab style === */
+    .tabs{
+      display:flex;
+      gap:3px;
+      padding:6px 16px;
+      background:var(--bg2);
+      flex-wrap:wrap;
+    }
+
+    .tab-btn{
+      padding:7px 14px;
+      border-radius:5px 5px 0 0;
+      cursor:pointer;
+      font-size:11px;
+      font-weight:600;
+      background:var(--card);
+      color:var(--muted);
+      border:1px solid var(--border);
+      border-bottom:none;
+      transition:.2s;
+    }
+
+    .tab-btn:hover{color:#93c5fd}
+
+    .tab-btn.active{
+      background:var(--bg);
+      color:var(--accent);
+      border-color:var(--accent);
+    }
+
+    /* === PANELS === */
+    .content{padding:0}
+
+    .panel{
+      display:none;
+      padding:14px 16px;
+    }
+
+    .panel.active{display:block}
+
+    .section-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+
+    .section-head h2{margin:0;font-size:14px;color:var(--accent)}
+    .section-head p{margin:4px 0 0;color:var(--muted);font-size:11px;line-height:1.4;max-width:800px}
+    .mini-note{color:var(--muted);font-size:10px;padding-top:4px}
+
+    /* === STAT CARDS — matches KPI v6.0 kpi strip === */
+    .cards{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:8px;
+      margin-bottom:12px;
+    }
+
+    .stat-card{
+      background:var(--card);
+      border-radius:8px;
+      padding:12px;
+      text-align:center;
+      border:1px solid var(--border);
+    }
+
+    .stat-label{
+      font-size:9px;
+      letter-spacing:.5px;
+      text-transform:uppercase;
+      color:var(--muted);
+      font-weight:600;
+    }
+
+    .stat-value{
+      margin-top:4px;
+      font-size:22px;
+      line-height:1.1;
+      font-weight:800;
+    }
+
+    .stat-note{
+      margin-top:4px;
+      color:var(--muted);
+      font-size:10px;
+      line-height:1.3;
+    }
+
+    .tone-orange .stat-value{color:#f59e0b}
+    .tone-cyan .stat-value{color:#06b6d4}
+    .tone-green .stat-value{color:#22c55e}
+    .tone-purple .stat-value{color:#7c3aed}
+    .tone-red .stat-value{color:#ef4444}
+    .tone-yellow .stat-value{color:#f59e0b}
+    .tone-blue .stat-value{color:#60a5fa}
+
+    /* === CHART GRID — matches KPI v6.0 grid system === */
+    .chart-grid{
+      display:grid;
+      grid-template-columns:repeat(12,1fr);
+      gap:10px;
+      margin-bottom:12px;
+    }
+
+    .chart-card,.table-card{
+      background:var(--card);
+      border-radius:8px;
+      padding:14px;
+      border:1px solid var(--border);
+      min-width:0;
+    }
+
+    .span-12{grid-column:span 12}
+    .span-8{grid-column:span 8}
+    .span-6{grid-column:span 6}
+    .span-4{grid-column:span 4}
+
+    .card-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-bottom:8px;
+    }
+
+    .card-head h3{
+      margin:0;
+      font-size:12px;
+      color:var(--accent);
+      padding-bottom:5px;
+      border-bottom:1px solid var(--border);
+    }
+
+    .card-head p{margin:4px 0 0;font-size:10px;color:var(--muted);line-height:1.4}
+
+    .chart-wrap{position:relative;width:100%;height:260px}
+    .chart-wrap.tall{height:300px}
+    .chart-wrap.medium{height:240px}
+    .chart-wrap.small{height:200px}
+
+    /* === CALLOUT / INSIGHT === */
+    .callout{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:8px;
+      padding:12px;
+      margin-bottom:12px;
+    }
+
+    .callout strong{display:block;margin-bottom:6px;font-size:11px;color:var(--accent)}
+    .callout p{margin:0;color:var(--muted);font-size:11px;line-height:1.4}
+
+    .insight-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+    }
+
+    .insight-card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:8px;
+      padding:12px;
+    }
+
+    .insight-card h4{margin:6px 0;font-size:12px;line-height:1.2;color:var(--text)}
+    .insight-card p{margin:0;color:var(--muted);font-size:11px;line-height:1.4}
+
+    /* === TABLES — matches KPI v6.0 table style === */
+    .table-wrap{
+      max-height:400px;
+      overflow:auto;
+      border-radius:6px;
+      border:1px solid var(--border);
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:900px;
+      font-size:10px;
+    }
+
+    thead th{
+      position:sticky;top:0;z-index:2;
+      text-align:left;
+      padding:5px 6px;
+      background:var(--card3);
+      color:var(--muted);
+      border-bottom:1px solid var(--border);
+      font-weight:600;
+    }
+
+    tbody td{
+      padding:4px 6px;
+      border-bottom:1px solid var(--card);
+      color:var(--text);
+      text-align:right;
+    }
+
+    tbody td:first-child,tbody td:nth-child(2){text-align:left;color:#93c5fd}
+    tbody tr:hover td{background:#1a2744}
+
+    .row-low td{background:rgba(245,158,11,.04)}
+    .row-medium td{background:rgba(245,158,11,.06)}
+    .row-high td{background:rgba(239,68,68,.07)}
+    .row-critical td{background:rgba(239,68,68,.10)}
+
+    .num{text-align:right}
+    .muted{color:var(--muted)}
+    .strong{font-weight:700}
+    .nowrap{white-space:nowrap}
+
+    /* === GAP BOXES === */
+    .gap-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+      margin-bottom:12px;
+    }
+
+    .gap-box{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:8px;
+      padding:12px;
+    }
+
+    .gap-box h3{margin:0 0 6px;font-size:12px;color:var(--accent)}
+    .gap-box p{margin:0 0 6px;color:var(--muted);font-size:10px;line-height:1.4}
+
+    .foot-note{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:10px;
+      line-height:1.4;
+    }
+
+    /* === FOOTER — matches KPI v6.0 === */
+    .footer{
+      text-align:center;
+      padding:10px;
+      color:#475569;
+      font-size:9px;
+      border-top:1px solid var(--card);
+    }
+
+    /* === RESPONSIVE === */
+    @media (max-width:1200px){
+      .cards{grid-template-columns:repeat(2,1fr)}
+      .insight-grid{grid-template-columns:repeat(2,1fr)}
+      .gap-grid{grid-template-columns:1fr}
+      .span-8,.span-6,.span-4{grid-column:span 12}
+      .control-group.span-5,.control-group.span-4,.control-group.span-3,.control-group.span-2{grid-column:span 6}
+    }
+
+    @media (max-width:820px){
+      .header{padding:18px 16px}
+      .title-wrap h1{font-size:28px}
+      .toolbar{padding:10px;grid-template-columns:repeat(6,1fr)}
+      .control-group.span-5,.control-group.span-4,.control-group.span-3,.control-group.span-2{grid-column:span 6}
+      .cards{grid-template-columns:1fr}
+      .insight-grid{grid-template-columns:1fr}
+      .chart-wrap{height:220px}
+      .chart-wrap.tall{height:260px}
+    }
+
+  </style>
+</head>
+<body>
+<div class="app-shell">
+    <header class="header">
+      <div class="title-wrap">
+        <div class="badge-row">
+          <span class="badge">DECKLOG + VOYAGE</span>
+          <span class="badge">UPGRADED DASHBOARD</span>
+          <span class="badge">FILTER · QUALITY · EXPORT</span>
+        </div>
+        <h1>JPT71 JOPETWIL 71 — Fuel & Loading Analysis</h1>
+        <div class="sub"></div>
+      </div>
+    </header>
+
+    <section class="toolbar">
+      <div class="control-group span-2">
+        <label for="startMonth">시작 월</label>
+        <select id="startMonth"></select>
+      </div>
+
+      <div class="control-group span-2">
+        <label for="endMonth">종료 월</label>
+        <select id="endMonth"></select>
+      </div>
+
+      <div class="control-group span-4">
+        <label>빠른 선택</label>
+        <div class="quick-actions">
+          <button id="resetBtn" class="ghost-btn">Reset</button>
+          <button class="ghost-btn preset-btn" data-preset="all">전체</button>
+          <button class="ghost-btn preset-btn" data-preset="fuel-window">Fuel 기간</button>
+          <button class="ghost-btn preset-btn" data-preset="2025">2025</button>
+          <button class="ghost-btn preset-btn" data-preset="2026">2026</button>
+        </div>
+      </div>
+
+      <div class="control-group span-2">
+        <label>분석 옵션</label>
+        <label class="switch">
+          <input type="checkbox" id="excludeIssues" checked />
+          <span>고이슈 월 제외</span>
+        </label>
+      </div>
+
+      <div class="control-group span-2">
+        <label>테마</label>
+        <button id="themeToggle" class="ghost-btn">Light Mode</button>
+      </div>
+
+      <div class="control-group span-2">
+        <label>내보내기</label>
+        <div class="quick-actions">
+          <button id="exportCsvBtn" class="primary-btn">현재 CSV</button>
+          <button id="exportIssuesBtn" class="ghost-btn">Issues CSV</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="statusbar">
+      <div id="activePeriodText" class="statusline"></div>
+      <div id="coverageBadges" class="chip-row"></div>
+    </section>
+
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="0">Executive Summary</button>
+      <button class="tab-btn" data-tab="1">Fuel Overview</button>
+      <button class="tab-btn" data-tab="2">Laden vs Ballast</button>
+      <button class="tab-btn" data-tab="3">LCT Monthly Loading</button>
+      <button class="tab-btn" data-tab="4">Fuel Efficiency</button>
+      <button class="tab-btn" data-tab="5">Data Quality</button>
+    </nav>
+
+    <main class="content">
+      <!-- SUMMARY -->
+      <section class="panel active" data-panel="0">
+        <div class="section-head">
+          <div>
+            <h2>Executive Summary</h2>
+            <p>필터 기준 KPI를 재계산하고, 왜곡 월/효율 스프레드/화주 믹스/연료-적재 상관성을 자동 요약합니다.</p>
+          </div>
+          <div class="mini-note">고이슈 월 제외는 Summary·운영 차트에 적용되고, Quality 탭은 전체 월을 보여줍니다.</div>
+        </div>
+
+        <div id="summaryCards" class="cards"></div>
+
+        <div class="chart-grid">
+          <article class="chart-card span-8">
+            <div class="card-head">
+              <div>
+                <h3>Fuel vs Cargo (Selected Range)</h3>
+                <p>월별 총 연료와 총 선적량을 같은 축에서 비교합니다.</p>
+              </div>
+              <div class="pill-row">
+                <span class="pill pill-info">Fuel: Total L</span>
+                <span class="pill pill-success">Cargo: Total Ton</span>
+              </div>
+            </div>
+            <div class="chart-wrap tall">
+              <canvas id="summaryFuelCargoChart"></canvas>
+            </div>
+          </article>
+
+          <article class="chart-card span-4">
+            <div class="card-head">
+              <div>
+                <h3>Known vs Unknown Fuel</h3>
+                <p>월별 Unknown 연료 비중을 바로 확인할 수 있습니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap tall">
+              <canvas id="summaryKnownUnknownChart"></canvas>
+            </div>
+          </article>
+        </div>
+
+        <div id="excludedMonthsBox" class="callout"></div>
+
+        <div id="insightBoard" class="insight-grid"></div>
+      </section>
+
+      <!-- FUEL -->
+      <section class="panel" data-panel="1">
+        <div class="section-head">
+          <div>
+            <h2>Fuel Overview</h2>
+            <p>월별 총 연료를 구성 요소별로 분해하고, 일평균/최대/청수 사용량까지 함께 봅니다.</p>
+          </div>
+        </div>
+
+        <div class="chart-grid">
+          <article class="chart-card span-12">
+            <div class="card-head">
+              <div>
+                <h3>Monthly Fuel Consumption — Laden / Ballast / Port / Unknown</h3>
+                <p>Unknown 비중이 큰 월은 Quality 탭에서 원인 추적이 가능합니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap tall">
+              <canvas id="fuelStackChart"></canvas>
+            </div>
+          </article>
+
+          <article class="chart-card span-6">
+            <div class="card-head">
+              <div>
+                <h3>Daily Average Fuel vs Max Daily</h3>
+                <p>평균값과 피크값을 함께 보여줘 운영 강도와 변동성을 봅니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap medium">
+              <canvas id="fuelAvgChart"></canvas>
+            </div>
+          </article>
+
+          <article class="chart-card span-6">
+            <div class="card-head">
+              <div>
+                <h3>Fuel + Fresh Water</h3>
+                <p>월별 연료와 청수 사용량을 나란히 비교합니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap medium">
+              <canvas id="fuelFwChart"></canvas>
+            </div>
+          </article>
+        </div>
+
+        <article class="table-card">
+          <div class="card-head">
+            <div>
+              <h3>Fuel Breakdown Table</h3>
+              <p>필터 기준으로 월별 상세 수치를 다시 계산해 보여줍니다.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th class="num">Days</th>
+                  <th class="num">Total Fuel</th>
+                  <th class="num">Avg/Day</th>
+                  <th class="num">Max</th>
+                  <th class="num">Laden</th>
+                  <th class="num">Ballast</th>
+                  <th class="num">Port</th>
+                  <th class="num">Unknown</th>
+                  <th class="num">Unknown %</th>
+                  <th class="num">Fresh Water</th>
+                  <th>Issue</th>
+                </tr>
+              </thead>
+              <tbody id="fuelTbody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- LADEN BALLAST -->
+      <section class="panel" data-panel="2">
+        <div class="section-head">
+          <div>
+            <h2>Laden vs Ballast</h2>
+            <p>Laden/Ballast 구간의 일평균, 운영일수, 총 연료를 한 번에 비교합니다.</p>
+          </div>
+        </div>
+
+        <div class="chart-grid">
+          <article class="chart-card span-12">
+            <div class="card-head">
+              <div>
+                <h3>Laden vs Ballast — Daily Average Fuel</h3>
+                <p>공선(Ballast) 평균이 적재(Laden)보다 높게 나타나는 월을 쉽게 찾을 수 있습니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap medium">
+              <canvas id="lbAvgChart"></canvas>
+            </div>
+          </article>
+
+          <article class="chart-card span-6">
+            <div class="card-head">
+              <div>
+                <h3>Laden / Ballast Days</h3>
+                <p>월별 운항 상태 일수 분포입니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap medium">
+              <canvas id="lbDaysChart"></canvas>
+            </div>
+          </article>
+
+          <article class="chart-card span-6">
+            <div class="card-head">
+              <div>
+                <h3>Laden vs Ballast Total Fuel</h3>
+                <p>적재/공선 구간별 총 연료량을 비교합니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap medium">
+              <canvas id="lbFuelChart"></canvas>
+            </div>
+          </article>
+        </div>
+
+        <article class="table-card">
+          <div class="card-head">
+            <div>
+              <h3>Laden vs Ballast Table</h3>
+              <p>Ratio와 운항 코멘트를 함께 표시합니다.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th class="num">Laden Days</th>
+                  <th class="num">Laden Fuel</th>
+                  <th class="num">Laden Avg</th>
+                  <th class="num">Ballast Days</th>
+                  <th class="num">Ballast Fuel</th>
+                  <th class="num">Ballast Avg</th>
+                  <th class="num">L/B Ratio</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="lbTbody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- LOADING -->
+      <section class="panel" data-panel="3">
+        <div class="section-head">
+          <div>
+            <h2>LCT Monthly Loading</h2>
+            <p>GRM/SCT별 선적량과 항차 수, 비중을 월별로 분석합니다.</p>
+          </div>
+        </div>
+
+        <div class="chart-grid">
+          <article class="chart-card span-12">
+            <div class="card-head">
+              <div>
+                <h3>Monthly Cargo Loading — GRM vs SCT</h3>
+                <p>월별 총 선적량을 고객/루트별로 구분합니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap tall">
+              <canvas id="loadChart"></canvas>
+            </div>
+          </article>
+
+          <article class="chart-card span-6">
+            <div class="card-head">
+              <div>
+                <h3>Monthly Voyage Count</h3>
+                <p>GRM/SCT 항차 수 비교입니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap medium">
+              <canvas id="voyCountChart"></canvas>
+            </div>
+          </article>
+
+          <article class="chart-card span-6">
+            <div class="card-head">
+              <div>
+                <h3>GRM Share of Total Tonnage</h3>
+                <p>총 선적량 중 GRM 비중입니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap medium">
+              <canvas id="grmPctChart"></canvas>
+            </div>
+          </article>
+        </div>
+
+        <article class="table-card">
+          <div class="card-head">
+            <div>
+              <h3>Loading Table</h3>
+              <p>총 항차와 항차당 평균 선적톤까지 함께 표시합니다.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th class="num">GRM Voy</th>
+                  <th class="num">GRM Ton</th>
+                  <th class="num">SCT Voy</th>
+                  <th class="num">SCT Ton</th>
+                  <th class="num">Total Voy</th>
+                  <th class="num">Total Ton</th>
+                  <th class="num">Avg Ton/Voy</th>
+                  <th class="num">GRM %</th>
+                  <th>Issue</th>
+                </tr>
+              </thead>
+              <tbody id="loadTbody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- EFFICIENCY -->
+      <section class="panel" data-panel="4">
+        <div class="section-head">
+          <div>
+            <h2>Fuel Efficiency</h2>
+            <p>월별 Fuel/Ton과 적재량-연료 상관관계를 통해 효율 변동 원인을 빠르게 찾습니다.</p>
+          </div>
+        </div>
+
+        <div class="chart-grid">
+          <article class="chart-card span-12">
+            <div class="card-head">
+              <div>
+                <h3>Fuel per Cargo Ton — Total vs Laden Only</h3>
+                <p>총 연료 기준과 Laden 연료 기준을 분리해서 효율을 봅니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap medium">
+              <canvas id="effChart"></canvas>
+            </div>
+          </article>
+
+          <article class="chart-card span-12">
+            <div class="card-head">
+              <div>
+                <h3>Cargo Tonnage vs Total Fuel Consumption</h3>
+                <p id="corrNote">상관계수와 추세선을 함께 표시합니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap tall">
+              <canvas id="effScatterChart"></canvas>
+            </div>
+          </article>
+        </div>
+
+        <article class="table-card">
+          <div class="card-head">
+            <div>
+              <h3>Efficiency Table</h3>
+              <p>월별 Rating과 관련 이슈까지 함께 표시합니다.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th class="num">Total Fuel</th>
+                  <th class="num">Laden Fuel</th>
+                  <th class="num">Cargo Ton</th>
+                  <th class="num">Voyages</th>
+                  <th class="num">Total F/T</th>
+                  <th class="num">Laden F/T</th>
+                  <th>Rating</th>
+                  <th>Issue</th>
+                </tr>
+              </thead>
+              <tbody id="effTbody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- QUALITY -->
+      <section class="panel" data-panel="5">
+        <div class="section-head">
+          <div>
+            <h2>Data Quality</h2>
+            <p>품질 탭은 선택한 기간의 전체 데이터를 보여주며, 제외 옵션과 무관하게 이슈를 추적합니다.</p>
+          </div>
+          <div class="mini-note">Unknown 비중, 데이터 커버리지, 캘린더 이상, Fuel/Loading 불일치 점검</div>
+        </div>
+
+        <div id="qualityCards" class="cards"></div>
+
+        <div class="chart-grid">
+          <article class="chart-card span-12">
+            <div class="card-head">
+              <div>
+                <h3>Unknown Share by Month</h3>
+                <p>Unknown 비중과 총 연료량을 함께 보면 왜곡 월을 빠르게 찾을 수 있습니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap medium">
+              <canvas id="qualityUnknownChart"></canvas>
+            </div>
+          </article>
+
+          <article class="chart-card span-6">
+            <div class="card-head">
+              <div>
+                <h3>Issue Severity Distribution</h3>
+                <p>Low / Medium / High / Critical 분포입니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap small">
+              <canvas id="qualitySeverityChart"></canvas>
+            </div>
+          </article>
+
+          <article class="chart-card span-6">
+            <div class="card-head">
+              <div>
+                <h3>Dataset Coverage by Month</h3>
+                <p>Fuel / Loading / Efficiency 데이터 존재 여부를 월별로 보여줍니다.</p>
+              </div>
+            </div>
+            <div class="chart-wrap small">
+              <canvas id="qualityCoverageChart"></canvas>
+            </div>
+          </article>
+        </div>
+
+        <div class="gap-grid">
+          <article class="gap-box">
+            <h3>Fuel Dataset Gaps</h3>
+            <p>연속 월 기준으로 빠져 있는 Fuel 월입니다.</p>
+            <div id="fuelGaps" class="chip-row"></div>
+          </article>
+
+          <article class="gap-box">
+            <h3>Loading Dataset Gaps</h3>
+            <p>연속 월 기준으로 빠져 있는 Loading 월입니다.</p>
+            <div id="loadingGaps" class="chip-row"></div>
+          </article>
+
+          <article class="gap-box">
+            <h3>Efficiency Dataset Gaps</h3>
+            <p>연속 월 기준으로 빠져 있는 Efficiency 월입니다.</p>
+            <div id="effGaps" class="chip-row"></div>
+          </article>
+        </div>
+
+        <article class="table-card">
+          <div class="card-head">
+            <div>
+              <h3>Issue Register</h3>
+              <p>월별 품질 이슈와 권장 조치를 정리한 테이블입니다.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>Severity</th>
+                  <th>Type</th>
+                  <th>Detail</th>
+                  <th>Recommendation</th>
+                </tr>
+              </thead>
+              <tbody id="qualityTbody"></tbody>
+            </table>
+          </div>
+          <div class="foot-note">
+            * High/Critical이며 제외 기준에 해당하는 월은 “고이슈 월 제외” 옵션을 켜면 운영 차트와 요약에서 자동 제외됩니다.
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+<div class="footer">JPT71 HVDC ADNOC | Samsung C&T | Fuel & Loading Dashboard v6.0 | Generated 2026-03-10 | MACHO-GPT</div>
+
+<script>
+    const SOURCE = {"mf":[{"month":"2024-11","days":30,"total":9267.0,"avg":331.0,"max":810.0,"laden":9044.0,"ballast":145.0,"port":78.0,"unknown":0.0,"fw":14740.0},{"month":"2024-12","days":31,"total":13345.2,"avg":430.5,"max":809.6,"laden":12973.0,"ballast":198.0,"port":174.0,"unknown":0.0,"fw":18260.0},{"month":"2025-01","days":31,"total":8784.2,"avg":283.4,"max":825.0,"laden":5366.0,"ballast":1342.0,"port":106.0,"unknown":1971.0,"fw":16060.0},{"month":"2025-02","days":28,"total":10045.6,"avg":358.8,"max":840.4,"laden":7381.0,"ballast":1445.0,"port":526.0,"unknown":693.0,"fw":18480.0},{"month":"2025-03","days":31,"total":6414.0,"avg":206.9,"max":527.0,"laden":5022.0,"ballast":0.0,"port":99.0,"unknown":1293.0,"fw":17916.0},{"month":"2025-04","days":30,"total":6019.0,"avg":200.6,"max":409.0,"laden":5657.0,"ballast":0.0,"port":162.0,"unknown":200.0,"fw":17050.0},{"month":"2025-05","days":23,"total":3514.0,"avg":152.8,"max":413.0,"laden":3164.0,"ballast":0.0,"port":350.0,"unknown":0.0,"fw":12360.0},{"month":"2025-07","days":18,"total":6512.4,"avg":361.8,"max":575.0,"laden":5878.0,"ballast":0.0,"port":92.0,"unknown":542.0,"fw":8600.0},{"month":"2025-08","days":31,"total":9230.0,"avg":297.7,"max":840.0,"laden":7160.0,"ballast":0.0,"port":1331.0,"unknown":739.0,"fw":17380.0},{"month":"2025-10","days":31,"total":10812.0,"avg":348.8,"max":792.0,"laden":9852.0,"ballast":0.0,"port":960.0,"unknown":0.0,"fw":18260.0},{"month":"2025-11","days":30,"total":8645.0,"avg":288.2,"max":616.0,"laden":7887.0,"ballast":0.0,"port":604.0,"unknown":154.0,"fw":14740.0},{"month":"2025-12","days":31,"total":9702.0,"avg":313.0,"max":696.0,"laden":7785.0,"ballast":0.0,"port":560.0,"unknown":1357.0,"fw":19360.0},{"month":"2026-01","days":2,"total":154.0,"avg":77.0,"max":77.0,"laden":0.0,"ballast":0.0,"port":154.0,"unknown":0.0,"fw":1760.0},{"month":"2026-02","days":27,"total":10219.5,"avg":378.5,"max":810.0,"laden":8994.0,"ballast":0.0,"port":389.0,"unknown":836.0,"fw":16060.0},{"month":"2026-03","days":8,"total":1261.0,"avg":157.6,"max":636.0,"laden":0.0,"ballast":636.0,"port":0.0,"unknown":625.0,"fw":4400.0}],"fe":[{"month":"2024-11","total_fuel":9267.0,"laden_fuel":9044.0,"cargo_ton":3360.74,"voyages":6,"fpt":2.76,"lfpt":2.69},{"month":"2024-12","total_fuel":13345.2,"laden_fuel":12973.0,"cargo_ton":5266.23,"voyages":9,"fpt":2.53,"lfpt":2.46},{"month":"2025-01","total_fuel":8784.2,"laden_fuel":5366.0,"cargo_ton":1931.76,"voyages":4,"fpt":4.55,"lfpt":2.78},{"month":"2025-02","total_fuel":10045.6,"laden_fuel":7381.0,"cargo_ton":1282.03,"voyages":6,"fpt":7.84,"lfpt":5.76},{"month":"2025-03","total_fuel":6414.0,"laden_fuel":5022.0,"cargo_ton":2308.22,"voyages":4,"fpt":2.78,"lfpt":2.18},{"month":"2025-04","total_fuel":6019.0,"laden_fuel":5657.0,"cargo_ton":3013.3,"voyages":6,"fpt":2.0,"lfpt":1.88},{"month":"2025-05","total_fuel":3514.0,"laden_fuel":3164.0,"cargo_ton":2931.35,"voyages":4,"fpt":1.2,"lfpt":1.08},{"month":"2025-07","total_fuel":6512.4,"laden_fuel":5878.0,"cargo_ton":3639.04,"voyages":5,"fpt":1.79,"lfpt":1.62},{"month":"2025-08","total_fuel":9230.0,"laden_fuel":7160.0,"cargo_ton":2390.2,"voyages":5,"fpt":3.86,"lfpt":3.0},{"month":"2025-10","total_fuel":10812.0,"laden_fuel":9852.0,"cargo_ton":6429.4,"voyages":9,"fpt":1.68,"lfpt":1.53},{"month":"2025-11","total_fuel":8645.0,"laden_fuel":7887.0,"cargo_ton":5360.36,"voyages":9,"fpt":1.61,"lfpt":1.47},{"month":"2025-12","total_fuel":9702.0,"laden_fuel":7785.0,"cargo_ton":4514.02,"voyages":7,"fpt":2.15,"lfpt":1.72},{"month":"2026-01","total_fuel":154.0,"laden_fuel":0.0,"cargo_ton":4910.8,"voyages":9,"fpt":0.03,"lfpt":0.0},{"month":"2026-02","total_fuel":10219.5,"laden_fuel":8994.0,"cargo_ton":0.0,"voyages":0,"fpt":null,"lfpt":null},{"month":"2026-03","total_fuel":1261.0,"laden_fuel":0.0,"cargo_ton":0.0,"voyages":0,"fpt":null,"lfpt":null}],"loading":[{"month":"2024-07","grm_voy":2,"grm_ton":1223.0,"sct_voy":0,"sct_ton":0.0,"total_ton":1223.0},{"month":"2024-08","grm_voy":10,"grm_ton":6066.34,"sct_voy":0,"sct_ton":0.0,"total_ton":6066.34},{"month":"2024-09","grm_voy":10,"grm_ton":6194.24,"sct_voy":0,"sct_ton":0.0,"total_ton":6194.24},{"month":"2024-10","grm_voy":8,"grm_ton":4094.76,"sct_voy":0,"sct_ton":0.0,"total_ton":4094.76},{"month":"2024-11","grm_voy":6,"grm_ton":3360.74,"sct_voy":0,"sct_ton":0.0,"total_ton":3360.74},{"month":"2024-12","grm_voy":8,"grm_ton":5031.06,"sct_voy":1,"sct_ton":235.17,"total_ton":5266.23},{"month":"2025-01","grm_voy":2,"grm_ton":1454.3,"sct_voy":2,"sct_ton":477.46,"total_ton":1931.76},{"month":"2025-02","grm_voy":1,"grm_ton":347.66,"sct_voy":5,"sct_ton":934.37,"total_ton":1282.03},{"month":"2025-03","grm_voy":2,"grm_ton":615.22,"sct_voy":2,"sct_ton":1693.0,"total_ton":2308.22},{"month":"2025-04","grm_voy":3,"grm_ton":2035.66,"sct_voy":3,"sct_ton":977.64,"total_ton":3013.3},{"month":"2025-05","grm_voy":4,"grm_ton":2931.35,"sct_voy":0,"sct_ton":0.0,"total_ton":2931.35},{"month":"2025-07","grm_voy":5,"grm_ton":3639.04,"sct_voy":0,"sct_ton":0.0,"total_ton":3639.04},{"month":"2025-08","grm_voy":2,"grm_ton":1534.36,"sct_voy":3,"sct_ton":855.84,"total_ton":2390.2},{"month":"2025-09","grm_voy":8,"grm_ton":6095.04,"sct_voy":0,"sct_ton":0.0,"total_ton":6095.04},{"month":"2025-10","grm_voy":9,"grm_ton":6429.4,"sct_voy":0,"sct_ton":0.0,"total_ton":6429.4},{"month":"2025-11","grm_voy":5,"grm_ton":3610.36,"sct_voy":4,"sct_ton":1750.0,"total_ton":5360.36},{"month":"2025-12","grm_voy":4,"grm_ton":2929.52,"sct_voy":3,"sct_ton":1584.5,"total_ton":4514.02},{"month":"2026-01","grm_voy":5,"grm_ton":3070.8,"sct_voy":4,"sct_ton":1840.0,"total_ton":4910.8},{"month":"2026-12","grm_voy":1,"grm_ton":748.62,"sct_voy":1,"sct_ton":550.0,"total_ton":1298.62}],"lb":[{"month":"2024-11","l_days":23,"l_fuel":9044.0,"l_avg":411.1,"b_days":1,"b_fuel":145.0,"b_avg":145.0},{"month":"2024-12","l_days":24,"l_fuel":12973.0,"l_avg":540.6,"b_days":1,"b_fuel":198.0,"b_avg":198.0},{"month":"2025-01","l_days":13,"l_fuel":5366.0,"l_avg":412.8,"b_days":3,"b_fuel":1342.0,"b_avg":447.3},{"month":"2025-02","l_days":19,"l_fuel":7381.0,"l_avg":388.5,"b_days":3,"b_fuel":1445.0,"b_avg":481.8},{"month":"2025-03","l_days":19,"l_fuel":5022.0,"l_avg":264.3,"b_days":0,"b_fuel":0.0,"b_avg":0.0},{"month":"2025-04","l_days":27,"l_fuel":5657.0,"l_avg":209.5,"b_days":0,"b_fuel":0.0,"b_avg":0.0},{"month":"2025-05","l_days":14,"l_fuel":3164.0,"l_avg":226.0,"b_days":0,"b_fuel":0.0,"b_avg":0.0},{"month":"2025-07","l_days":14,"l_fuel":5878.0,"l_avg":419.9,"b_days":0,"b_fuel":0.0,"b_avg":0.0},{"month":"2025-08","l_days":24,"l_fuel":7160.0,"l_avg":298.3,"b_days":0,"b_fuel":0.0,"b_avg":0.0},{"month":"2025-10","l_days":25,"l_fuel":9852.0,"l_avg":394.1,"b_days":0,"b_fuel":0.0,"b_avg":0.0},{"month":"2025-11","l_days":26,"l_fuel":7887.0,"l_avg":303.3,"b_days":0,"b_fuel":0.0,"b_avg":0.0},{"month":"2025-12","l_days":18,"l_fuel":7785.0,"l_avg":432.5,"b_days":0,"b_fuel":0.0,"b_avg":0.0},{"month":"2026-01","l_days":0,"l_fuel":0.0,"l_avg":0.0,"b_days":0,"b_fuel":0.0,"b_avg":0.0},{"month":"2026-02","l_days":20,"l_fuel":8994.0,"l_avg":449.7,"b_days":0,"b_fuel":0.0,"b_avg":0.0},{"month":"2026-03","l_days":0,"l_fuel":0.0,"l_avg":0.0,"b_days":1,"b_fuel":636.0,"b_avg":636.0}],"stats":{"total_fuel":113924.9,"total_days":382,"avg_daily":298.2,"laden_avg":361.5,"ballast_avg":418.4,"lb_ratio":0.86,"total_cargo":47337.45,"total_voyages":83,"blended_fpt":2.16,"blended_lfpt":1.84}};
+
+    const severityRank = { low:1, medium:2, high:3, critical:4 };
+    const MONTHS = collectMonths(SOURCE);
+    const FUEL_MONTHS = uniqueSorted(SOURCE.mf.map(r => r.month));
+
+    const state = {
+      startMonth: MONTHS[0],
+      endMonth: MONTHS[MONTHS.length - 1],
+      excludeIssueMonths: true,
+      activeTab: 0,
+      theme: localStorage.getItem("jpt71-theme") || "dark",
+      charts: {},
+      latestContext: null
+    };
+
+    const emptyStatePlugin = {
+      id: "emptyState",
+      afterDraw(chart, args, opts) {
+        const datasets = chart?.data?.datasets || [];
+        const hasRows = datasets.some(ds => Array.isArray(ds.data) && ds.data.length > 0);
+        if (hasRows) return;
+        const area = chart.chartArea;
+        if (!area) return;
+        const { ctx } = chart;
+        ctx.save();
+        ctx.fillStyle = opts?.color || "#94a3b8";
+        ctx.font = "600 13px Inter, Segoe UI, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(opts?.text || "No data in selected range", (area.left + area.right) / 2, (area.top + area.bottom) / 2);
+        ctx.restore();
+      }
+    };
+
+    Chart.register(emptyStatePlugin);
+    Chart.defaults.font.family = 'Inter, "Segoe UI", system-ui, sans-serif';
+    Chart.defaults.animation = false;
+    Chart.defaults.responsive = true;
+    Chart.defaults.maintainAspectRatio = false;
+
+    function uniqueSorted(list){
+      return [...new Set(list.filter(Boolean))].sort((a,b) => a.localeCompare(b));
+    }
+
+    function collectMonths(source){
+      const set = new Set();
+      ["mf","fe","loading","lb"].forEach(key => {
+        source[key].forEach(row => set.add(row.month));
+      });
+      return [...set].sort((a,b) => a.localeCompare(b));
+    }
+
+    function toNumber(v){
+      return Number.isFinite(Number(v)) ? Number(v) : 0;
+    }
+
+    function isFiniteMetric(v){
+      return v !== null && v !== undefined && Number.isFinite(Number(v));
+    }
+
+    function sum(arr){
+      return arr.reduce((acc, v) => acc + toNumber(v), 0);
+    }
+
+    function average(arr){
+      const vals = arr.filter(isFiniteMetric).map(Number);
+      return vals.length ? sum(vals) / vals.length : null;
+    }
+
+    function clamp(n, min, max){
+      return Math.min(max, Math.max(min, n));
+    }
+
+    function formatNumber(v, digits = 0){
+      if (!isFiniteMetric(v)) return "—";
+      return Number(v).toLocaleString("en-US", {
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits
+      });
+    }
+
+    function formatPct(decimal, digits = 1){
+      if (!isFiniteMetric(decimal)) return "—";
+      return `${(Number(decimal) * 100).toFixed(digits)}%`;
+    }
+
+    function formatMonth(month){
+      return month || "—";
+    }
+
+    function monthShort(month){
+      if (!month) return "";
+      return `${month.slice(2,4)}-${month.slice(5,7)}`;
+    }
+
+    function daysInMonth(month){
+      const [year, mon] = month.split("-").map(Number);
+      return new Date(year, mon, 0).getDate();
+    }
+
+    function nextMonth(month){
+      const [year, mon] = month.split("-").map(Number);
+      const d = new Date(year, mon - 1, 1);
+      d.setMonth(d.getMonth() + 1);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    }
+
+    function getMissingMonths(months){
+      const arr = uniqueSorted(months);
+      if (arr.length < 2) return [];
+      const missing = [];
+      for (let i = 0; i < arr.length - 1; i += 1){
+        let cursor = nextMonth(arr[i]);
+        while (cursor < arr[i + 1]){
+          missing.push(cursor);
+          cursor = nextMonth(cursor);
+        }
+      }
+      return missing;
+    }
+
+    function isInRange(month){
+      return month >= state.startMonth && month <= state.endMonth;
+    }
+
+    function mapByMonth(rows){
+      const map = new Map();
+      rows.forEach(row => map.set(row.month, row));
+      return map;
+    }
+
+    function rowClassFromSeverity(sev){
+      return sev ? `row-${sev}` : "";
+    }
+
+    function severityBadge(sev){
+      if (!sev) return `<span class="pill pill-neutral">None</span>`;
+      const cls = sev === "critical" || sev === "high"
+        ? "pill-danger"
+        : sev === "medium"
+          ? "pill-warn"
+          : "pill-info";
+      return `<span class="pill ${cls}">${sev.toUpperCase()}</span>`;
+    }
+
+    function efficiencyBadge(value){
+      if (!isFiniteMetric(value)) return `<span class="pill pill-neutral">N/A</span>`;
+      const n = Number(value);
+      if (n === 0) return `<span class="pill pill-info">Port-only</span>`;
+      if (n <= 1.5) return `<span class="pill pill-success">Excellent</span>`;
+      if (n <= 2.5) return `<span class="pill pill-success">Good</span>`;
+      if (n <= 4.0) return `<span class="pill pill-warn">Watch</span>`;
+      return `<span class="pill pill-danger">High</span>`;
+    }
+
+    function safeRatio(a, b){
+      return b ? a / b : null;
+    }
+
+    function cssVar(name){
+      return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    }
+
+    function commonLegend(){
+      return {
+        labels: {
+          color: cssVar("--muted"),
+          boxWidth: 12,
+          boxHeight: 12
+        }
+      };
+    }
+
+    function commonTooltip(){
+      return {
+        backgroundColor: cssVar("--card2"),
+        borderColor: cssVar("--border"),
+        borderWidth: 1,
+        titleColor: cssVar("--text"),
+        bodyColor: cssVar("--text"),
+        padding: 10
+      };
+    }
+
+    function baseAxis(title, formatter){
+      return {
+        ticks: {
+          color: cssVar("--muted"),
+          callback: formatter || undefined
+        },
+        grid: {
+          color: cssVar("--grid")
+        },
+        title: title ? {
+          display: true,
+          text: title,
+          color: cssVar("--muted")
+        } : undefined
+      };
+    }
+
+    function createChart(id, config){
+      const canvas = document.getElementById(id);
+      if (!canvas) return;
+      if (state.charts[id]) state.charts[id].destroy();
+      state.charts[id] = new Chart(canvas, config);
+    }
+
+    function correlation(points){
+      if (!points || points.length < 2) return null;
+      const xs = points.map(p => p.x);
+      const ys = points.map(p => p.y);
+      const meanX = average(xs);
+      const meanY = average(ys);
+      let numerator = 0;
+      let denomX = 0;
+      let denomY = 0;
+      points.forEach(({x, y}) => {
+        const dx = x - meanX;
+        const dy = y - meanY;
+        numerator += dx * dy;
+        denomX += dx * dx;
+        denomY += dy * dy;
+      });
+      const denom = Math.sqrt(denomX * denomY);
+      return denom ? numerator / denom : null;
+    }
+
+    function regressionLine(points){
+      if (!points || points.length < 2) return [];
+      const meanX = average(points.map(p => p.x));
+      const meanY = average(points.map(p => p.y));
+      let numerator = 0;
+      let denominator = 0;
+      points.forEach(({x,y}) => {
+        numerator += (x - meanX) * (y - meanY);
+        denominator += (x - meanX) * (x - meanX);
+      });
+      const slope = denominator ? numerator / denominator : 0;
+      const intercept = meanY - slope * meanX;
+      const minX = Math.min(...points.map(p => p.x));
+      const maxX = Math.max(...points.map(p => p.x));
+      return [
+        {x: minX, y: slope * minX + intercept},
+        {x: maxX, y: slope * maxX + intercept}
+      ];
+    }
+
+    function downloadText(filename, text, mime = "text/csv;charset=utf-8;"){
+      const blob = new Blob(["\uFEFF" + text], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function csvEscape(v){
+      const value = v === null || v === undefined ? "" : String(v);
+      if (/[",\n]/.test(value)) return `"${value.replace(/"/g, '""')}"`;
+      return value;
+    }
+
+    function buildIssueCatalog(rangeData){
+      const issues = [];
+      const byMonth = {};
+      const fuelMap = mapByMonth(rangeData.mf);
+      const loadMap = mapByMonth(rangeData.loading);
+
+      function register(month, severity, type, detail, recommendation, exclude = false){
+        issues.push({ month, severity, type, detail, recommendation, exclude });
+        if (!byMonth[month]){
+          byMonth[month] = {
+            severity,
+            exclude,
+            count: 1,
+            messages: [type]
+          };
+        } else {
+          if (severityRank[severity] > severityRank[byMonth[month].severity]){
+            byMonth[month].severity = severity;
+          }
+          byMonth[month].exclude = byMonth[month].exclude || exclude;
+          byMonth[month].count += 1;
+          byMonth[month].messages.push(type);
+        }
+      }
+
+      rangeData.mf.forEach(rec => {
+        const expectedDays = daysInMonth(rec.month);
+        if (rec.days <= 0 || rec.days > expectedDays){
+          register(
+            rec.month,
+            "critical",
+            "Calendar anomaly",
+            `Recorded days=${rec.days}, expected <= ${expectedDays}`,
+            "원본 월별 집계 기준과 날짜 계산 로직을 점검하세요.",
+            true
+          );
+        }
+
+        const componentSum = toNumber(rec.laden) + toNumber(rec.ballast) + toNumber(rec.port) + toNumber(rec.unknown);
+        if (Math.abs(componentSum - toNumber(rec.total)) > 1){
+          register(
+            rec.month,
+            "medium",
+            "Component mismatch",
+            `Component sum ${formatNumber(componentSum, 0)} L != Total ${formatNumber(rec.total, 0)} L`,
+            "연료 카테고리 합계와 총합 매핑을 검증하세요."
+          );
+        }
+
+        const unknownPct = safeRatio(rec.unknown, rec.total);
+        if (isFiniteMetric(unknownPct)){
+          if (unknownPct >= 0.5){
+            register(
+              rec.month,
+              "critical",
+              "Unknown fuel share",
+              `${formatPct(unknownPct)} of monthly fuel is uncategorized`,
+              "운항/항내/기타 태그를 재분류하고 원장 로직을 점검하세요.",
+              true
+            );
+          } else if (unknownPct >= 0.25){
+            register(
+              rec.month,
+              "high",
+              "Unknown fuel share",
+              `${formatPct(unknownPct)} of monthly fuel is uncategorized`,
+              "Unknown 항목 세분화가 필요합니다.",
+              true
+            );
+          } else if (unknownPct >= 0.1){
+            register(
+              rec.month,
+              "medium",
+              "Unknown fuel share",
+              `${formatPct(unknownPct)} of monthly fuel is uncategorized`,
+              "Unknown 연료의 배경 구분을 보완하세요."
+            );
+          } else if (unknownPct >= 0.05){
+            register(
+              rec.month,
+              "low",
+              "Unknown fuel share",
+              `${formatPct(unknownPct)} of monthly fuel is uncategorized`,
+              "추가 분류 여지가 있습니다."
+            );
+          }
+        }
+
+        if (!loadMap.has(rec.month)){
+          register(
+            rec.month,
+            "medium",
+            "Coverage mismatch",
+            "Fuel record exists but loading record is missing",
+            "Fuel/Loading 월별 데이터 동기화를 확인하세요."
+          );
+        }
+      });
+
+      rangeData.loading.forEach(rec => {
+        if (!fuelMap.has(rec.month)){
+          register(
+            rec.month,
+            "medium",
+            "Coverage mismatch",
+            "Loading record exists but fuel record is missing",
+            "Decklog/Loading 월 범위 정합성을 확인하세요."
+          );
+        }
+
+        const totalTon = toNumber(rec.total_ton);
+        const grmPct = safeRatio(rec.grm_ton, totalTon);
+        if (totalTon > 0 && (grmPct === 1 || grmPct === 0)){
+          register(
+            rec.month,
+            "low",
+            "Customer concentration",
+            "100% tonnage concentrated in a single route/customer",
+            "운영 리스크와 수익성 해석 시 참고하세요."
+          );
+        }
+      });
+
+      rangeData.fe.forEach(rec => {
+        if (toNumber(rec.total_fuel) > 0 && toNumber(rec.cargo_ton) === 0){
+          register(
+            rec.month,
+            "medium",
+            "Fuel without cargo",
+            "Fuel recorded but cargo ton is zero",
+            "공선/대기/누락 여부를 확인하세요."
+          );
+        }
+
+        if (isFiniteMetric(rec.lfpt) && Number(rec.lfpt) > 4){
+          register(
+            rec.month,
+            "high",
+            "Low efficiency month",
+            `Laden Fuel/Ton ${formatNumber(rec.lfpt, 2)} L/ton`,
+            "대기시간, 적재량, 항차 배치 원인을 점검하세요."
+          );
+        }
+      });
+
+      const gaps = {
+        fuel: getMissingMonths(rangeData.mf.map(r => r.month)),
+        loading: getMissingMonths(rangeData.loading.map(r => r.month)),
+        efficiency: getMissingMonths(rangeData.fe.map(r => r.month))
+      };
+
+      issues.sort((a,b) => {
+        if (a.month === b.month) return severityRank[b.severity] - severityRank[a.severity];
+        return b.month.localeCompare(a.month);
+      });
+
+      const excludedMonths = Object.entries(byMonth)
+        .filter(([,meta]) => meta.exclude)
+        .map(([month]) => month)
+        .sort((a,b) => a.localeCompare(b));
+
+      return { issues, byMonth, gaps, excludedMonths };
+    }
+
+    function getRangeData(){
+      return {
+        mf: SOURCE.mf.filter(r => isInRange(r.month)),
+        fe: SOURCE.fe.filter(r => isInRange(r.month)),
+        loading: SOURCE.loading.filter(r => isInRange(r.month)),
+        lb: SOURCE.lb.filter(r => isInRange(r.month))
+      };
+    }
+
+    function getVisibleData(rangeData, catalog){
+      const shouldExclude = month => state.excludeIssueMonths && catalog.byMonth[month]?.exclude;
+      return {
+        mf: rangeData.mf.filter(r => !shouldExclude(r.month)),
+        fe: rangeData.fe.filter(r => !shouldExclude(r.month)),
+        loading: rangeData.loading.filter(r => !shouldExclude(r.month)),
+        lb: rangeData.lb.filter(r => !shouldExclude(r.month))
+      };
+    }
+
+    function coverageStats(rangeData){
+      const fuelSet = new Set(rangeData.mf.map(r => r.month));
+      const loadSet = new Set(rangeData.loading.map(r => r.month));
+      const union = new Set([...fuelSet, ...loadSet]);
+      const matched = [...union].filter(m => fuelSet.has(m) && loadSet.has(m)).length;
+      return {
+        unionCount: union.size,
+        matched,
+        syncPct: union.size ? matched / union.size : null
+      };
+    }
+
+    function qualityScore(rangeData, catalog){
+      const totalFuel = sum(rangeData.mf.map(r => r.total));
+      const totalUnknown = sum(rangeData.mf.map(r => r.unknown));
+      const unknownShare = totalFuel ? totalUnknown / totalFuel : 0;
+      const criticalCount = Object.values(catalog.byMonth).filter(v => severityRank[v.severity] >= severityRank.high).length;
+      const gapCount = catalog.gaps.fuel.length + catalog.gaps.loading.length + catalog.gaps.efficiency.length;
+      const coverageMismatchCount = catalog.issues.filter(i => i.type === "Coverage mismatch").length;
+
+      let score = 100;
+      score -= unknownShare * 55;
+      score -= criticalCount * 7;
+      score -= Math.min(gapCount, 12) * 1.1;
+      score -= Math.min(coverageMismatchCount, 8) * 1.4;
+      return Math.round(clamp(score, 0, 100));
+    }
+
+    function qualityLabel(score){
+      if (score >= 85) return `<span class="pill pill-success">Healthy</span>`;
+      if (score >= 70) return `<span class="pill pill-info">Usable</span>`;
+      if (score >= 55) return `<span class="pill pill-warn">Watch</span>`;
+      return `<span class="pill pill-danger">Needs Cleanup</span>`;
+    }
+
+    function findBestEfficiency(rows){
+      return rows
+        .filter(r => isFiniteMetric(r.lfpt) && Number(r.lfpt) > 0)
+        .sort((a,b) => a.lfpt - b.lfpt)[0] || null;
+    }
+
+    function findWorstEfficiency(rows){
+      return rows
+        .filter(r => isFiniteMetric(r.lfpt) && Number(r.lfpt) > 0)
+        .sort((a,b) => b.lfpt - a.lfpt)[0] || null;
+    }
+
+    function renderStatus(context){
+      const { rangeData, visibleData, catalog } = context;
+      const coverage = coverageStats(rangeData);
+      const excludedInRange = catalog.excludedMonths;
+      const visibleRangeText = state.excludeIssueMonths && excludedInRange.length
+        ? ` · 제외 적용 ${excludedInRange.length}개월`
+        : "";
+
+      document.getElementById("activePeriodText").innerHTML = `
+        선택 기간 <strong>${formatMonth(state.startMonth)}</strong> ~ <strong>${formatMonth(state.endMonth)}</strong>
+        · Fuel ${rangeData.mf.length}개월 / Loading ${rangeData.loading.length}개월 / Efficiency ${rangeData.fe.length}개월
+        ${visibleRangeText}
+      `;
+
+      const chips = [
+        `<span class="chip">Visible Fuel ${visibleData.mf.length}</span>`,
+        `<span class="chip">Visible Loading ${visibleData.loading.length}</span>`,
+        `<span class="chip">Sync ${formatPct(coverage.syncPct || 0, 0)}</span>`,
+        `<span class="chip">High/Critical ${Object.values(catalog.byMonth).filter(v => severityRank[v.severity] >= severityRank.high).length}</span>`,
+        `<span class="chip">${state.excludeIssueMonths ? "고이슈 월 제외 ON" : "고이슈 월 제외 OFF"}</span>`
+      ];
+      document.getElementById("coverageBadges").innerHTML = chips.join("");
+    }
+
+    function renderSummary(context){
+      const { rangeData, visibleData, catalog } = context;
+      const totalFuel = sum(visibleData.mf.map(r => r.total));
+      const totalDays = sum(visibleData.mf.map(r => r.days));
+      const avgDaily = totalDays ? totalFuel / totalDays : null;
+      const totalCargo = sum(visibleData.loading.map(r => r.total_ton));
+      const validEffRows = visibleData.fe.filter(r => toNumber(r.cargo_ton) > 0);
+      const totalEffCargo = sum(validEffRows.map(r => r.cargo_ton));
+      const blendedLfpt = totalEffCargo ? sum(validEffRows.map(r => r.laden_fuel)) / totalEffCargo : null;
+      const unknownShare = safeRatio(sum(visibleData.mf.map(r => r.unknown)), totalFuel);
+      const qScore = qualityScore(rangeData, catalog);
+      const best = findBestEfficiency(visibleData.fe);
+      const worst = findWorstEfficiency(visibleData.fe);
+      const peakFuel = visibleData.mf.slice().sort((a,b) => b.total - a.total)[0] || null;
+      const coverage = coverageStats(rangeData);
+
+      const cards = [
+        {
+          cls:"tone-orange",
+          label:"Total Fuel",
+          value:`${formatNumber(totalFuel,0)} L`,
+          note:`연료 데이터 ${visibleData.mf.length}개월 기준`
+        },
+        {
+          cls:"tone-cyan",
+          label:"Avg Daily Fuel",
+          value:isFiniteMetric(avgDaily) ? `${formatNumber(avgDaily,1)} L/day` : "—",
+          note:`총 ${formatNumber(totalDays,0)} operating days`
+        },
+        {
+          cls:"tone-green",
+          label:"Total Cargo",
+          value:`${formatNumber(totalCargo,0)} ton`,
+          note:"Loading 데이터 기준"
+        },
+        {
+          cls:"tone-purple",
+          label:"Blended Laden F/T",
+          value:isFiniteMetric(blendedLfpt) ? `${formatNumber(blendedLfpt,2)} L/ton` : "—",
+          note:"cargo>0 월만 반영"
+        },
+        {
+          cls:"tone-yellow",
+          label:"Unknown Share",
+          value:isFiniteMetric(unknownShare) ? formatPct(unknownShare,1) : "—",
+          note:"필터 후 월별 Unknown 합계 기준"
+        },
+        {
+          cls:"tone-blue",
+          label:"Data Quality Score",
+          value:`${qScore}`,
+          note:`${coverage.syncPct ? `Fuel-Loading sync ${formatPct(coverage.syncPct,0)}` : "Sync N/A"}`
+        },
+        {
+          cls:"tone-green",
+          label:"Best LF/T Month",
+          value:best ? formatMonth(best.month) : "—",
+          note:best ? `${formatNumber(best.lfpt,2)} L/ton` : "No valid LF/T"
+        },
+        {
+          cls:"tone-red",
+          label:"Worst LF/T Month",
+          value:worst ? formatMonth(worst.month) : "—",
+          note:worst ? `${formatNumber(worst.lfpt,2)} L/ton` : "No valid LF/T"
+        }
+      ];
+
+      document.getElementById("summaryCards").innerHTML = cards.map(card => `
+        <article class="stat-card ${card.cls}">
+          <div class="stat-label">${card.label}</div>
+          <div class="stat-value">${card.value}</div>
+          <div class="stat-note">${card.note}</div>
+        </article>
+      `).join("");
+
+      const excludedMonths = catalog.excludedMonths;
+      const excludedHtml = excludedMonths.length
+        ? excludedMonths.map(m => `<span class="chip">${formatMonth(m)}</span>`).join("")
+        : `<span class="chip">없음</span>`;
+
+      document.getElementById("excludedMonthsBox").innerHTML = `
+        <strong>자동 제외 후보 월</strong>
+        <p>
+          ${state.excludeIssueMonths
+            ? "현재 고이슈 월 제외가 ON 상태입니다. 아래 월은 Summary와 운영 차트에서 제외되었습니다."
+            : "현재 고이슈 월 제외가 OFF 상태입니다. 아래 월은 평균과 추세를 왜곡할 수 있습니다."}
+        </p>
+        <div class="chip-row">${excludedHtml}</div>
+      `;
+
+      const loadRows = visibleData.loading;
+      const grmShare = safeRatio(sum(loadRows.map(r => r.grm_ton)), sum(loadRows.map(r => r.total_ton)));
+      const ballastHigher = visibleData.lb.filter(r => r.b_days > 0 && r.l_days > 0 && r.b_avg > r.l_avg);
+      const corrPoints = visibleData.fe
+        .filter(r => toNumber(r.cargo_ton) > 0 && toNumber(r.total_fuel) > 0)
+        .map(r => ({x: toNumber(r.cargo_ton), y: toNumber(r.total_fuel)}));
+      const r = correlation(corrPoints);
+
+      const insights = [];
+      if (peakFuel){
+        const uPct = safeRatio(peakFuel.unknown, peakFuel.total);
+        insights.push({
+          pill: uPct >= 0.25 ? "pill-danger" : "pill-info",
+          pillText: uPct >= 0.25 ? "왜곡 가능" : "운영 포인트",
+          title: "연료 피크 월",
+          text: `${formatMonth(peakFuel.month)} 총 ${formatNumber(peakFuel.total,0)} L. ${
+            uPct >= 0.25
+              ? `Unknown 비중 ${formatPct(uPct,1)}로 운영 해석 전 재분류가 필요합니다.`
+              : `월간 운항 강도 증가 영향으로 해석 가능합니다.`
+          }`
+        });
+      }
+
+      if (best && worst){
+        insights.push({
+          pill: "pill-success",
+          pillText: "효율 스프레드",
+          title: "Best vs Worst",
+          text: `최고 효율은 ${formatMonth(best.month)} (${formatNumber(best.lfpt,2)} L/ton), 최저 효율은 ${formatMonth(worst.month)} (${formatNumber(worst.lfpt,2)} L/ton)입니다.`
+        });
+      }
+
+      insights.push({
+        pill: grmShare !== null && grmShare >= 0.8 ? "pill-warn" : "pill-info",
+        pillText: "화주 믹스",
+        title: "GRM Concentration",
+        text: isFiniteMetric(grmShare)
+          ? `선택 구간 총 톤수 기준 GRM 비중은 ${formatPct(grmShare,1)}입니다. ${grmShare >= 0.8 ? "단일 고객 편중도가 높습니다." : "비교적 분산돼 있습니다."}`
+          : "가시 Loading 데이터가 부족합니다."
+      });
+
+      if (ballastHigher.length){
+        insights.push({
+          pill: "pill-warn",
+          pillText: "운영 체크",
+          title: "Ballast Avg > Laden Avg",
+          text: `${ballastHigher.map(r => formatMonth(r.month)).join(", ")} 에서 Ballast 일평균이 Laden보다 높습니다. 공선 최적화 검토가 필요합니다.`
+        });
+      }
+
+      insights.push({
+        pill: state.excludeIssueMonths ? "pill-success" : "pill-danger",
+        pillText: state.excludeIssueMonths ? "필터 적용" : "주의",
+        title: "High-Issue Month Handling",
+        text: excludedMonths.length
+          ? `${excludedMonths.map(formatMonth).join(", ")} 가 고이슈 월로 탐지되었습니다. ${state.excludeIssueMonths ? "현재 운영 차트에서 제외되어 있습니다." : "현재 운영 차트에 포함되어 있어 평균과 추세를 왜곡할 수 있습니다."}`
+          : "현재 범위에서 자동 제외 후보 월이 없습니다."
+      });
+
+      insights.push({
+        pill: "pill-info",
+        pillText: "상관 분석",
+        title: "Cargo vs Fuel Correlation",
+        text: r !== null
+          ? `적재량과 총 연료의 상관계수는 ${r.toFixed(2)}입니다. ${Math.abs(r) >= 0.7 ? "상관성이 강한 편입니다." : "상관성이 중간 이하입니다."}`
+          : "상관계수를 계산하기 위한 유효 월이 부족합니다."
+      });
+
+      insights.push({
+        pill: qScore >= 70 ? "pill-info" : "pill-danger",
+        pillText: "품질 점검",
+        title: "Data Quality Readiness",
+        text: `현재 품질 점수는 ${qScore}점이며 ${catalog.issues.length}건의 이슈가 탐지되었습니다. ${qualityLabel(qScore).replace(/<[^>]+>/g, "")} 상태입니다.`
+      });
+
+      document.getElementById("insightBoard").innerHTML = insights.slice(0,6).map(item => `
+        <article class="insight-card">
+          <span class="pill ${item.pill}">${item.pillText}</span>
+          <h4>${item.title}</h4>
+          <p>${item.text}</p>
+        </article>
+      `).join("");
+
+      const summaryMonths = uniqueSorted([
+        ...rangeData.mf.map(r => r.month),
+        ...rangeData.loading.map(r => r.month)
+      ]);
+      const fuelMap = mapByMonth(visibleData.mf);
+      const loadMap = mapByMonth(visibleData.loading);
+
+      createChart("summaryFuelCargoChart", {
+        type: "bar",
+        data: {
+          labels: summaryMonths.map(monthShort),
+          datasets: [
+            {
+              type: "bar",
+              label: "Total Fuel (L)",
+              data: summaryMonths.map(m => fuelMap.get(m)?.total ?? null),
+              backgroundColor: "rgba(251,146,60,.75)",
+              borderRadius: 6,
+              yAxisID: "y"
+            },
+            {
+              type: "line",
+              label: "Cargo Ton",
+              data: summaryMonths.map(m => loadMap.get(m)?.total_ton ?? null),
+              borderColor: cssVar("--green"),
+              backgroundColor: "rgba(34,197,94,.18)",
+              tension: .28,
+              pointRadius: 4,
+              pointHoverRadius: 5,
+              yAxisID: "y1"
+            }
+          ]
+        },
+        options: {
+          plugins: {
+            legend: commonLegend(),
+            tooltip: commonTooltip(),
+            emptyState: { text: "No summary data" }
+          },
+          scales: {
+            x: baseAxis(),
+            y: { ...baseAxis("Fuel (L)", v => formatNumber(v / 1000, 0) + "K"), position: "left" },
+            y1: {
+              ...baseAxis("Cargo (ton)", v => formatNumber(v / 1000, 0) + "K"),
+              position: "right",
+              grid: { drawOnChartArea: false }
+            }
+          }
+        }
+      });
+
+      createChart("summaryKnownUnknownChart", {
+        type: "bar",
+        data: {
+          labels: visibleData.mf.map(r => monthShort(r.month)),
+          datasets: [
+            {
+              label: "Known",
+              data: visibleData.mf.map(r => Math.max(toNumber(r.total) - toNumber(r.unknown), 0)),
+              backgroundColor: "rgba(34,197,94,.75)",
+              stack: "fuel"
+            },
+            {
+              label: "Unknown",
+              data: visibleData.mf.map(r => toNumber(r.unknown)),
+              backgroundColor: "rgba(107,114,128,.82)",
+              stack: "fuel"
+            }
+          ]
+        },
+        options: {
+          plugins: {
+            legend: commonLegend(),
+            tooltip: commonTooltip(),
+            emptyState: { text: "No visible fuel months" }
+          },
+          scales: {
+            x: { ...baseAxis(), stacked: true },
+            y: { ...baseAxis("Fuel (L)", v => formatNumber(v / 1000, 0) + "K"), stacked: true }
+          }
+        }
+      });
+    }
+
+    function renderFuelTab(context){
+      const { visibleData, catalog } = context;
+      const rows = visibleData.mf;
+      const labels = rows.map(r => monthShort(r.month));
+
+      createChart("fuelStackChart", {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            { label: "Laden", data: rows.map(r => r.laden), backgroundColor: "rgba(34,197,94,.78)", stack: "fuel" },
+            { label: "Ballast", data: rows.map(r => r.ballast), backgroundColor: "rgba(59,130,246,.78)", stack: "fuel" },
+            { label: "Port", data: rows.map(r => r.port), backgroundColor: "rgba(245,158,11,.78)", stack: "fuel" },
+            { label: "Unknown", data: rows.map(r => r.unknown), backgroundColor: "rgba(107,114,128,.88)", stack: "fuel" }
+          ]
+        },
+        options: {
+          plugins: { legend: commonLegend(), tooltip: commonTooltip(), emptyState: { text: "No fuel data" } },
+          scales: {
+            x: { ...baseAxis(), stacked: true },
+            y: { ...baseAxis("Fuel (L)", v => formatNumber(v / 1000, 0) + "K"), stacked: true }
+          }
+        }
+      });
+
+      createChart("fuelAvgChart", {
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: "Avg/Day",
+              data: rows.map(r => r.avg),
+              borderColor: cssVar("--cyan"),
+              backgroundColor: "rgba(6,182,212,.14)",
+              fill: false,
+              pointRadius: 4,
+              tension: .28
+            },
+            {
+              label: "Max",
+              data: rows.map(r => r.max),
+              borderColor: cssVar("--red"),
+              borderDash: [6,4],
+              pointRadius: 3,
+              tension: .28
+            }
+          ]
+        },
+        options: {
+          plugins: { legend: commonLegend(), tooltip: commonTooltip(), emptyState: { text: "No fuel averages" } },
+          scales: {
+            x: baseAxis(),
+            y: baseAxis("L/day")
+          }
+        }
+      });
+
+      createChart("fuelFwChart", {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            { label: "Fuel (L)", data: rows.map(r => r.total), backgroundColor: "rgba(251,146,60,.78)", borderRadius: 6 },
+            { label: "Fresh Water (L)", data: rows.map(r => r.fw), backgroundColor: "rgba(59,130,246,.76)", borderRadius: 6 }
+          ]
+        },
+        options: {
+          plugins: { legend: commonLegend(), tooltip: commonTooltip(), emptyState: { text: "No fuel/water data" } },
+          scales: {
+            x: baseAxis(),
+            y: baseAxis("Volume (L)", v => formatNumber(v / 1000, 0) + "K")
+          }
+        }
+      });
+
+      document.getElementById("fuelTbody").innerHTML = rows.length ? rows.map(r => {
+        const sev = catalog.byMonth[r.month]?.severity;
+        const unknownPct = safeRatio(r.unknown, r.total);
+        return `
+          <tr class="${rowClassFromSeverity(sev)}">
+            <td class="nowrap strong">${formatMonth(r.month)}</td>
+            <td class="num">${formatNumber(r.days,0)}</td>
+            <td class="num">${formatNumber(r.total,0)}</td>
+            <td class="num">${formatNumber(r.avg,1)}</td>
+            <td class="num">${formatNumber(r.max,1)}</td>
+            <td class="num">${formatNumber(r.laden,0)}</td>
+            <td class="num">${formatNumber(r.ballast,0)}</td>
+            <td class="num">${formatNumber(r.port,0)}</td>
+            <td class="num">${formatNumber(r.unknown,0)}</td>
+            <td class="num">${formatPct(unknownPct,1)}</td>
+            <td class="num">${formatNumber(r.fw,0)}</td>
+            <td>${sev ? severityBadge(sev) : `<span class="pill pill-neutral">Clean</span>`}</td>
+          </tr>
+        `;
+      }).join("") : `<tr><td colspan="12" class="muted">No rows in selected range.</td></tr>`;
+    }
+
+    function renderLbTab(context){
+      const { visibleData } = context;
+      const rows = visibleData.lb;
+      const labels = rows.map(r => monthShort(r.month));
+
+      createChart("lbAvgChart", {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            { label: "Laden Avg", data: rows.map(r => r.l_avg), backgroundColor: "rgba(34,197,94,.78)", borderRadius: 6 },
+            { label: "Ballast Avg", data: rows.map(r => r.b_avg), backgroundColor: "rgba(59,130,246,.78)", borderRadius: 6 }
+          ]
+        },
+        options: {
+          plugins: { legend: commonLegend(), tooltip: commonTooltip(), emptyState: { text: "No LB averages" } },
+          scales: { x: baseAxis(), y: baseAxis("L/day") }
+        }
+      });
+
+      createChart("lbDaysChart", {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            { label: "Laden Days", data: rows.map(r => r.l_days), backgroundColor: "rgba(34,197,94,.78)", stack: "d" },
+            { label: "Ballast Days", data: rows.map(r => r.b_days), backgroundColor: "rgba(59,130,246,.78)", stack: "d" }
+          ]
+        },
+        options: {
+          plugins: { legend: commonLegend(), tooltip: commonTooltip(), emptyState: { text: "No LB day split" } },
+          scales: {
+            x: { ...baseAxis(), stacked: true },
+            y: { ...baseAxis("Days"), stacked: true }
+          }
+        }
+      });
+
+      createChart("lbFuelChart", {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            { label: "Laden Fuel", data: rows.map(r => r.l_fuel), backgroundColor: "rgba(34,197,94,.78)", borderRadius: 6 },
+            { label: "Ballast Fuel", data: rows.map(r => r.b_fuel), backgroundColor: "rgba(59,130,246,.78)", borderRadius: 6 }
+          ]
+        },
+        options: {
+          plugins: { legend: commonLegend(), tooltip: commonTooltip(), emptyState: { text: "No LB fuel split" } },
+          scales: { x: baseAxis(), y: baseAxis("Fuel (L)", v => formatNumber(v / 1000, 0) + "K") }
+        }
+      });
+
+      document.getElementById("lbTbody").innerHTML = rows.length ? rows.map(r => {
+        const ratio = r.b_avg > 0 ? r.l_avg / r.b_avg : null;
+        let status = `<span class="pill pill-neutral">No Ballast</span>`;
+        if (r.b_days > 0 && r.l_days > 0){
+          if (r.b_avg > r.l_avg) status = `<span class="pill pill-warn">Ballast higher</span>`;
+          else status = `<span class="pill pill-success">Laden higher</span>`;
+        }
+        return `
+          <tr>
+            <td class="strong nowrap">${formatMonth(r.month)}</td>
+            <td class="num">${formatNumber(r.l_days,0)}</td>
+            <td class="num">${formatNumber(r.l_fuel,0)}</td>
+            <td class="num">${formatNumber(r.l_avg,1)}</td>
+            <td class="num">${formatNumber(r.b_days,0)}</td>
+            <td class="num">${formatNumber(r.b_fuel,0)}</td>
+            <td class="num">${formatNumber(r.b_avg,1)}</td>
+            <td class="num">${isFiniteMetric(ratio) ? formatNumber(ratio,2) + "x" : "N/A"}</td>
+            <td>${status}</td>
+          </tr>
+        `;
+      }).join("") : `<tr><td colspan="9" class="muted">No rows in selected range.</td></tr>`;
+    }
+
+    function renderLoadingTab(context){
+      const { visibleData, catalog } = context;
+      const rows = visibleData.loading;
+      const labels = rows.map(r => monthShort(r.month));
+
+      createChart("loadChart", {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            { label: "GRM", data: rows.map(r => r.grm_ton), backgroundColor: "rgba(34,197,94,.78)", stack: "ton" },
+            { label: "SCT", data: rows.map(r => r.sct_ton), backgroundColor: "rgba(251,146,60,.78)", stack: "ton" }
+          ]
+        },
+        options: {
+          plugins: { legend: commonLegend(), tooltip: commonTooltip(), emptyState: { text: "No loading data" } },
+          scales: {
+            x: { ...baseAxis(), stacked: true },
+            y: { ...baseAxis("Tons", v => formatNumber(v / 1000, 0) + "K"), stacked: true }
+          }
+        }
+      });
+
+      createChart("voyCountChart", {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            { label: "GRM Voy", data: rows.map(r => r.grm_voy), backgroundColor: "rgba(34,197,94,.78)", borderRadius: 6 },
+            { label: "SCT Voy", data: rows.map(r => r.sct_voy), backgroundColor: "rgba(251,146,60,.78)", borderRadius: 6 }
+          ]
+        },
+        options: {
+          plugins: { legend: commonLegend(), tooltip: commonTooltip(), emptyState: { text: "No voyage data" } },
+          scales: { x: baseAxis(), y: baseAxis("Voyages") }
+        }
+      });
+
+      createChart("grmPctChart", {
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: "GRM %",
+              data: rows.map(r => r.total_ton > 0 ? r.grm_ton / r.total_ton * 100 : 0),
+              borderColor: cssVar("--green"),
+              backgroundColor: "rgba(34,197,94,.15)",
+              fill: true,
+              tension: .28,
+              pointRadius: 4
+            }
+          ]
+        },
+        options: {
+          plugins: { legend: { display:false }, tooltip: commonTooltip(), emptyState: { text: "No GRM mix data" } },
+          scales: {
+            x: baseAxis(),
+            y: { ...baseAxis("GRM %", v => `${v}%`), min: 0, max: 100 }
+          }
+        }
+      });
+
+      document.getElementById("loadTbody").innerHTML = rows.length ? rows.map(r => {
+        const totalVoy = toNumber(r.grm_voy) + toNumber(r.sct_voy);
+        const avgTonVoy = safeRatio(r.total_ton, totalVoy);
+        const sev = catalog.byMonth[r.month]?.severity;
+        return `
+          <tr class="${rowClassFromSeverity(sev)}">
+            <td class="strong nowrap">${formatMonth(r.month)}</td>
+            <td class="num">${formatNumber(r.grm_voy,0)}</td>
+            <td class="num">${formatNumber(r.grm_ton,0)}</td>
+            <td class="num">${formatNumber(r.sct_voy,0)}</td>
+            <td class="num">${formatNumber(r.sct_ton,0)}</td>
+            <td class="num">${formatNumber(totalVoy,0)}</td>
+            <td class="num strong">${formatNumber(r.total_ton,0)}</td>
+            <td class="num">${isFiniteMetric(avgTonVoy) ? formatNumber(avgTonVoy,1) : "—"}</td>
+            <td class="num">${formatPct(safeRatio(r.grm_ton, r.total_ton),1)}</td>
+            <td>${sev ? severityBadge(sev) : `<span class="pill pill-neutral">Clean</span>`}</td>
+          </tr>
+        `;
+      }).join("") : `<tr><td colspan="10" class="muted">No rows in selected range.</td></tr>`;
+    }
+
+    function renderEfficiencyTab(context){
+      const { visibleData, catalog } = context;
+      const rows = visibleData.fe;
+      const labels = rows.map(r => monthShort(r.month));
+      const scatterPoints = rows
+        .filter(r => toNumber(r.cargo_ton) > 0 && toNumber(r.total_fuel) > 0)
+        .map(r => ({ x: r.cargo_ton, y: r.total_fuel, label: r.month, voyages: r.voyages }));
+      const regLine = regressionLine(scatterPoints);
+      const corr = correlation(scatterPoints);
+
+      document.getElementById("corrNote").textContent =
+        corr !== null
+          ? `적재량과 총 연료의 상관계수 r = ${corr.toFixed(2)}`
+          : "상관계수를 계산할 유효 월이 부족합니다.";
+
+      createChart("effChart", {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            { label: "Total F/T", data: rows.map(r => r.fpt), backgroundColor: "rgba(251,146,60,.78)", borderRadius: 6 },
+            { label: "Laden F/T", data: rows.map(r => r.lfpt), backgroundColor: "rgba(34,197,94,.78)", borderRadius: 6 }
+          ]
+        },
+        options: {
+          plugins: { legend: commonLegend(), tooltip: commonTooltip(), emptyState: { text: "No efficiency rows" } },
+          scales: {
+            x: baseAxis(),
+            y: baseAxis("L/ton")
+          }
+        }
+      });
+
+      createChart("effScatterChart", {
+        type: "scatter",
+        data: {
+          datasets: [
+            {
+              label: "Monthly",
+              data: scatterPoints,
+              backgroundColor: "rgba(59,130,246,.86)",
+              pointRadius: 6,
+              pointHoverRadius: 8
+            },
+            {
+              label: "Trendline",
+              type: "line",
+              data: regLine,
+              borderColor: cssVar("--yellow"),
+              borderWidth: 2,
+              pointRadius: 0,
+              tension: 0,
+              fill: false
+            }
+          ]
+        },
+        options: {
+          plugins: {
+            legend: commonLegend(),
+            tooltip: {
+              ...commonTooltip(),
+              callbacks: {
+                label(ctx){
+                  const raw = ctx.raw;
+                  if (ctx.dataset.label === "Trendline"){
+                    return `Trendline: ${formatNumber(raw.x,0)} ton / ${formatNumber(raw.y,0)} L`;
+                  }
+                  return `${formatMonth(raw.label)} · ${formatNumber(raw.x,0)} ton / ${formatNumber(raw.y,0)} L`;
+                }
+              }
+            },
+            emptyState: { text: "Not enough points for scatter plot" }
+          },
+          scales: {
+            x: baseAxis("Cargo Ton"),
+            y: baseAxis("Total Fuel (L)", v => formatNumber(v / 1000, 0) + "K")
+          }
+        }
+      });
+
+      document.getElementById("effTbody").innerHTML = rows.length ? rows.map(r => {
+        const sev = catalog.byMonth[r.month]?.severity;
+        return `
+          <tr class="${rowClassFromSeverity(sev)}">
+            <td class="strong nowrap">${formatMonth(r.month)}</td>
+            <td class="num">${formatNumber(r.total_fuel,0)}</td>
+            <td class="num">${formatNumber(r.laden_fuel,0)}</td>
+            <td class="num">${formatNumber(r.cargo_ton,0)}</td>
+            <td class="num">${formatNumber(r.voyages,0)}</td>
+            <td class="num">${isFiniteMetric(r.fpt) ? formatNumber(r.fpt,2) : "N/A"}</td>
+            <td class="num">${isFiniteMetric(r.lfpt) ? formatNumber(r.lfpt,2) : "N/A"}</td>
+            <td>${efficiencyBadge(r.lfpt)}</td>
+            <td>${sev ? severityBadge(sev) : `<span class="pill pill-neutral">Clean</span>`}</td>
+          </tr>
+        `;
+      }).join("") : `<tr><td colspan="9" class="muted">No rows in selected range.</td></tr>`;
+    }
+
+    function renderGapChips(id, list){
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.innerHTML = list.length
+        ? list.map(m => `<span class="chip">${formatMonth(m)}</span>`).join("")
+        : `<span class="chip">No gap</span>`;
+    }
+
+    function renderQualityTab(context){
+      const { rangeData, catalog } = context;
+      const qScore = qualityScore(rangeData, catalog);
+      const highCount = Object.values(catalog.byMonth).filter(v => severityRank[v.severity] >= severityRank.high).length;
+      const coverage = coverageStats(rangeData);
+      const cards = [
+        {
+          cls:"tone-blue",
+          label:"Issue Count",
+          value:String(catalog.issues.length),
+          note:"선택 구간 전체 이슈 수"
+        },
+        {
+          cls:"tone-red",
+          label:"High / Critical Months",
+          value:String(highCount),
+          note:"운영 KPI 왜곡 가능 월"
+        },
+        {
+          cls:"tone-yellow",
+          label:"Exclude Candidates",
+          value:String(catalog.excludedMonths.length),
+          note:"고이슈 월 제외 대상"
+        },
+        {
+          cls:"tone-green",
+          label:"Fuel-Loading Sync",
+          value:isFiniteMetric(coverage.syncPct) ? formatPct(coverage.syncPct,0) : "—",
+          note:`Matched ${coverage.matched} / Union ${coverage.unionCount}`
+        },
+        {
+          cls:"tone-purple",
+          label:"Quality Score",
+          value:String(qScore),
+          note:qualityLabel(qScore).replace(/<[^>]+>/g, "")
+        },
+        {
+          cls:"tone-orange",
+          label:"Fuel Gaps",
+          value:String(catalog.gaps.fuel.length),
+          note:`Loading gaps ${catalog.gaps.loading.length} / Eff gaps ${catalog.gaps.efficiency.length}`
+        }
+      ];
+
+      document.getElementById("qualityCards").innerHTML = cards.map(card => `
+        <article class="stat-card ${card.cls}">
+          <div class="stat-label">${card.label}</div>
+          <div class="stat-value">${card.value}</div>
+          <div class="stat-note">${card.note}</div>
+        </article>
+      `).join("");
+
+      const fuelRows = rangeData.mf;
+      const allMonths = uniqueSorted([
+        ...rangeData.mf.map(r => r.month),
+        ...rangeData.loading.map(r => r.month),
+        ...rangeData.fe.map(r => r.month)
+      ]);
+      const fuelSet = new Set(rangeData.mf.map(r => r.month));
+      const loadSet = new Set(rangeData.loading.map(r => r.month));
+      const effSet = new Set(rangeData.fe.map(r => r.month));
+
+      createChart("qualityUnknownChart", {
+        type: "bar",
+        data: {
+          labels: fuelRows.map(r => monthShort(r.month)),
+          datasets: [
+            {
+              type: "bar",
+              label: "Unknown %",
+              data: fuelRows.map(r => toNumber(r.total) ? (toNumber(r.unknown) / toNumber(r.total)) * 100 : 0),
+              backgroundColor: "rgba(107,114,128,.86)",
+              borderRadius: 6,
+              yAxisID: "y"
+            },
+            {
+              type: "line",
+              label: "Total Fuel (L)",
+              data: fuelRows.map(r => r.total),
+              borderColor: cssVar("--orange"),
+              backgroundColor: "rgba(251,146,60,.16)",
+              pointRadius: 4,
+              tension: .24,
+              yAxisID: "y1"
+            }
+          ]
+        },
+        options: {
+          plugins: { legend: commonLegend(), tooltip: commonTooltip(), emptyState: { text: "No quality fuel rows" } },
+          scales: {
+            x: baseAxis(),
+            y: { ...baseAxis("Unknown %", v => `${v}%`), min: 0, max: 100, position: "left" },
+            y1: { ...baseAxis("Total Fuel (L)", v => formatNumber(v / 1000, 0) + "K"), position: "right", grid: { drawOnChartArea: false } }
+          }
+        }
+      });
+
+      const severityCounts = {
+        low: catalog.issues.filter(i => i.severity === "low").length,
+        medium: catalog.issues.filter(i => i.severity === "medium").length,
+        high: catalog.issues.filter(i => i.severity === "high").length,
+        critical: catalog.issues.filter(i => i.severity === "critical").length
+      };
+
+      createChart("qualitySeverityChart", {
+        type: "doughnut",
+        data: {
+          labels: ["Low", "Medium", "High", "Critical"],
+          datasets: [{
+            data: [
+              severityCounts.low,
+              severityCounts.medium,
+              severityCounts.high,
+              severityCounts.critical
+            ],
+            backgroundColor: [
+              "rgba(6,182,212,.85)",
+              "rgba(245,158,11,.85)",
+              "rgba(239,68,68,.72)",
+              "rgba(239,68,68,.92)"
+            ],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          cutout: "62%",
+          plugins: {
+            legend: commonLegend(),
+            tooltip: commonTooltip(),
+            emptyState: { text: "No issues in range" }
+          }
+        }
+      });
+
+      createChart("qualityCoverageChart", {
+        type: "bar",
+        data: {
+          labels: allMonths.map(monthShort),
+          datasets: [
+            { label: "Fuel", data: allMonths.map(m => fuelSet.has(m) ? 1 : 0), backgroundColor: "rgba(56,189,248,.82)", borderRadius: 4 },
+            { label: "Loading", data: allMonths.map(m => loadSet.has(m) ? 1 : 0), backgroundColor: "rgba(34,197,94,.82)", borderRadius: 4 },
+            { label: "Efficiency", data: allMonths.map(m => effSet.has(m) ? 1 : 0), backgroundColor: "rgba(168,85,247,.82)", borderRadius: 4 }
+          ]
+        },
+        options: {
+          plugins: { legend: commonLegend(), tooltip: commonTooltip(), emptyState: { text: "No coverage rows" } },
+          scales: {
+            x: baseAxis(),
+            y: {
+              ...baseAxis("Available"),
+              min: 0,
+              max: 1,
+              ticks: {
+                color: cssVar("--muted"),
+                stepSize: 1,
+                callback(v){ return v === 1 ? "Y" : "N"; }
+              },
+              grid: { color: cssVar("--grid") }
+            }
+          }
+        }
+      });
+
+      renderGapChips("fuelGaps", catalog.gaps.fuel);
+      renderGapChips("loadingGaps", catalog.gaps.loading);
+      renderGapChips("effGaps", catalog.gaps.efficiency);
+
+      document.getElementById("qualityTbody").innerHTML = catalog.issues.length ? catalog.issues.map(item => `
+        <tr class="${rowClassFromSeverity(item.severity)}">
+          <td class="strong nowrap">${formatMonth(item.month)}</td>
+          <td>${severityBadge(item.severity)}</td>
+          <td class="nowrap">${item.type}</td>
+          <td>${item.detail}</td>
+          <td>${item.recommendation}</td>
+        </tr>
+      `).join("") : `<tr><td colspan="5" class="muted">No issues detected in selected range.</td></tr>`;
+    }
+
+    function buildCombinedCsv(context){
+      const { visibleData, catalog } = context;
+      const lines = [];
+
+      lines.push(["Dashboard Settings"]);
+      lines.push(["start_month", state.startMonth]);
+      lines.push(["end_month", state.endMonth]);
+      lines.push(["exclude_high_issue_months", String(state.excludeIssueMonths)]);
+      lines.push([]);
+
+      lines.push(["Fuel Overview"]);
+      lines.push(["month","days","total_fuel_l","avg_day_l","max_day_l","laden_l","ballast_l","port_l","unknown_l","fresh_water_l"]);
+      visibleData.mf.forEach(r => lines.push([
+        r.month, r.days, r.total, r.avg, r.max, r.laden, r.ballast, r.port, r.unknown, r.fw
+      ]));
+      lines.push([]);
+
+      lines.push(["Loading"]);
+      lines.push(["month","grm_voy","grm_ton","sct_voy","sct_ton","total_ton"]);
+      visibleData.loading.forEach(r => lines.push([
+        r.month, r.grm_voy, r.grm_ton, r.sct_voy, r.sct_ton, r.total_ton
+      ]));
+      lines.push([]);
+
+      lines.push(["Efficiency"]);
+      lines.push(["month","total_fuel","laden_fuel","cargo_ton","voyages","fpt","lfpt"]);
+      visibleData.fe.forEach(r => lines.push([
+        r.month, r.total_fuel, r.laden_fuel, r.cargo_ton, r.voyages, r.fpt ?? "", r.lfpt ?? ""
+      ]));
+      lines.push([]);
+
+      lines.push(["Quality Issues"]);
+      lines.push(["month","severity","type","detail","recommendation","exclude_candidate"]);
+      catalog.issues.forEach(i => lines.push([
+        i.month, i.severity, i.type, i.detail, i.recommendation, i.exclude ? "Y" : "N"
+      ]));
+
+      return lines.map(row => row.map(csvEscape).join(",")).join("\n");
+    }
+
+    function buildIssuesCsv(context){
+      const { catalog } = context;
+      const lines = [
+        ["month","severity","type","detail","recommendation","exclude_candidate"]
+      ];
+      catalog.issues.forEach(i => {
+        lines.push([i.month, i.severity, i.type, i.detail, i.recommendation, i.exclude ? "Y" : "N"]);
+      });
+      return lines.map(row => row.map(csvEscape).join(",")).join("\n");
+    }
+
+    function populateMonthSelects(){
+      const startEl = document.getElementById("startMonth");
+      const endEl = document.getElementById("endMonth");
+      const options = MONTHS.map(m => `<option value="${m}">${formatMonth(m)}</option>`).join("");
+      startEl.innerHTML = options;
+      endEl.innerHTML = options;
+      startEl.value = state.startMonth;
+      endEl.value = state.endMonth;
+    }
+
+    function applyPreset(preset){
+      const fuelStart = FUEL_MONTHS[0];
+      const fuelEnd = FUEL_MONTHS[FUEL_MONTHS.length - 1];
+
+      if (preset === "all"){
+        state.startMonth = MONTHS[0];
+        state.endMonth = MONTHS[MONTHS.length - 1];
+      } else if (preset === "fuel-window"){
+        state.startMonth = fuelStart;
+        state.endMonth = fuelEnd;
+      } else if (preset === "2025"){
+        state.startMonth = "2025-01";
+        state.endMonth = "2025-12";
+      } else if (preset === "2026"){
+        state.startMonth = "2026-01";
+        state.endMonth = "2026-12";
+      }
+
+      document.getElementById("startMonth").value = state.startMonth;
+      document.getElementById("endMonth").value = state.endMonth;
+      renderDashboard();
+    }
+
+    function resetFilters(){
+      state.startMonth = MONTHS[0];
+      state.endMonth = MONTHS[MONTHS.length - 1];
+      state.excludeIssueMonths = true;
+      document.getElementById("startMonth").value = state.startMonth;
+      document.getElementById("endMonth").value = state.endMonth;
+      document.getElementById("excludeIssues").checked = true;
+      renderDashboard();
+    }
+
+    function setTheme(theme){
+      state.theme = theme;
+      document.documentElement.setAttribute("data-theme", theme);
+      localStorage.setItem("jpt71-theme", theme);
+      document.getElementById("themeToggle").textContent = theme === "dark" ? "Light Mode" : "Dark Mode";
+    }
+
+    function updateTabs(){
+      document.querySelectorAll(".tab-btn").forEach((btn, idx) => {
+        btn.classList.toggle("active", idx === state.activeTab);
+      });
+      document.querySelectorAll(".panel").forEach((panel, idx) => {
+        panel.classList.toggle("active", idx === state.activeTab);
+      });
+      requestAnimationFrame(() => {
+        Object.values(state.charts).forEach(chart => chart.resize());
+      });
+    }
+
+    function renderDashboard(){
+      const rangeData = getRangeData();
+      const catalog = buildIssueCatalog(rangeData);
+      const visibleData = getVisibleData(rangeData, catalog);
+      const context = { rangeData, visibleData, catalog };
+      state.latestContext = context;
+
+      renderStatus(context);
+      renderSummary(context);
+      renderFuelTab(context);
+      renderLbTab(context);
+      renderLoadingTab(context);
+      renderEfficiencyTab(context);
+      renderQualityTab(context);
+      updateTabs();
+    }
+
+    function bindEvents(){
+      document.getElementById("startMonth").addEventListener("change", (e) => {
+        state.startMonth = e.target.value;
+        if (state.startMonth > state.endMonth){
+          state.endMonth = state.startMonth;
+          document.getElementById("endMonth").value = state.endMonth;
+        }
+        renderDashboard();
+      });
+
+      document.getElementById("endMonth").addEventListener("change", (e) => {
+        state.endMonth = e.target.value;
+        if (state.endMonth < state.startMonth){
+          state.startMonth = state.endMonth;
+          document.getElementById("startMonth").value = state.startMonth;
+        }
+        renderDashboard();
+      });
+
+      document.getElementById("excludeIssues").addEventListener("change", (e) => {
+        state.excludeIssueMonths = e.target.checked;
+        renderDashboard();
+      });
+
+      document.getElementById("themeToggle").addEventListener("click", () => {
+        setTheme(state.theme === "dark" ? "light" : "dark");
+        renderDashboard();
+      });
+
+      document.querySelectorAll(".preset-btn").forEach(btn => {
+        btn.addEventListener("click", () => applyPreset(btn.dataset.preset));
+      });
+
+      document.getElementById("resetBtn").addEventListener("click", () => {
+        resetFilters();
+      });
+
+      document.querySelectorAll(".tab-btn").forEach((btn, idx) => {
+        btn.addEventListener("click", () => {
+          state.activeTab = idx;
+          updateTabs();
+        });
+      });
+
+      document.getElementById("exportCsvBtn").addEventListener("click", () => {
+        if (!state.latestContext) return;
+        const filename = `JPT71_dashboard_${state.startMonth}_to_${state.endMonth}.csv`;
+        downloadText(filename, buildCombinedCsv(state.latestContext));
+      });
+
+      document.getElementById("exportIssuesBtn").addEventListener("click", () => {
+        if (!state.latestContext) return;
+        const filename = `JPT71_dashboard_issues_${state.startMonth}_to_${state.endMonth}.csv`;
+        downloadText(filename, buildIssuesCsv(state.latestContext));
+      });
+    }
+
+    function init(){
+      setTheme(state.theme);
+      populateMonthSelects();
+      document.getElementById("excludeIssues").checked = state.excludeIssueMonths;
+      bindEvents();
+      renderDashboard();
+    }
+
+    init();
+  </script>
+</body>
+</html>

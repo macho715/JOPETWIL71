@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JPT71 Dashboard Package</title>
+  <style>
+    :root{
+      --bg:#0a0e1a;
+      --bg2:#111827;
+      --card:#1e293b;
+      --card2:#0f172a;
+      --border:#334155;
+      --text:#e2e8f0;
+      --muted:#94a3b8;
+      --accent:#60a5fa;
+      --amber:#f59e0b;
+      --green:#22c55e;
+      --cyan:#06b6d4;
+      --red:#ef4444;
+      --purple:#a855f7;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:"Segoe UI",system-ui,sans-serif;
+      background:linear-gradient(180deg,var(--bg),var(--bg2));
+      color:var(--text);
+      min-height:100vh;
+    }
+    .wrap{
+      max-width:1180px;
+      margin:0 auto;
+      padding:28px;
+    }
+    .hero,.card,.warn{
+      border:1px solid var(--border);
+      border-radius:12px;
+      box-shadow:0 20px 50px rgba(0,0,0,.22);
+    }
+    .hero{
+      padding:28px;
+      background:linear-gradient(135deg,#0d1b2a,#1b3a5c);
+      border-bottom:3px solid var(--amber);
+    }
+    .warn{
+      margin-top:16px;
+      padding:16px 18px;
+      background:#221a08;
+      border-left:4px solid var(--amber);
+    }
+    .warn strong{color:#fde68a}
+    .badge-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:14px;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      padding:6px 12px;
+      border-radius:999px;
+      background:var(--amber);
+      color:#111827;
+      font-size:12px;
+      font-weight:700;
+    }
+    h1{
+      margin:0;
+      font-size:34px;
+      line-height:1.12;
+    }
+    h2{
+      margin:0 0 10px;
+      font-size:19px;
+    }
+    h3{
+      margin:0 0 8px;
+      font-size:14px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+    p{
+      margin:10px 0 0;
+      color:var(--muted);
+      line-height:1.7;
+    }
+    .btn-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:18px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:44px;
+      padding:0 16px;
+      border-radius:10px;
+      border:1px solid var(--border);
+      background:var(--card2);
+      color:var(--text);
+      text-decoration:none;
+      font-weight:700;
+    }
+    .btn.primary{
+      background:var(--accent);
+      color:#0f172a;
+      border-color:transparent;
+    }
+    .btn.warn{
+      background:#1f2937;
+      color:#fde68a;
+      border-color:#6b7280;
+    }
+    .section{
+      margin-top:18px;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:16px;
+    }
+    .grid-three{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:16px;
+    }
+    .card{
+      background:var(--card);
+      padding:18px;
+    }
+    .metric{
+      display:grid;
+      gap:6px;
+    }
+    .metric .label{
+      font-size:11px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.05em;
+    }
+    .metric .value{
+      font-size:28px;
+      font-weight:800;
+      line-height:1.1;
+    }
+    .metric .note{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.6;
+    }
+    .tone-blue .value{color:var(--accent)}
+    .tone-green .value{color:var(--green)}
+    .tone-amber .value{color:var(--amber)}
+    .tone-cyan .value{color:var(--cyan)}
+    .tone-red .value{color:#f87171}
+    .tone-purple .value{color:#c084fc}
+    .list{
+      margin:0;
+      padding-left:18px;
+      color:var(--muted);
+      line-height:1.7;
+    }
+    .source-bar{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:9px 12px;
+      border-radius:999px;
+      background:var(--card2);
+      border:1px solid var(--border);
+      color:var(--text);
+      font-size:13px;
+      font-weight:700;
+    }
+    .dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      display:inline-block;
+    }
+    .preview{
+      margin-top:14px;
+      background:var(--card2);
+      border:1px solid var(--border);
+      border-radius:12px;
+      overflow:hidden;
+    }
+    .preview img{
+      width:100%;
+      display:block;
+      height:auto;
+      background:#0b1220;
+    }
+    .preview-note{
+      padding:12px 14px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.6;
+    }
+    .small{
+      font-size:12px;
+      color:var(--muted);
+    }
+    code{
+      color:#bfdbfe;
+    }
+    .split{
+      display:grid;
+      grid-template-columns:1.25fr .95fr;
+      gap:16px;
+      margin-top:18px;
+    }
+    @media (max-width:900px){
+      .split{grid-template-columns:1fr}
+    }
+    @media (max-width:768px){
+      .wrap{padding:18px}
+      h1{font-size:28px}
+      .metric .value{font-size:24px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="badge-row">
+        <span class="badge">EMAIL READY PACKAGE</span>
+        <span class="badge">OFFLINE CHARTS</span>
+        <span class="badge">COMMAND CENTER FIRST</span>
+      </div>
+      <h1>JPT71 Dashboard Final Package</h1>
+      <p>이 시작 파일은 두 가지 상황을 모두 지원합니다. 메일 첨부에서 <code>00_START_HERE.html</code> 만 바로 열어도 아래 Quick Brief로 핵심 내용을 읽을 수 있고, 압축을 푼 뒤 같은 폴더에서 열면 전체 통합 대시보드까지 바로 연결됩니다.</p>
+      <div class="btn-row">
+        <a class="btn primary" href="#quick-brief">메일 첨부로 바로 보기</a>
+        <a class="btn warn" href="./JPT71_Voyage_Command_Center_Merged.html">압축 해제 후 전체 대시보드 열기</a>
+      </div>
+    </section>
+
+    <section class="warn">
+      <strong>중요:</strong> 메일이나 ZIP 미리보기에서 <code>00_START_HERE.html</code> 만 임시 위치로 열리면 같은 폴더의 다른 HTML이 없어서 다음 화면으로 연결되지 않을 수 있습니다. 이 경우 아래 <strong>Quick Brief</strong>는 바로 볼 수 있고, 전체 대시보드는 ZIP을 먼저 압축 해제한 뒤 여시면 됩니다.
+    </section>
+
+    <section class="section split" id="quick-brief">
+      <div class="card">
+        <h2>Quick Brief</h2>
+        <p>아래 수치는 통합 Command Center 기준 최신 핵심 요약입니다. 메일 첨부에서 이 파일만 열어도 팀장님 검토가 가능하도록 self-contained 형태로 넣었습니다.</p>
+        <div class="grid section">
+          <article class="metric tone-blue">
+            <div class="label">Total Cost</div>
+            <div class="value">28.38M AED</div>
+            <div class="note">Heatmap voyage aggregate 기준 총비용</div>
+          </article>
+          <article class="metric tone-green">
+            <div class="label">Total Ton</div>
+            <div class="value">72,309.45</div>
+            <div class="note">Aggregated voyage tonnage</div>
+          </article>
+          <article class="metric tone-amber">
+            <div class="label">Blended AED/Ton</div>
+            <div class="value">392.43</div>
+            <div class="note">Total AED 합계를 Total Ton 합계로 나눈 가중평균</div>
+          </article>
+          <article class="metric tone-cyan">
+            <div class="label">Aggregated Voyages</div>
+            <div class="value">123</div>
+            <div class="note">Unique voyage name은 121건</div>
+          </article>
+        </div>
+
+        <div class="section">
+          <h3>Source Mix</h3>
+          <div class="source-bar">
+            <span class="pill"><span class="dot" style="background:#f59e0b"></span>OFCO 18.48%</span>
+            <span class="pill"><span class="dot" style="background:#60a5fa"></span>GM 2.03%</span>
+            <span class="pill"><span class="dot" style="background:#22c55e"></span>ALS 79.50%</span>
+          </div>
+        </div>
+
+        <div class="grid-three section">
+          <article class="card" style="padding:16px;background:var(--card2)">
+            <h3>Fuel Snapshot</h3>
+            <div class="metric tone-green">
+              <div class="label">Fuel Total</div>
+              <div class="value">112,664 L</div>
+              <div class="note">301.2 L/day, 1.84 L/ton, 기본 필터 기준</div>
+            </div>
+          </article>
+          <article class="card" style="padding:16px;background:var(--card2)">
+            <h3>RootCause Snapshot</h3>
+            <div class="metric tone-purple">
+              <div class="label">Filtered Trips</div>
+              <div class="value">57</div>
+              <div class="note">Trip당 가중 연료 1,999 L, Dominant route AGI_FIELD 73%</div>
+            </div>
+          </article>
+          <article class="card" style="padding:16px;background:var(--card2)">
+            <h3>Manager Note</h3>
+            <p class="small">상단 통합 수치는 Cost Heatmap aggregate 기준입니다. KPI Explorer는 raw-summary 기준이라 일부 총액이 다르게 보일 수 있습니다. 이는 현재 원본 집계 기준 차이입니다.</p>
+          </article>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>열기 가이드</h2>
+        <ul class="list">
+          <li><strong>메일 첨부에서 바로 열기</strong>: 이 파일의 Quick Brief만 먼저 확인</li>
+          <li><strong>전체 대시보드 사용</strong>: ZIP을 먼저 압축 해제한 뒤 같은 폴더에서 <code>JPT71_Voyage_Command_Center_Merged.html</code> 열기</li>
+          <li><strong>권장 브라우저</strong>: Edge 또는 Chrome</li>
+          <li><strong>오프라인 지원</strong>: Chart.js는 로컬 파일로 포함되어 인터넷이 없어도 차트가 보임</li>
+        </ul>
+        <div class="btn-row">
+          <a class="btn" href="./JPT71_KPI_Dashboard_v6.0.html">KPI 대시보드</a>
+          <a class="btn" href="./JPT71_Voyage_Cost_Heatmap_v4.html">Cost Heatmap</a>
+          <a class="btn" href="./JPT71_FuelLoading_Dashboard_v6.0.html">Fuel Loading</a>
+          <a class="btn" href="./JPT71_RootCause_Dashboard_v6.0.html">RootCause</a>
+          <a class="btn" href="./JPT-reconciled_v6.0.xlsx">원본 엑셀</a>
+        </div>
+        <div class="preview">
+          <img src="./01_Command_Center_Preview.png" alt="Command Center Preview" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+          <div class="preview-note" style="display:none">현재는 이 시작 파일만 단독으로 열려 있어 미리보기 이미지가 없습니다. 압축을 풀고 같은 폴더에서 열면 preview 이미지와 전체 대시보드가 함께 보입니다.</div>
+        </div>
+        <div class="preview-note">압축을 해제한 폴더에서는 위 preview 이미지와 함께 전체 통합 화면으로 바로 이동할 수 있습니다.</div>
+      </div>
+    </section>
+
+    <div class="grid section">
+      <section class="card">
+        <h2>권장 검토 순서</h2>
+        <ul class="list">
+          <li><code>Quick Brief</code> 로 전체 숫자와 해석 포인트 확인</li>
+          <li><code>JPT71_Voyage_Command_Center_Merged.html</code> 로 통합 흐름 검토</li>
+          <li><code>KPI / Heatmap / Fuel / RootCause</code> 개별 화면에서 근거 확인</li>
+          <li>필요 시 <code>JPT-reconciled_v6.0.xlsx</code> 로 원본 수치 trace-back</li>
+        </ul>
+      </section>
+      <section class="card">
+        <h2>포함 파일</h2>
+        <ul class="list">
+          <li>통합본 1개</li>
+          <li>개별 대시보드 4개</li>
+          <li>통합/개별 HTML 5개에 필요한 스크립트는 모두 내부 포함</li>
+          <li>원본 엑셀 1개</li>
+          <li>차트 및 데이터 스크립트는 각 HTML 내부 포함</li>
+          <li>Preview 이미지 1개</li>
+        </ul>
+      </section>
+      <section class="card">
+        <h2>문제 발생 시</h2>
+        <ul class="list">
+          <li>다음 화면으로 안 넘어가면 ZIP이 아직 압축 해제되지 않은 상태일 가능성이 큽니다.</li>
+          <li>이 경우에는 우선 이 파일의 Quick Brief만 확인하고, ZIP을 내려받아 압축을 푼 뒤 다시 열어 주세요.</li>
+          <li>압축 해제 후에도 안 열리면 같은 폴더에 HTML 5개와 원본 엑셀, preview 이미지가 모두 있는지 확인하면 됩니다.</li>
+        </ul>
+      </section>
+    </div>
+  </div>
+</body>
+</html>

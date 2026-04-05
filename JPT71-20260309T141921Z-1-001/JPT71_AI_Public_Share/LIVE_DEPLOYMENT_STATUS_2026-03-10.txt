@@ -1,0 +1,29 @@
+JPT71 Live Public Deployment Status
+
+배포 일시
+- 2026-03-10
+
+현재 공개 대시보드 URL
+- https://dashboard-vercel-chas-projects-08028e73.vercel.app/
+- 직접 경로: https://dashboard-vercel-chas-projects-08028e73.vercel.app/JPT71_Voyage_Command_Center_Merged.html
+
+현재 공개 AI 프록시 URL
+- https://07d3-2-50-178-28.ngrok-free.app/api/ai/chat
+- health: https://07d3-2-50-178-28.ngrok-free.app/api/ai/health
+
+현재 실행 상태
+- Vercel 배포 완료
+- 로컬 standalone proxy 실행 중: 127.0.0.1:3012
+- ngrok HTTPS 터널 실행 중: 07d3-2-50-178-28.ngrok-free.app
+
+검증 완료 항목
+- `/jpt71-runtime-config.js` 가 Vercel env 기반 런타임 JS 반환
+- stable alias origin 에서 CORS preflight `204`
+- public proxy `POST /api/ai/chat` 응답 `200`
+- 브라우저에서 `Action Ideas > 우선순위 랭킹` preset 실행 성공
+- 브라우저 네트워크에서 AI 요청 대상이 공개 HTTPS endpoint 인 것 확인
+
+운영 메모
+- 현재 공개 프록시는 ngrok free tunnel 이므로 URL 이 바뀔 수 있습니다.
+- 장기 운영은 `proxy-release` 기준으로 Linux + Caddy + 실도메인으로 옮겨야 합니다.
+- 프록시 토큰은 Vercel runtime env 로만 주입되며, 이 파일에는 저장하지 않습니다.

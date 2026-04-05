@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JPT71 Voyage Total Cost Heatmap — v5.3</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="./JPT71_Voyage_Cost_Heatmap_v53_data.js"></script>
+<style>
+:root{
+  --bg:#0a0e1a;
+  --bg2:#111827;
+  --card:#1e293b;
+  --card2:#1e293b;
+  --card3:#334155;
+  --border:#334155;
+  --grid:rgba(148,163,184,.12);
+  --text:#e2e8f0;
+  --text2:#94a3b8;
+  --accent:#60a5fa;
+  --green:#22c55e;
+  --yellow:#f59e0b;
+  --red:#ef4444;
+  --purple:#7c3aed;
+  --cyan:#06b6d4;
+  --orange:#fb923c;
+  --shadow:0 2px 8px rgba(0,0,0,.3);
+  --radius:8px;
+}
+:root[data-theme="light"]{
+  --bg:#f1f5f9;
+  --bg2:#f8fafc;
+  --card:#ffffff;
+  --card2:#f8fafc;
+  --card3:#e2e8f0;
+  --border:#cbd5e1;
+  --grid:rgba(71,85,105,.10);
+  --text:#1e293b;
+  --text2:#64748b;
+  --accent:#3b82f6;
+  --green:#16a34a;
+  --yellow:#d97706;
+  --red:#dc2626;
+  --purple:#7c3aed;
+  --cyan:#0891b2;
+  --orange:#ea580c;
+  --shadow:0 2px 8px rgba(0,0,0,.06);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh}
+button{font:inherit}
+.header{background:linear-gradient(135deg,#0d1b2a 0%,#1b3a5c 100%);padding:18px 24px;border-bottom:3px solid #f59e0b;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+:root[data-theme="light"] .header{background:linear-gradient(135deg,#e2e8f0 0%,#cbd5e1 100%);border-bottom-color:#d97706}
+.title-wrap h1{font-size:20px;font-weight:700;color:#fff;line-height:1.3}
+.title-wrap .sub{font-size:12px;color:#94a3b8;margin-top:6px;line-height:1.5;max-width:860px}
+:root[data-theme="light"] .title-wrap h1{color:#1e293b}
+:root[data-theme="light"] .title-wrap .sub{color:#64748b}
+.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700;margin-left:8px}
+.badge-blue{background:#1e40af;color:#93c5fd}
+.badge-green{background:#166534;color:#86efac}
+.badge-cyan{background:#155e75;color:#67e8f9}
+.ghost-btn{height:34px;border-radius:5px;border:1px solid var(--border);background:var(--card);color:var(--text);padding:0 12px;cursor:pointer;transition:.15s}
+.ghost-btn:hover{border-color:var(--accent)}
+
+.delta-bar{display:flex;gap:16px;padding:10px 16px;background:var(--bg2);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.delta-item{display:flex;align-items:center;gap:6px;font-size:11px}
+.delta-item .label{color:var(--text2);text-transform:uppercase;letter-spacing:.35px}
+.delta-item .val{font-weight:700}
+.delta-item .up{color:var(--green)}
+.delta-item .warn{color:var(--yellow)}
+
+.tabs{display:flex;gap:3px;padding:6px 16px;background:var(--bg2);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.tab{padding:7px 14px;cursor:pointer;font-size:11px;font-weight:600;color:var(--text2);background:var(--card);border:1px solid var(--border);border-bottom:none;border-radius:5px 5px 0 0;transition:all .2s}
+.tab:hover{color:#93c5fd}
+.tab.active{color:var(--accent);background:var(--card3);box-shadow:inset 0 -2px 0 var(--accent)}
+
+.content{padding:20px 24px}
+.panel{display:none}
+.panel.active{display:block}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px;box-shadow:var(--shadow)}
+.card .lbl{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.card .val{font-size:22px;font-weight:700;margin-top:4px}
+.card .note{font-size:10px;color:var(--text2);margin-top:2px;line-height:1.4}
+
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.chart-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px;box-shadow:var(--shadow)}
+.chart-box h3{font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:600}
+.chart-box.full{grid-column:1/-1}
+
+.heatmap-wrap{overflow:auto;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px;box-shadow:var(--shadow)}
+.heatmap-title{font-size:13px;color:var(--text2);margin-bottom:8px;font-weight:600}
+canvas.hm{image-rendering:pixelated;display:block}
+.legend-row{display:flex;gap:16px;flex-wrap:wrap;margin:12px 0;font-size:11px}
+.legend-item{display:flex;align-items:center;gap:6px;color:var(--text2)}
+.legend-swatch{width:14px;height:14px;border-radius:3px}
+.hint{font-size:11px;color:var(--text2);margin-top:6px;min-height:16px}
+
+table{width:100%;border-collapse:collapse;font-size:11px;background:var(--card)}
+th{background:var(--card3);color:var(--text2);padding:8px 10px;text-align:left;font-weight:600;position:sticky;top:0;border-bottom:1px solid var(--border)}
+td{padding:6px 10px;border-bottom:1px solid var(--card)}
+tr:hover td{background:var(--bg2)}
+.tbl-wrap{max-height:500px;overflow-y:auto;background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow)}
+
+.tag{display:inline-block;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700}
+.tag-ofco{background:rgba(251,146,60,.15);color:var(--orange)}
+.tag-gm{background:rgba(96,165,250,.15);color:var(--accent)}
+.tag-als{background:rgba(34,197,94,.12);color:var(--green)}
+.note-box{background:var(--card);border-left:4px solid var(--cyan);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;font-size:12px;line-height:1.6;box-shadow:var(--shadow)}
+
+@media(max-width:900px){.chart-row{grid-template-columns:1fr}.cards{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.content,.tabs,.header,.delta-bar{padding-left:16px;padding-right:16px}.cards{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="title-wrap">
+    <h1>JPT71 Voyage Total Cost Heatmap <span class="badge badge-blue">v5.3 Total Cost</span><span class="badge badge-green">Voyage Aggregate</span></h1>
+    <div class="sub">Authoritative source: <b>Voyage_Cost_Summary</b> with GM / ALS / OFCO detail drill-down. KPI basis is aggregated by <b>load_month + Voyage_No + Sub_Con</b>.</div>
+  </div>
+  <div class="header-actions">
+    <button id="themeToggle" class="ghost-btn">Light Mode</button>
+  </div>
+</div>
+
+<div class="delta-bar">
+  <div class="delta-item"><span class="label">Period</span><span class="val" id="periodText">-</span></div>
+  <div class="delta-item"><span class="label">Peak Month</span><span class="val up" id="peakMonthText">-</span></div>
+  <div class="delta-item"><span class="label">Top Voyage</span><span class="val warn" id="topVoyageText">-</span></div>
+  <div class="delta-item"><span class="label">GRM / SCT</span><span class="val" id="subConText">-</span></div>
+  <div class="delta-item"><span class="label">Source Mix</span><span class="val" id="sourceMixText">-</span></div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab(0)">Heatmap</div>
+  <div class="tab" onclick="showTab(1)">Charts & Allocation</div>
+  <div class="tab" onclick="showTab(2)">Monthly Trend</div>
+  <div class="tab" onclick="showTab(3)">Source Detail</div>
+</div>
+
+<div class="content">
+  <div class="panel active" id="p0">
+    <div class="cards">
+      <div class="card"><div class="lbl">Aggregated Voyage Rows</div><div class="val" id="kpiRows" style="color:var(--cyan)">-</div><div class="note">Grouped by month + voyage + sub-con</div></div>
+      <div class="card"><div class="lbl">Unique Voyage Names</div><div class="val" id="kpiUnique" style="color:var(--green)">-</div><div class="note">Distinct voyage labels after aggregation</div></div>
+      <div class="card"><div class="lbl">Total Ton</div><div class="val" id="kpiTon" style="color:var(--yellow)">-</div><div class="note">Voyage aggregate tonnage</div></div>
+      <div class="card"><div class="lbl">Total AED</div><div class="val" id="kpiAed" style="color:var(--orange)">-</div><div class="note">Non-VAT authoritative total</div></div>
+      <div class="card"><div class="lbl">Blended AED/Ton</div><div class="val" id="kpiAedPerTon" style="color:var(--purple)">-</div><div class="note">Total AED divided by total ton</div></div>
+    </div>
+    <div class="note-box">This dashboard is no longer an OFCO allocation audit. It is a total-cost voyage heatmap using three source columns only: OFCO, GM, and ALS.</div>
+    <div class="heatmap-wrap">
+      <div class="heatmap-title">Voyage Aggregate Heatmap — Source Cost by Voyage</div>
+      <canvas id="heatmapCanvas" class="hm"></canvas>
+      <div class="legend-row" id="heatmapLegend"></div>
+      <div class="hint" id="heatmapHint">Hover a heatmap cell to inspect source AED.</div>
+    </div>
+    <div class="tbl-wrap" style="margin-top:16px">
+      <table>
+        <thead><tr><th>Voyage Label</th><th>OFCO AED</th><th>GM AED</th><th>ALS AED</th><th>Total AED</th></tr></thead>
+        <tbody id="heatmapTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel" id="p1">
+    <div class="chart-row">
+      <div class="chart-box"><h3>Source Mix by AED</h3><canvas id="sourceMixChart"></canvas></div>
+      <div class="chart-box"><h3>Top 20 Voyages by Total Cost</h3><canvas id="topVoyagesChart"></canvas></div>
+    </div>
+    <div class="chart-row">
+      <div class="chart-box full"><h3>Monthly Source Breakdown</h3><canvas id="monthlySourceChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="panel" id="p2">
+    <div class="chart-row">
+      <div class="chart-box full"><h3>Monthly Total AED and AED/Ton</h3><canvas id="monthlyTrendChart"></canvas></div>
+    </div>
+    <div class="chart-row">
+      <div class="chart-box full"><h3>Cumulative Total Cost</h3><canvas id="cumulativeChart"></canvas></div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Month</th><th>Ton</th><th>OFCO AED</th><th>GM AED</th><th>ALS AED</th><th>Total AED</th><th>AED/Ton</th></tr></thead>
+        <tbody id="monthlyTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel" id="p3">
+    <div class="cards">
+      <div class="card"><div class="lbl">OFCO Detail</div><div class="val" id="ofcoCardAed" style="color:var(--orange)">-</div><div class="note" id="ofcoCardMeta">-</div></div>
+      <div class="card"><div class="lbl">GM Detail</div><div class="val" id="gmCardAed" style="color:var(--accent)">-</div><div class="note" id="gmCardMeta">-</div></div>
+      <div class="card"><div class="lbl">ALS Detail</div><div class="val" id="alsCardAed" style="color:var(--green)">-</div><div class="note" id="alsCardMeta">-</div></div>
+    </div>
+    <div class="chart-row">
+      <div class="chart-box"><h3>Source Detail Monthly Contribution</h3><canvas id="sourceDetailMonthlyChart"></canvas></div>
+      <div class="chart-box"><h3>Top Source Invoices / Buckets</h3><canvas id="sourceDetailTopChart"></canvas></div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Source</th><th>Invoice / Bucket</th><th>Month</th><th>Rows</th><th>Voyages</th><th>AED</th></tr></thead>
+        <tbody id="sourceDetailTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const D = window.JPT71VoyageCostHeatmapData;
+const charts = {};
+const state = {theme: localStorage.getItem('jpt71-theme') || 'dark'};
+const sourceColors = {OFCO:'#f97316', GM:'#3b82f6', ALS:'#22c55e'};
+const heatmapBins = [
+  {label:'0', color:null, min:0, max:0},
+  {label:'< 10K', color:'#102a43', min:0.01, max:10000},
+  {label:'10K-50K', color:'#1d4ed8', min:10000, max:50000},
+  {label:'50K-150K', color:'#0ea5e9', min:50000, max:150000},
+  {label:'150K-300K', color:'#14b8a6', min:150000, max:300000},
+  {label:'300K-600K', color:'#eab308', min:300000, max:600000},
+  {label:'> 600K', color:'#ef4444', min:600000, max:Infinity}
+];
+
+function cssVar(name){return getComputedStyle(document.documentElement).getPropertyValue(name).trim();}
+function showTab(n){
+  document.querySelectorAll('.tab').forEach((tab, idx)=>tab.classList.toggle('active', idx===n));
+  document.querySelectorAll('.panel').forEach((panel, idx)=>panel.classList.toggle('active', idx===n));
+  Object.values(charts).forEach(chart=>{
+    if(chart){
+      chart.resize();
+      chart.update('none');
+    }
+  });
+}
+function fmtInt(v){return Math.round(Number(v||0)).toLocaleString();}
+function fmtNum(v,d=2){return Number(v||0).toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d});}
+function fmtTon(v){return Number(v||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
+function heatBinColor(bin){return bin.max === 0 ? cssVar('--bg') : bin.color;}
+function getHeatColor(value){
+  for(const bin of heatmapBins){
+    if(value===0 && bin.max===0) return heatBinColor(bin);
+    if(value>=bin.min && value<bin.max) return heatBinColor(bin);
+  }
+  return '#ef4444';
+}
+function chartTextColor(){return cssVar('--text2');}
+function chartGridColor(){return cssVar('--grid');}
+function chartBgColor(){return cssVar('--bg');}
+function destroyCharts(){
+  Object.keys(charts).forEach(key=>{
+    if(charts[key]){
+      charts[key].destroy();
+      delete charts[key];
+    }
+  });
+}
+function setTheme(theme){
+  state.theme = theme;
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('jpt71-theme', theme);
+  document.getElementById('themeToggle').textContent = theme === 'dark' ? 'Light Mode' : 'Dark Mode';
+  destroyCharts();
+  renderVisuals();
+}
+function buildHeatMatrix(){
+  const rows = D.voyage_labels.map(label=>({label, OFCO:0, GM:0, ALS:0, total:0}));
+  D.heatmap.forEach(cell=>{
+    const source = D.source_labels[cell.x];
+    rows[cell.y][source] = cell.v;
+    rows[cell.y].total += cell.v;
+  });
+  return rows;
+}
+function renderSummary(){
+  const s = D.summary;
+  document.getElementById('kpiRows').textContent = fmtInt(s.aggregated_rows);
+  document.getElementById('kpiUnique').textContent = fmtInt(s.unique_voyages);
+  document.getElementById('kpiTon').textContent = `${fmtTon(s.total_ton)} ton`;
+  document.getElementById('kpiAed').textContent = `${fmtNum(s.total_aed)} AED`;
+  document.getElementById('kpiAedPerTon').textContent = fmtNum(s.blended_aed_per_ton,2);
+  document.getElementById('periodText').textContent = `${s.period_start} to ${s.period_end}`;
+  document.getElementById('peakMonthText').textContent = `${s.peak_month.month} / ${fmtNum(s.peak_month.aed)} AED`;
+  document.getElementById('topVoyageText').textContent = `${s.top_voyage.voyage} / ${fmtNum(s.top_voyage.total_aed)} AED`;
+  document.getElementById('subConText').textContent = `GRM ${fmtTon(s.grm_ton)} ton / SCT ${fmtTon(s.sct_ton)} ton`;
+  document.getElementById('sourceMixText').textContent = `OFCO ${D.source_mix.OFCO.share}% / GM ${D.source_mix.GM.share}% / ALS ${D.source_mix.ALS.share}%`;
+}
+function renderHeatLegend(){
+  const root = document.getElementById('heatmapLegend');
+  root.innerHTML = heatmapBins.map(bin=>`<div class="legend-item"><span class="legend-swatch" style="background:${heatBinColor(bin)}"></span><span>${bin.label}</span></div>`).join('');
+}
+function renderHeatmap(){
+  const rows = buildHeatMatrix();
+  const canvas = document.getElementById('heatmapCanvas');
+  const ctx = canvas.getContext('2d');
+  const leftPad = 280;
+  const topPad = 28;
+  const colWidth = 120;
+  const rowHeight = 18;
+  const width = leftPad + (D.source_labels.length * colWidth) + 40;
+  const height = topPad + (rows.length * rowHeight) + 20;
+  canvas.width = width;
+  canvas.height = height;
+  ctx.clearRect(0,0,width,height);
+  ctx.fillStyle = chartBgColor();
+  ctx.fillRect(0,0,width,height);
+  ctx.font = '11px Segoe UI';
+  ctx.textBaseline = 'middle';
+  D.source_labels.forEach((source, idx)=>{
+    ctx.fillStyle = chartTextColor();
+    ctx.fillText(source, leftPad + idx * colWidth + 8, 14);
+  });
+  rows.forEach((row, rowIdx)=>{
+    const y = topPad + rowIdx * rowHeight;
+    ctx.fillStyle = chartTextColor();
+    ctx.fillText(row.label, 6, y + rowHeight/2);
+    D.source_labels.forEach((source, colIdx)=>{
+      const value = row[source];
+      const x = leftPad + colIdx * colWidth;
+      ctx.fillStyle = getHeatColor(value);
+      ctx.fillRect(x, y, colWidth-2, rowHeight-2);
+      ctx.fillStyle = value > 0 ? '#ffffff' : chartTextColor();
+      ctx.fillText(value > 0 ? fmtInt(value/1000) + 'K' : '0', x + 8, y + rowHeight/2);
+    });
+  });
+  canvas.onmousemove = ev=>{
+    const rect = canvas.getBoundingClientRect();
+    const x = ev.clientX - rect.left;
+    const y = ev.clientY - rect.top;
+    const rowIdx = Math.floor((y - topPad) / rowHeight);
+    const colIdx = Math.floor((x - leftPad) / colWidth);
+    const hint = document.getElementById('heatmapHint');
+    if(rowIdx >= 0 && rowIdx < rows.length && colIdx >= 0 && colIdx < D.source_labels.length){
+      const source = D.source_labels[colIdx];
+      const row = rows[rowIdx];
+      hint.textContent = `${row.label} | ${source}: ${fmtNum(row[source])} AED | Total: ${fmtNum(row.total)} AED`;
+    } else {
+      hint.textContent = 'Hover a heatmap cell to inspect source AED.';
+    }
+  };
+  const body = document.getElementById('heatmapTableBody');
+  body.innerHTML = rows.map(row=>`<tr><td>${row.label}</td><td>${fmtNum(row.OFCO)}</td><td>${fmtNum(row.GM)}</td><td>${fmtNum(row.ALS)}</td><td>${fmtNum(row.total)}</td></tr>`).join('');
+}
+function renderCharts(){
+  const labels = D.monthly_labels;
+  charts.sourceMixChart = new Chart(document.getElementById('sourceMixChart'), {
+    type:'doughnut',
+    data:{labels:D.source_labels,datasets:[{data:D.source_labels.map(k=>D.source_mix[k].aed),backgroundColor:D.source_labels.map(k=>sourceColors[k]),borderWidth:1,borderColor:chartBgColor()}]},
+    options:{plugins:{legend:{labels:{color:chartTextColor()}},tooltip:{callbacks:{label:c=>`${c.label}: ${fmtNum(c.raw)} AED (${D.source_mix[c.label].share}%)`}}}}
+  });
+  charts.topVoyagesChart = new Chart(document.getElementById('topVoyagesChart'), {
+    type:'bar',
+    data:{labels:D.top_voyages.slice(0,20).map(v=>v.voyage),datasets:[{label:'Total AED',data:D.top_voyages.slice(0,20).map(v=>v.total_aed),backgroundColor:'#3b82f6'}]},
+    options:{indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{const item=D.top_voyages[c.dataIndex];return `${fmtNum(item.total_aed)} AED | ${fmtTon(item.ton)} ton | ${fmtNum(item.aed_per_ton)} AED/ton | ${item.sub_con} | ${item.month}`;}}}},scales:{x:{ticks:{color:chartTextColor(),callback:v=>fmtInt(v/1000)+'K'},grid:{color:chartGridColor()}},y:{ticks:{color:chartTextColor()}}}}
+  });
+  charts.monthlySourceChart = new Chart(document.getElementById('monthlySourceChart'), {
+    type:'bar',
+    data:{labels,datasets:D.source_labels.map(source=>({label:source,data:D.monthly_data[source],backgroundColor:sourceColors[source],stack:'aed'}))},
+    options:{plugins:{legend:{labels:{color:chartTextColor()}}},scales:{x:{stacked:true,ticks:{color:chartTextColor()}},y:{stacked:true,ticks:{color:chartTextColor(),callback:v=>fmtInt(v/1000)+'K'},grid:{color:chartGridColor()}}}}
+  });
+  charts.monthlyTrendChart = new Chart(document.getElementById('monthlyTrendChart'), {
+    data:{labels,datasets:[
+      {type:'bar',label:'Total AED',data:D.monthly_data.TOTAL,backgroundColor:'#22c55e',yAxisID:'y'},
+      {type:'line',label:'AED/Ton',data:D.monthly_data.AED_PER_TON,borderColor:'#f97316',backgroundColor:'#f97316',tension:.3,yAxisID:'y1'}
+    ]},
+    options:{plugins:{legend:{labels:{color:chartTextColor()}}},scales:{x:{ticks:{color:chartTextColor()}},y:{ticks:{color:chartTextColor(),callback:v=>fmtInt(v/1000)+'K'},grid:{color:chartGridColor()}},y1:{position:'right',ticks:{color:chartTextColor()},grid:{display:false}}}}
+  });
+  const cumulative = [];
+  D.monthly_data.TOTAL.reduce((sum, val)=>{sum+=val;cumulative.push(sum);return sum;},0);
+  charts.cumulativeChart = new Chart(document.getElementById('cumulativeChart'), {
+    type:'line',
+    data:{labels,datasets:[{label:'Cumulative AED',data:cumulative,borderColor:'#06b6d4',backgroundColor:'rgba(6,182,212,0.18)',fill:true,tension:.25}]},
+    options:{plugins:{legend:{labels:{color:chartTextColor()}}},scales:{x:{ticks:{color:chartTextColor()}},y:{ticks:{color:chartTextColor(),callback:v=>fmtInt(v/1000)+'K'},grid:{color:chartGridColor()}}}}
+  });
+  const detailMonthly = D.monthly_rows;
+  charts.sourceDetailMonthlyChart = new Chart(document.getElementById('sourceDetailMonthlyChart'), {
+    type:'bar',
+    data:{labels:detailMonthly.map(r=>r.month),datasets:D.source_labels.map(source=>({label:source,data:detailMonthly.map(r=>r[source.toLowerCase()]),backgroundColor:sourceColors[source],stack:'detail'}))},
+    options:{plugins:{legend:{labels:{color:chartTextColor()}}},scales:{x:{stacked:true,ticks:{color:chartTextColor()}},y:{stacked:true,ticks:{color:chartTextColor(),callback:v=>fmtInt(v/1000)+'K'},grid:{color:chartGridColor()}}}}
+  });
+  charts.sourceDetailTopChart = new Chart(document.getElementById('sourceDetailTopChart'), {
+    type:'bar',
+    data:{labels:D.source_detail_rows.slice(0,16).map(r=>`${r.source} ${r.invoice}`),datasets:[{label:'AED',data:D.source_detail_rows.slice(0,16).map(r=>r.aed),backgroundColor:D.source_detail_rows.slice(0,16).map(r=>sourceColors[r.source])}]},
+    options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{color:chartTextColor(),callback:v=>fmtInt(v/1000)+'K'},grid:{color:chartGridColor()}},y:{ticks:{color:chartTextColor()}}}}
+  });
+}
+function renderTables(){
+  document.getElementById('monthlyTableBody').innerHTML = D.monthly_rows.map(row=>`<tr><td>${row.month}</td><td>${fmtTon(row.ton)}</td><td>${fmtNum(row.ofco)}</td><td>${fmtNum(row.gm)}</td><td>${fmtNum(row.als)}</td><td>${fmtNum(row.total_aed)}</td><td>${fmtNum(row.aed_per_ton)}</td></tr>`).join('');
+  document.getElementById('sourceDetailTableBody').innerHTML = D.source_detail_rows.map(row=>{
+    const cls = row.source === 'OFCO' ? 'tag-ofco' : row.source === 'GM' ? 'tag-gm' : 'tag-als';
+    const voyages = row.voyages == null ? '-' : row.voyages;
+    return `<tr><td><span class="tag ${cls}">${row.source}</span></td><td>${row.invoice}</td><td>${row.month}</td><td>${row.rows}</td><td>${voyages}</td><td>${fmtNum(row.aed)}</td></tr>`;
+  }).join('');
+}
+function renderSourceCards(){
+  document.getElementById('ofcoCardAed').textContent = `${fmtNum(D.source_cards.OFCO.aed)} AED`;
+  document.getElementById('gmCardAed').textContent = `${fmtNum(D.source_cards.GM.aed)} AED`;
+  document.getElementById('alsCardAed').textContent = `${fmtNum(D.source_cards.ALS.aed)} AED`;
+  document.getElementById('ofcoCardMeta').textContent = `${fmtInt(D.source_cards.OFCO.line_rows)} lines / ${fmtInt(D.source_cards.OFCO.invoices)} invoices`;
+  document.getElementById('gmCardMeta').textContent = `${fmtInt(D.source_cards.GM.rows)} rows / ${fmtInt(D.source_cards.GM.invoices)} invoices`;
+  document.getElementById('alsCardMeta').textContent = `${fmtInt(D.source_cards.ALS.rows)} rows / ${fmtInt(D.source_cards.ALS.invoices)} invoices`;
+}
+function renderVisuals(){
+  renderHeatLegend();
+  renderHeatmap();
+  renderCharts();
+}
+function boot(){
+  if(!D){
+    document.body.innerHTML = '<div style="padding:24px;color:#fff">v5.3 data payload failed to load.</div>';
+    return;
+  }
+  document.getElementById('themeToggle').addEventListener('click', ()=>{
+    setTheme(state.theme === 'dark' ? 'light' : 'dark');
+  });
+  renderSummary();
+  renderTables();
+  renderSourceCards();
+  setTheme(state.theme);
+}
+boot();
+</script>
+</body>
+</html>

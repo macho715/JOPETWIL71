@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JPT71 ALS 고정비 최적화 시나리오 분석 v5.3</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#0f1117;color:#e2e8f0;line-height:1.5}
+.header{background:linear-gradient(135deg,#1a1f35 0%,#0d47a1 100%);padding:20px 30px;border-bottom:3px solid #f59e0b}
+.header h1{font-size:20px;font-weight:700;color:#fff}
+.header .sub{font-size:12px;color:#94a3b8;margin-top:4px}
+.banner{background:#1e293b;border-left:4px solid #f59e0b;padding:10px 16px;margin:12px 16px;border-radius:4px;font-size:12px;color:#fbbf24}
+.tabs{display:flex;gap:4px;padding:8px 16px;background:#1a1f35;flex-wrap:wrap}
+.tab{padding:8px 16px;border-radius:6px 6px 0 0;cursor:pointer;font-size:12px;font-weight:600;background:#1e293b;color:#94a3b8;border:1px solid #334155;border-bottom:none;transition:.2s}
+.tab.active{background:#0f1117;color:#60a5fa;border-color:#60a5fa}
+.tab:hover{color:#93c5fd}
+.panel{display:none;padding:16px}
+.panel.active{display:block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.card{background:#1e293b;border-radius:8px;padding:16px;border:1px solid #334155}
+.card h3{font-size:13px;color:#60a5fa;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #334155}
+.kpi-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.kpi{background:#0f1117;border-radius:6px;padding:10px 14px;flex:1;min-width:120px;text-align:center;border:1px solid #334155}
+.kpi .val{font-size:20px;font-weight:700;color:#f59e0b}
+.kpi .lbl{font-size:10px;color:#94a3b8;margin-top:2px}
+.chart-wrap{position:relative;height:280px}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{background:#334155;color:#94a3b8;padding:6px 8px;text-align:right;font-weight:600;position:sticky;top:0}
+th:first-child{text-align:left}
+td{padding:5px 8px;border-bottom:1px solid #1e293b;text-align:right}
+td:first-child{text-align:left;color:#93c5fd}
+tr:hover{background:#1a1f35}
+.tag{display:inline-block;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:600}
+.tag-a{background:#164e63;color:#22d3ee}
+.tag-b{background:#3b0764;color:#c084fc}
+.tag-c{background:#14532d;color:#4ade80}
+.best{background:#14532d;color:#4ade80;font-weight:700}
+.warn{color:#f59e0b}
+.alert{color:#ef4444}
+.reco{background:#1e293b;border:2px solid #22c55e;border-radius:8px;padding:16px;margin-top:12px}
+.reco h3{color:#22c55e;font-size:14px;margin-bottom:8px}
+.reco li{font-size:12px;margin-left:16px;margin-bottom:4px}
+.footer{text-align:center;padding:12px;color:#475569;font-size:10px;border-top:1px solid #1e293b}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>JPT71 HVDC — ALS 고정비 최적화 시나리오 분석</h1>
+  <div class="sub">Samsung C&T / ADNOC · `/compare_options` · v5.3 · 2026-03-10 · 19개월 운영 데이터 기반</div>
+</div>
+
+<div class="banner">
+  ⚠ ALS 용선료가 전체 비용의 <strong>78.7%</strong> 차지 (AED 21.6M / 27.5M) — 월 고정 ~AED 1.14M 대비 톤수 변동이 핵심 비용효율 드라이버
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab(0)">📊 현황 분석</div>
+  <div class="tab" onclick="showTab(1)">🚢 A: 항차밀도↑</div>
+  <div class="tab" onclick="showTab(2)">💰 B: 용선료↓</div>
+  <div class="tab" onclick="showTab(3)">🔀 C: 복합 최적화</div>
+  <div class="tab" onclick="showTab(4)">📐 손익분기</div>
+  <div class="tab" onclick="showTab(5)">📋 종합 비교</div>
+</div>
+
+<!-- TAB 0: Current Status -->
+<div class="panel active" id="p0">
+  <div class="kpi-row">
+    <div class="kpi"><div class="val">314.67</div><div class="lbl">현재 Blended AED/t</div></div>
+    <div class="kpi"><div class="val">78.7%</div><div class="lbl">ALS 비중</div></div>
+    <div class="kpi"><div class="val">4,596t</div><div class="lbl">월평균 톤수</div></div>
+    <div class="kpi"><div class="val">1.14M</div><div class="lbl">ALS 월평균 (AED)</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h3>월별 비용 구조 (Stacked)</h3>
+      <div class="chart-wrap"><canvas id="c0a"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>월별 AED/t vs 톤수</h3>
+      <div class="chart-wrap"><canvas id="c0b"></canvas></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>월별 통합 비용 테이블</h3>
+    <div style="max-height:300px;overflow-y:auto">
+      <table id="t0"></table>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 1: Scenario A -->
+<div class="panel" id="p1">
+  <div class="kpi-row">
+    <div class="kpi"><div class="val">338.7→214.8</div><div class="lbl">AED/t (0%→+100%)</div></div>
+    <div class="kpi"><div class="val">-31.7%</div><div class="lbl">최대 절감 (+100% 밀도)</div></div>
+    <div class="kpi"><div class="val">5,448t</div><div class="lbl">300 AED/t 달성 톤수</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h3>톤수 증가별 AED/t 변화</h3>
+      <div class="chart-wrap"><canvas id="c1a"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>비용 구성 변화 (톤수 증가)</h3>
+      <div class="chart-wrap"><canvas id="c1b"></canvas></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>시나리오 A 상세</h3>
+    <table id="t1"></table>
+  </div>
+</div>
+
+<!-- TAB 2: Scenario B -->
+<div class="panel" id="p2">
+  <div class="kpi-row">
+    <div class="kpi"><div class="val">-10%</div><div class="lbl">손익분기 할인율</div></div>
+    <div class="kpi"><div class="val">1.37M</div><div class="lbl">-10% 연간 절감 AED</div></div>
+    <div class="kpi"><div class="val">264.4</div><div class="lbl">-30% 시 AED/t</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h3>ALS 할인율별 AED/t</h3>
+      <div class="chart-wrap"><canvas id="c2a"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>연간 절감액 (AED)</h3>
+      <div class="chart-wrap"><canvas id="c2b"></canvas></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>시나리오 B 상세</h3>
+    <table id="t2"></table>
+  </div>
+</div>
+
+<!-- TAB 3: Scenario C -->
+<div class="panel" id="p3">
+  <div class="kpi-row">
+    <div class="kpi"><div class="val">223.1</div><div class="lbl">최적 AED/t (T+50%,R-20%)</div></div>
+    <div class="kpi"><div class="val">-29.1%</div><div class="lbl">최대 절감률</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h3>복합 시나리오 비교</h3>
+      <div class="chart-wrap"><canvas id="c3a"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>시나리오 효과 매트릭스</h3>
+      <div class="chart-wrap"><canvas id="c3b"></canvas></div>
+    </div>
+  </div>
+  <div class="reco">
+    <h3>💡 최적화 권장사항</h3>
+    <ul>
+      <li><strong>단기 (Quick Win):</strong> ALS 용선료 -10% 협상 → 연 AED 1.37M 절감, AED/t 313.9</li>
+      <li><strong>중기 (Operational):</strong> 월 톤수 5,500t 이상 유지 (항차 밀도 +20%) → AED/t 297.4</li>
+      <li><strong>장기 (Strategic):</strong> Ton+50% + ALS-20% 동시 추진 → AED/t 223.1 (현재 대비 -29%)</li>
+      <li><strong>Critical:</strong> 월 1,300t 미만 방지 — 2025-02처럼 AED/t 1,257까지 급등</li>
+    </ul>
+  </div>
+</div>
+
+<!-- TAB 4: Break-even -->
+<div class="panel" id="p4">
+  <div class="grid2">
+    <div class="card">
+      <h3>목표 AED/t별 필요 월간 톤수</h3>
+      <div class="chart-wrap"><canvas id="c4a"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Idle Month 비용 영향</h3>
+      <div class="chart-wrap"><canvas id="c4b"></canvas></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>손익분기 테이블</h3>
+    <table>
+      <thead><tr><th style="text-align:left">목표 AED/t</th><th>필요 월간 톤수</th><th>현 평균 대비</th><th>필요 항차수 (avg 550t)</th><th>달성 가능성</th></tr></thead>
+      <tbody>
+        <tr><td style="text-align:left">300</td><td>5,448t</td><td>119%</td><td>~10회</td><td class="warn">도전적</td></tr>
+        <tr><td style="text-align:left">350</td><td>4,396t</td><td>96%</td><td>~8회</td><td class="best">현실적</td></tr>
+        <tr><td style="text-align:left">400</td><td>3,685t</td><td>80%</td><td>~7회</td><td class="best">달성중</td></tr>
+        <tr><td style="text-align:left">450</td><td>3,172t</td><td>69%</td><td>~6회</td><td class="best">용이</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 5: Comparison Matrix -->
+<div class="panel" id="p5">
+  <div class="card">
+    <h3>종합 시나리오 비교표</h3>
+    <div style="overflow-x:auto">
+      <table id="t5"></table>
+    </div>
+  </div>
+  <div class="grid3" style="margin-top:12px">
+    <div class="card" style="border-color:#22d3ee">
+      <h3><span class="tag tag-a">A</span> Stand-Alone (항차밀도↑)</h3>
+      <p style="font-size:12px">비용: 0 AED &nbsp;|&nbsp; 기간: 1-2개월</p>
+      <p style="font-size:12px;margin-top:6px">운영 최적화만으로 달성. 스케줄 관리·화물 집중으로 월 톤수 +20~50% 확보. ALS 계약 변경 불필요.</p>
+      <p style="font-size:12px;margin-top:6px;color:#22d3ee">절감: 5.5~18.6%</p>
+    </div>
+    <div class="card" style="border-color:#c084fc">
+      <h3><span class="tag tag-b">B</span> Chained (용선료 협상)</h3>
+      <p style="font-size:12px">비용: 협상비용 &nbsp;|&nbsp; 기간: 2-4주</p>
+      <p style="font-size:12px;margin-top:6px">ALS와 용선료 재협상. 장기계약·볼륨 보장 레버리지. -10~20% 목표. 계약 갱신 시점 활용.</p>
+      <p style="font-size:12px;margin-top:6px;color:#c084fc">절감: 0.2~8.1% (연 AED 1.4~2.7M)</p>
+    </div>
+    <div class="card" style="border-color:#4ade80">
+      <h3><span class="tag tag-c">C</span> Orchestrated (복합)</h3>
+      <p style="font-size:12px">비용: 협상+운영개선 &nbsp;|&nbsp; 기간: 1-3개월</p>
+      <p style="font-size:12px;margin-top:6px">A+B 동시 추진. 톤수 확대 + 용선료 인하 시너지. 최대 29.1% 절감 가능. 프로젝트 후반 물량 증가 시 가장 효과적.</p>
+      <p style="font-size:12px;margin-top:6px;color:#4ade80">절감: 12.0~29.1%</p>
+    </div>
+  </div>
+</div>
+
+<div class="footer">JPT71 HVDC ADNOC · ALS Cost Optimization · MACHO-GPT v5.3 · Generated 2026-03-10</div>
+
+<script>
+// Data
+const monthly = [
+  {m:'2024-07',als:821178,ofco:9674,gm:19594,ton:2446,aed_t:347.7},
+  {m:'2024-08',als:1138475,ofco:322965,gm:65483,ton:6066,aed_t:251.7},
+  {m:'2024-09',als:1118174,ofco:436059,gm:62876,ton:12388,aed_t:130.5},
+  {m:'2024-10',als:1138475,ofco:320802,gm:30777,ton:4095,aed_t:363.9},
+  {m:'2024-11',als:1101750,ofco:266026,gm:30611,ton:3361,aed_t:416.1},
+  {m:'2024-12',als:1421258,ofco:265199,gm:51169,ton:10532,aed_t:165.0},
+  {m:'2025-01',als:1308585,ofco:31740,gm:12486,ton:1932,aed_t:700.3},
+  {m:'2025-02',als:1233960,ofco:378194,gm:0,ton:1282,aed_t:1257.5},
+  {m:'2025-03',als:1366170,ofco:199848,gm:0,ton:2308,aed_t:678.5},
+  {m:'2025-04',als:1322100,ofco:371130,gm:17911,ton:3013,aed_t:567.9},
+  {m:'2025-05',als:991134,ofco:269638,gm:25792,ton:2931,aed_t:438.9},
+  {m:'2025-07',als:776513,ofco:291332,gm:30741,ton:3639,aed_t:301.9},
+  {m:'2025-08',als:1156838,ofco:560781,gm:12962,ton:2390,aed_t:724.0},
+  {m:'2025-09',als:1322100,ofco:559534,gm:57808,ton:6095,aed_t:318.2},
+  {m:'2025-10',als:1366170,ofco:289888,gm:57160,ton:6429,aed_t:266.5},
+  {m:'2025-11',als:1322100,ofco:191763,gm:37979,ton:5360,aed_t:289.5},
+  {m:'2025-12',als:1366170,ofco:245930,gm:26235,ton:5813,aed_t:281.9},
+  {m:'2026-01',als:1366170,ofco:233322,gm:29095,ton:4911,aed_t:331.6}
+];
+
+const scenA = [
+  {pct:0,ton:4596,aed_t:338.7,save:0},
+  {pct:20,ton:5516,aed_t:297.4,save:5.5},
+  {pct:50,ton:6895,aed_t:256.1,save:18.6},
+  {pct:80,ton:8273,aed_t:228.6,save:27.4},
+  {pct:100,ton:9193,aed_t:214.8,save:31.7}
+];
+
+const scenB = [
+  {disc:0,als:1138806,aed_t:338.7,save:0,annual:0},
+  {disc:5,als:1081866,aed_t:326.3,save:3.7,annual:683284},
+  {disc:10,als:1024926,aed_t:313.9,save:7.9,annual:1366568},
+  {disc:15,als:967985,aed_t:301.5,save:11.0,annual:2049851},
+  {disc:20,als:911045,aed_t:289.2,save:14.6,annual:2733135},
+  {disc:25,als:854105,aed_t:276.8,save:18.3,annual:3416419},
+  {disc:30,als:797164,aed_t:264.4,save:21.9,annual:4099703}
+];
+
+const scenC = [
+  {lbl:'기준',ton_p:0,als_d:0,aed_t:338.7,save:0},
+  {lbl:'T+20,R-10',ton_p:20,als_d:10,aed_t:276.8,save:12.0},
+  {lbl:'T+20,R-20',ton_p:20,als_d:20,aed_t:256.1,save:18.6},
+  {lbl:'T+50,R-10',ton_p:50,als_d:10,aed_t:239.6,save:23.9},
+  {lbl:'T+50,R-20',ton_p:50,als_d:20,aed_t:223.1,save:29.1}
+];
+
+const fmt = n => n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(0)+'K':n.toFixed(0);
+const fmtN = n => n.toLocaleString('en',{maximumFractionDigits:0});
+
+// Tab control
+function showTab(i){
+  document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
+  document.querySelectorAll('.panel').forEach((p,j)=>p.classList.toggle('active',j===i));
+}
+
+// Chart defaults
+Chart.defaults.color='#94a3b8';
+Chart.defaults.borderColor='#334155';
+Chart.defaults.font.size=10;
+
+// --- TAB 0 Charts ---
+// Stacked bar
+new Chart(document.getElementById('c0a'),{
+  type:'bar',
+  data:{
+    labels:monthly.map(d=>d.m.slice(2)),
+    datasets:[
+      {label:'ALS',data:monthly.map(d=>d.als),backgroundColor:'#3b82f6',stack:'s'},
+      {label:'OFCO',data:monthly.map(d=>d.ofco),backgroundColor:'#f59e0b',stack:'s'},
+      {label:'GM',data:monthly.map(d=>d.gm),backgroundColor:'#10b981',stack:'s'}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:12}}},scales:{x:{ticks:{maxRotation:45}},y:{ticks:{callback:v=>fmt(v)}}}}
+});
+
+// AED/t vs Tonnage dual axis
+new Chart(document.getElementById('c0b'),{
+  type:'bar',
+  data:{
+    labels:monthly.map(d=>d.m.slice(2)),
+    datasets:[
+      {label:'톤수',data:monthly.map(d=>d.ton),backgroundColor:'rgba(59,130,246,0.3)',borderColor:'#3b82f6',borderWidth:1,yAxisID:'y'},
+      {label:'AED/t',data:monthly.map(d=>d.aed_t),type:'line',borderColor:'#f59e0b',backgroundColor:'#f59e0b',pointRadius:3,yAxisID:'y1',tension:0.3}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:12}}},
+    scales:{x:{ticks:{maxRotation:45}},y:{position:'left',title:{display:true,text:'톤수'}},y1:{position:'right',grid:{drawOnChartArea:false},title:{display:true,text:'AED/t'}}}}
+});
+
+// TAB 0 table
+(()=>{
+  let h='<thead><tr><th style="text-align:left">월</th><th>ALS (AED)</th><th>OFCO</th><th>GM</th><th>합계</th><th>톤수</th><th>AED/t</th><th>ALS%</th></tr></thead><tbody>';
+  monthly.forEach(d=>{
+    const tot=d.als+d.ofco+d.gm;
+    const pct=(d.als/tot*100).toFixed(1);
+    const cls=d.aed_t>500?'alert':d.aed_t>400?'warn':'';
+    h+=`<tr><td style="text-align:left">${d.m}</td><td>${fmtN(d.als)}</td><td>${fmtN(d.ofco)}</td><td>${fmtN(d.gm)}</td><td>${fmtN(tot)}</td><td>${fmtN(d.ton)}</td><td class="${cls}">${d.aed_t.toFixed(1)}</td><td>${pct}%</td></tr>`;
+  });
+  h+='</tbody>';
+  document.getElementById('t0').innerHTML=h;
+})();
+
+// --- TAB 1 Charts ---
+new Chart(document.getElementById('c1a'),{
+  type:'line',
+  data:{
+    labels:scenA.map(d=>'+'+d.pct+'%'),
+    datasets:[
+      {label:'AED/t',data:scenA.map(d=>d.aed_t),borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.1)',fill:true,tension:0.4,pointRadius:5},
+      {label:'현재 Blended (314.7)',data:scenA.map(()=>314.7),borderColor:'#ef4444',borderDash:[5,5],pointRadius:0}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:12}}},scales:{y:{title:{display:true,text:'AED/t'}}}}
+});
+
+new Chart(document.getElementById('c1b'),{
+  type:'bar',
+  data:{
+    labels:scenA.map(d=>'+'+d.pct+'% ('+fmtN(d.ton)+'t)'),
+    datasets:[
+      {label:'ALS (고정)',data:scenA.map(()=>1138806),backgroundColor:'#3b82f6',stack:'s'},
+      {label:'OFCO (변동)',data:scenA.map(d=>d.ton*81.12),backgroundColor:'#f59e0b',stack:'s'},
+      {label:'GM (변동)',data:scenA.map(d=>d.ton*9.83),backgroundColor:'#10b981',stack:'s'}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:12}}},scales:{y:{ticks:{callback:v=>fmt(v)}}}}
+});
+
+// Tab 1 table
+(()=>{
+  let h='<thead><tr><th style="text-align:left">톤수 증가</th><th>월 톤수</th><th>ALS (고정)</th><th>OFCO (변동)</th><th>GM (변동)</th><th>합계/월</th><th>AED/t</th><th>절감률</th></tr></thead><tbody>';
+  scenA.forEach(d=>{
+    const ofco=d.ton*81.12,gm_=d.ton*9.83,tot=1138806+ofco+gm_;
+    h+=`<tr><td style="text-align:left">+${d.pct}%</td><td>${fmtN(d.ton)}</td><td>${fmtN(1138806)}</td><td>${fmtN(ofco)}</td><td>${fmtN(gm_)}</td><td>${fmtN(tot)}</td><td>${d.aed_t.toFixed(1)}</td><td class="${d.save>10?'best':d.save>0?'warn':''}">${d.save>0?'-':''}${d.save.toFixed(1)}%</td></tr>`;
+  });
+  h+='</tbody>';
+  document.getElementById('t1').innerHTML=h;
+})();
+
+// --- TAB 2 Charts ---
+new Chart(document.getElementById('c2a'),{
+  type:'line',
+  data:{
+    labels:scenB.map(d=>'-'+d.disc+'%'),
+    datasets:[
+      {label:'AED/t',data:scenB.map(d=>d.aed_t),borderColor:'#a855f7',backgroundColor:'rgba(168,85,247,0.1)',fill:true,tension:0.4,pointRadius:5},
+      {label:'현재 Blended (314.7)',data:scenB.map(()=>314.7),borderColor:'#ef4444',borderDash:[5,5],pointRadius:0}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:12}}},scales:{y:{title:{display:true,text:'AED/t'}}}}
+});
+
+new Chart(document.getElementById('c2b'),{
+  type:'bar',
+  data:{
+    labels:scenB.map(d=>'-'+d.disc+'%'),
+    datasets:[{label:'연간 절감 AED',data:scenB.map(d=>d.annual),backgroundColor:scenB.map(d=>d.annual>2e6?'#22c55e':d.annual>0?'#f59e0b':'#64748b')}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmt(v)},title:{display:true,text:'연간 절감 AED'}}}}
+});
+
+// Tab 2 table
+(()=>{
+  let h='<thead><tr><th style="text-align:left">할인율</th><th>ALS 월액</th><th>AED/t</th><th>절감률</th><th>연간 절감</th></tr></thead><tbody>';
+  scenB.forEach(d=>{
+    h+=`<tr><td style="text-align:left">-${d.disc}%</td><td>${fmtN(d.als)}</td><td>${d.aed_t.toFixed(1)}</td><td class="${d.save>10?'best':d.save>0?'warn':''}">${d.save>0?'-':''}${d.save.toFixed(1)}%</td><td>${fmtN(d.annual)}</td></tr>`;
+  });
+  h+='</tbody>';
+  document.getElementById('t2').innerHTML=h;
+})();
+
+// --- TAB 3 Charts ---
+new Chart(document.getElementById('c3a'),{
+  type:'bar',
+  data:{
+    labels:scenC.map(d=>d.lbl),
+    datasets:[
+      {label:'AED/t',data:scenC.map(d=>d.aed_t),backgroundColor:scenC.map(d=>d.save>20?'#22c55e':d.save>10?'#3b82f6':d.save>0?'#f59e0b':'#64748b')}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'AED/t'}}}}
+});
+
+new Chart(document.getElementById('c3b'),{
+  type:'scatter',
+  data:{
+    datasets:[
+      {label:'기준',data:[{x:0,y:0,r:10}],backgroundColor:'#64748b',pointRadius:12},
+      ...scenC.slice(1).map((d,i)=>({
+        label:d.lbl,
+        data:[{x:d.ton_p,y:d.als_d}],
+        backgroundColor:['#3b82f6','#a855f7','#f59e0b','#22c55e'][i],
+        pointRadius:d.save*0.7+5
+      }))
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top',labels:{boxWidth:12}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: 절감 ${scenC[c.datasetIndex].save}%`}}},
+    scales:{x:{title:{display:true,text:'톤수 증가 (%)'},min:-5,max:60},y:{title:{display:true,text:'ALS 할인 (%)'},min:-5,max:25}}}
+});
+
+// --- TAB 4 Charts ---
+const be=[{t:250,ton:7373},{t:300,ton:5448},{t:350,ton:4396},{t:400,ton:3685},{t:450,ton:3172},{t:500,ton:2790}];
+new Chart(document.getElementById('c4a'),{
+  type:'line',
+  data:{
+    labels:be.map(d=>d.t+' AED/t'),
+    datasets:[
+      {label:'필요 월간 톤수',data:be.map(d=>d.ton),borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.1)',fill:true,tension:0.4,pointRadius:5},
+      {label:'현재 월평균 (4,596t)',data:be.map(()=>4596),borderColor:'#ef4444',borderDash:[5,5],pointRadius:0}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:12}}},scales:{y:{title:{display:true,text:'월간 톤수 (t)'}}}}
+});
+
+const idle=[{m:0,cost:0,impact:0},{m:1,cost:1138806,impact:13.0},{m:2,cost:2277613,impact:26.1},{m:3,cost:3416419,impact:39.1}];
+new Chart(document.getElementById('c4b'),{
+  type:'bar',
+  data:{
+    labels:idle.map(d=>d.m+'개월'),
+    datasets:[
+      {label:'낭비 비용 AED',data:idle.map(d=>d.cost),backgroundColor:'#ef4444',yAxisID:'y'},
+      {label:'프로젝트 AED/t 영향',data:idle.map(d=>d.impact),type:'line',borderColor:'#f59e0b',pointRadius:5,yAxisID:'y1'}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:12}}},
+    scales:{y:{position:'left',ticks:{callback:v=>fmt(v)},title:{display:true,text:'낭비 AED'}},y1:{position:'right',grid:{drawOnChartArea:false},title:{display:true,text:'AED/t 증가'}}}}
+});
+
+// --- TAB 5 Comparison table ---
+(()=>{
+  const rows=[
+    ['기준 (현재)','—','—','4,596','338.7','—','—','🔴'],
+    ['A1: 톤수 +20%','0','1-2개월','5,516','297.4','-5.5%','0','🟡'],
+    ['A2: 톤수 +50%','0','1-2개월','6,895','256.1','-18.6%','0','🟢'],
+    ['B1: ALS -10%','협상비','2-4주','4,596','313.9','-7.9%','1,366,568','🟡'],
+    ['B2: ALS -20%','협상비','2-4주','4,596','289.2','-14.6%','2,733,135','🟢'],
+    ['C1: T+20,R-10','협상비','1-2개월','5,516','276.8','-12.0%','1,366,568','🟢'],
+    ['C2: T+20,R-20','협상비','1-2개월','5,516','256.1','-18.6%','2,733,135','🟢'],
+    ['C3: T+50,R-10','협상비','1-3개월','6,895','239.6','-23.9%','1,366,568','🟢'],
+    ['C4: T+50,R-20','협상비','1-3개월','6,895','223.1','-29.1%','2,733,135','⭐']
+  ];
+  let h='<thead><tr><th style="text-align:left">시나리오</th><th>투자비</th><th>실행기간</th><th>월 톤수</th><th>AED/t</th><th>절감률</th><th>연간절감 AED</th><th>등급</th></tr></thead><tbody>';
+  rows.forEach(r=>{
+    const cls=r[7]==='⭐'?'best':r[7]==='🟢'?'best':r[7]==='🟡'?'warn':'alert';
+    h+=`<tr><td style="text-align:left;font-weight:600">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td class="${cls}">${r[4]}</td><td>${r[5]}</td><td>${r[6]}</td><td style="text-align:center">${r[7]}</td></tr>`;
+  });
+  h+='</tbody>';
+  document.getElementById('t5').innerHTML=h;
+})();
+</script>
+</body>
+</html>

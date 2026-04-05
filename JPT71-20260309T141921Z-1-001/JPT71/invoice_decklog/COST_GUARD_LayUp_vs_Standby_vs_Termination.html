@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COST-GUARD | JOPETWIL 71 - Lay-Up vs Standby vs 조기해지 비용 비교</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#0f172a;color:#e2e8f0;line-height:1.5}
+.container{max-width:1400px;margin:0 auto;padding:16px}
+header{background:linear-gradient(135deg,#1e3a5f 0%,#0f172a 100%);border:1px solid #1e3a5f;border-radius:12px;padding:20px 28px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+header h1{font-size:1.4rem;color:#60a5fa;letter-spacing:-0.5px}
+header h1 span{color:#f97316;font-size:0.75rem;vertical-align:super;margin-left:4px}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:700;letter-spacing:0.5px}
+.badge-red{background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b}
+.badge-blue{background:#1e3a5f;color:#93c5fd;border:1px solid #2563eb}
+.meta{font-size:0.75rem;color:#94a3b8;text-align:right}
+.controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px;background:#1e293b;padding:14px 20px;border-radius:10px;border:1px solid #334155}
+.controls label{font-size:0.8rem;color:#94a3b8;font-weight:600}
+.controls select,.controls input{background:#0f172a;border:1px solid #475569;color:#e2e8f0;padding:6px 10px;border-radius:6px;font-size:0.85rem}
+.controls input[type=range]{width:160px;accent-color:#f97316}
+.range-val{color:#f97316;font-weight:700;font-size:0.9rem;min-width:30px}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:16px 18px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;border-radius:4px 0 0 4px}
+.kpi-a::before{background:#22c55e}.kpi-b::before{background:#f97316}.kpi-c::before{background:#ef4444}.kpi-d::before{background:#60a5fa}
+.kpi .label{font-size:0.7rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px}
+.kpi .value{font-size:1.5rem;font-weight:800;letter-spacing:-1px}
+.kpi .sub{font-size:0.7rem;color:#64748b;margin-top:2px}
+.green{color:#4ade80}.orange{color:#fb923c}.red{color:#f87171}.blue{color:#60a5fa}.white{color:#f1f5f9}
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:900px){.charts-grid{grid-template-columns:1fr}}
+.chart-card{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:16px}
+.chart-card h3{font-size:0.85rem;color:#94a3b8;margin-bottom:10px;font-weight:600}
+.chart-card.full{grid-column:1/-1}
+table{width:100%;border-collapse:collapse;font-size:0.8rem}
+th{background:#0f172a;color:#94a3b8;padding:8px 10px;text-align:left;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;font-size:0.7rem;border-bottom:2px solid #334155;position:sticky;top:0}
+td{padding:7px 10px;border-bottom:1px solid #1e293b}
+tr:hover td{background:#1e293b}
+tr.highlight td{background:#1c2a3a;font-weight:700}
+.right{text-align:right}
+.table-wrap{max-height:400px;overflow-y:auto;border-radius:10px;border:1px solid #334155;background:#0f172a}
+.decision-box{background:linear-gradient(135deg,#1a2744 0%,#0f172a 100%);border:2px solid #f97316;border-radius:12px;padding:20px 24px;margin-top:16px}
+.decision-box h3{color:#f97316;margin-bottom:8px;font-size:1rem}
+.decision-box p{font-size:0.85rem;line-height:1.7}
+footer{text-align:center;padding:12px;font-size:0.7rem;color:#475569;margin-top:12px}
+.note{font-size:0.72rem;color:#64748b;margin-top:6px;font-style:italic}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div>
+    <h1>COST-GUARD<span>MODE</span> | JOPETWIL 71 비용 시뮬레이션</h1>
+    <div style="margin-top:6px">
+      <span class="badge badge-red">CRITICAL 75/100</span>
+      <span class="badge badge-blue">SUPPLYTIME 2017</span>
+    </div>
+  </div>
+  <div class="meta">
+    계약번호: SCT-19LT-PJC-LA-007<br>
+    Owner: ADNOC L&S | Charterer: Samsung C&T<br>
+    보고일: 2026-03-09 | Standby 시작: 2026-02-28
+  </div>
+</header>
+
+<div class="controls">
+  <label>시뮬레이션 종료일:</label>
+  <select id="endDate">
+    <option value="10">3/9 (오늘, 10일)</option>
+    <option value="16">3/15 (16일)</option>
+    <option value="22">3/21 (22일)</option>
+    <option value="32" selected>3/31 Amd5 만료 (32일)</option>
+    <option value="45">4/13 (45일)</option>
+    <option value="60">4/28 (60일)</option>
+  </select>
+  <label>Lay-Up 감액률:</label>
+  <input type="range" id="layupDiscount" min="30" max="70" value="50" step="5">
+  <span class="range-val" id="layupVal">50%</span>
+  <label>Lay-Up 개시 소요일:</label>
+  <select id="layupLead">
+    <option value="7">7일 (최단)</option>
+    <option value="14" selected>14일 (표준)</option>
+    <option value="21">21일</option>
+  </select>
+</div>
+
+<div class="kpi-row" id="kpiRow"></div>
+
+<div class="charts-grid">
+  <div class="chart-card"><h3>누적 비용 비교 (일별)</h3><canvas id="chartCumulative"></canvas></div>
+  <div class="chart-card"><h3>옵션별 총 비용 구성</h3><canvas id="chartBar"></canvas></div>
+  <div class="chart-card full"><h3>비용 구성 상세 비교</h3><canvas id="chartStacked"></canvas></div>
+</div>
+
+<h3 style="font-size:0.9rem;color:#94a3b8;margin-bottom:8px">📋 일자별 비용 상세 테이블</h3>
+<div class="table-wrap"><table id="detailTable"></table></div>
+
+<div class="decision-box" id="decisionBox"></div>
+
+<p class="note">
+  ※ Charter Hire = US$ 12,000/day (Amd No.1). 환율 USD1=AED3.6725. VAT 5% 별도.<br>
+  ※ Lay-Up reduced hire = Full Hire × (1 - 감액률). Lay-Up/재가동 비용 각 US$15,000 가정.<br>
+  ※ 조기해지 = 15일 통지 + 잔여기간 Balance Hire (Box 13). Demob fee = NIL (Box 15).<br>
+  ※ 소모품(Fuel/Water/Meals/Accommodation)은 별도로 Charterer 부담이며 본 시뮬레이션에 미포함.
+</p>
+
+<footer>COST-GUARD Mode | MACHO-GPT v3.4 | Samsung C&T HVDC Project Logistics | Confidence: 0.86</footer>
+</div>
+
+<script>
+const DAILY_HIRE = 12000;
+const EXCHANGE = 3.6725;
+const VAT = 0.05;
+const LAYUP_COST = 15000;
+const REACTIVATION_COST = 15000;
+const FUEL_STANDBY = 400; // approx daily fuel on standby
+
+let chartCum, chartBarInst, chartStackedInst;
+
+function calculate() {
+  const totalDays = parseInt(document.getElementById('endDate').value);
+  const discountPct = parseInt(document.getElementById('layupDiscount').value) / 100;
+  const layupLead = parseInt(document.getElementById('layupLead').value);
+
+  document.getElementById('layupVal').textContent = Math.round(discountPct * 100) + '%';
+
+  const reducedHire = DAILY_HIRE * (1 - discountPct);
+  const layupActiveDays = Math.max(0, totalDays - layupLead);
+  const layupFullDays = Math.min(totalDays, layupLead);
+
+  // === Option A: Continue Standby (full hire) ===
+  const A_hire = DAILY_HIRE * totalDays;
+  const A_vat = A_hire * VAT;
+  const A_total = A_hire + A_vat;
+
+  // === Option B: Lay-Up ===
+  const B_fullHire = DAILY_HIRE * layupFullDays;
+  const B_reducedHire = reducedHire * layupActiveDays;
+  const B_hire = B_fullHire + B_reducedHire;
+  const B_setup = LAYUP_COST + REACTIVATION_COST;
+  const B_vat = B_hire * VAT;
+  const B_total = B_hire + B_setup + B_vat;
+
+  // === Option C: Early Termination ===
+  // Balance hire for remaining period = daily × remaining days from notice
+  // Notice period = 15 days. If we terminate now, we pay 15 days notice + balance.
+  // Box 13: "Balance Charter Hire for remaining Period of Hire"
+  // Amd5 ends 3/31. From today (day 10), remaining = totalDays - 10 = 22 days
+  // But we still pay balance hire for remaining period
+  const noticeStart = 10; // day 10 = today
+  const noticeDays = 15;
+  const remainingAfterNotice = Math.max(0, totalDays - noticeStart);
+  const C_balanceHire = DAILY_HIRE * remainingAfterNotice; // pay balance for remaining period
+  const C_hireBeforeNotice = DAILY_HIRE * noticeStart; // hire accrued so far
+  const C_total_hire = C_hireBeforeNotice + C_balanceHire;
+  const C_vat = C_total_hire * VAT;
+  const C_total = C_total_hire + C_vat;
+
+  // Savings
+  const savingsB = A_total - B_total;
+  const savingsC = A_total - C_total;
+  const bestOption = (B_total <= A_total && B_total <= C_total) ? 'B' :
+                     (C_total <= A_total) ? 'C' : 'A';
+
+  // KPIs
+  const kpiHTML = `
+    <div class="kpi kpi-a"><div class="label">Option A: Standby 계속</div>
+      <div class="value orange">$${(A_total/1000).toFixed(1)}K</div>
+      <div class="sub">Hire $${(A_hire/1000).toFixed(0)}K + VAT $${(A_vat/1000).toFixed(1)}K</div></div>
+    <div class="kpi kpi-b"><div class="label">Option B: Lay-Up 전환</div>
+      <div class="value green">$${(B_total/1000).toFixed(1)}K</div>
+      <div class="sub">Hire $${(B_hire/1000).toFixed(0)}K + Setup $${(B_setup/1000).toFixed(0)}K + VAT $${(B_vat/1000).toFixed(1)}K</div></div>
+    <div class="kpi kpi-c"><div class="label">Option C: 조기해지</div>
+      <div class="value red">$${(C_total/1000).toFixed(1)}K</div>
+      <div class="sub">Balance Hire $${(C_total_hire/1000).toFixed(0)}K + VAT $${(C_vat/1000).toFixed(1)}K</div></div>
+    <div class="kpi kpi-d"><div class="label">최적 옵션 절감액</div>
+      <div class="value blue">${bestOption === 'A' ? '—' : (bestOption === 'B' ? '$' + (savingsB/1000).toFixed(1) + 'K' : '$' + (savingsC/1000).toFixed(1) + 'K')}</div>
+      <div class="sub">${bestOption === 'A' ? 'Standby가 최저비용' : bestOption === 'B' ? 'Lay-Up 전환 시 절감' : '조기해지 시 절감'} (vs Standby)</div></div>
+  `;
+  document.getElementById('kpiRow').innerHTML = kpiHTML;
+
+  // Cumulative chart data
+  const labels = [];
+  const cumA = [], cumB = [], cumC = [];
+  let runA = 0, runB = 0, runC = 0;
+  const noticeDay = noticeStart;
+
+  for (let d = 1; d <= totalDays; d++) {
+    labels.push('Day ' + d);
+    // A: full hire always
+    runA += DAILY_HIRE;
+    cumA.push(runA);
+    // B: full hire until layupLead, then reduced
+    runB += (d <= layupLead) ? DAILY_HIRE : reducedHire;
+    if (d === layupLead) runB += LAYUP_COST;
+    if (d === totalDays && layupActiveDays > 0) runB += REACTIVATION_COST;
+    cumB.push(runB);
+    // C: full hire until termination effective
+    runC += (d <= totalDays) ? DAILY_HIRE : 0; // balance hire covers full remaining
+    cumC.push(Math.min(runC, C_total_hire));
+  }
+
+  // Cumulative line chart
+  if (chartCum) chartCum.destroy();
+  chartCum = new Chart(document.getElementById('chartCumulative'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'A: Standby 계속', data: cumA, borderColor: '#fb923c', backgroundColor: 'rgba(251,146,60,0.1)', fill: true, tension: 0.1, borderWidth: 2, pointRadius: 0 },
+        { label: 'B: Lay-Up 전환', data: cumB, borderColor: '#4ade80', backgroundColor: 'rgba(74,222,128,0.1)', fill: true, tension: 0.1, borderWidth: 2, pointRadius: 0 },
+        { label: 'C: 조기해지', data: cumC, borderColor: '#f87171', backgroundColor: 'rgba(248,113,113,0.1)', fill: true, tension: 0.1, borderWidth: 2, pointRadius: 0 },
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { labels: { color: '#94a3b8', font: { size: 11 } } },
+        tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': $' + ctx.parsed.y.toLocaleString() } }
+      },
+      scales: {
+        x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: '#1e293b' } },
+        y: { ticks: { color: '#64748b', callback: v => '$' + (v/1000).toFixed(0) + 'K' }, grid: { color: '#1e293b' } }
+      }
+    }
+  });
+
+  // Bar chart
+  if (chartBarInst) chartBarInst.destroy();
+  chartBarInst = new Chart(document.getElementById('chartBar'), {
+    type: 'bar',
+    data: {
+      labels: ['A: Standby', 'B: Lay-Up', 'C: 조기해지'],
+      datasets: [{
+        label: '총 비용 (USD)',
+        data: [A_total, B_total, C_total],
+        backgroundColor: ['#fb923c', '#4ade80', '#f87171'],
+        borderColor: ['#f97316', '#22c55e', '#ef4444'],
+        borderWidth: 1, borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true, indexAxis: 'y',
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => '$' + ctx.parsed.x.toLocaleString() } }
+      },
+      scales: {
+        x: { ticks: { color: '#64748b', callback: v => '$' + (v/1000) + 'K' }, grid: { color: '#1e293b' } },
+        y: { ticks: { color: '#e2e8f0', font: { size: 12, weight: 'bold' } }, grid: { display: false } }
+      }
+    }
+  });
+
+  // Stacked bar
+  if (chartStackedInst) chartStackedInst.destroy();
+  chartStackedInst = new Chart(document.getElementById('chartStacked'), {
+    type: 'bar',
+    data: {
+      labels: ['A: Standby 계속', 'B: Lay-Up 전환', 'C: 조기해지 (Balance)'],
+      datasets: [
+        { label: 'Full Hire', data: [A_hire, B_fullHire, C_hireBeforeNotice], backgroundColor: '#3b82f6' },
+        { label: 'Reduced Hire', data: [0, B_reducedHire, 0], backgroundColor: '#22d3ee' },
+        { label: 'Balance Hire', data: [0, 0, C_balanceHire], backgroundColor: '#f87171' },
+        { label: 'Lay-Up/재가동', data: [0, B_setup, 0], backgroundColor: '#a855f7' },
+        { label: 'VAT 5%', data: [A_vat, B_vat, C_vat], backgroundColor: '#fbbf24' },
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { labels: { color: '#94a3b8', font: { size: 10 } } },
+        tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': $' + ctx.parsed.y.toLocaleString() } }
+      },
+      scales: {
+        x: { stacked: true, ticks: { color: '#e2e8f0' }, grid: { display: false } },
+        y: { stacked: true, ticks: { color: '#64748b', callback: v => '$' + (v/1000) + 'K' }, grid: { color: '#1e293b' } }
+      }
+    }
+  });
+
+  // Detail table
+  let thtml = `<thead><tr>
+    <th>Day</th><th>날짜</th>
+    <th class="right">A: Standby<br>(일일/누적)</th>
+    <th class="right">B: Lay-Up<br>(일일/누적)</th>
+    <th class="right">C: 해지<br>(일일/누적)</th>
+    <th>B 상태</th><th class="right">B vs A 절감</th>
+  </tr></thead><tbody>`;
+  const startDate = new Date(2026, 1, 28);
+  let tA = 0, tB = 0, tC = 0;
+  for (let d = 1; d <= totalDays; d++) {
+    const dt = new Date(startDate); dt.setDate(dt.getDate() + d - 1);
+    const dateStr = `${dt.getMonth()+1}/${dt.getDate()}`;
+    const dayHireA = DAILY_HIRE;
+    const dayHireB = (d <= layupLead) ? DAILY_HIRE : reducedHire;
+    const extraB = (d === layupLead) ? LAYUP_COST : (d === totalDays && layupActiveDays > 0) ? REACTIVATION_COST : 0;
+    const dayHireC = DAILY_HIRE;
+    tA += dayHireA; tB += dayHireB + extraB; tC += dayHireC;
+    const status = d < layupLead ? 'Full Hire' : d === layupLead ? 'Lay-Up 개시' : 'Reduced Hire';
+    const savings = tA - tB;
+    const hl = (d === 10 || d === layupLead || d === totalDays) ? ' class="highlight"' : '';
+    thtml += `<tr${hl}>
+      <td>${d}</td><td>${dateStr}</td>
+      <td class="right">$${dayHireA.toLocaleString()} / $${tA.toLocaleString()}</td>
+      <td class="right">$${(dayHireB + extraB).toLocaleString()} / $${tB.toLocaleString()}</td>
+      <td class="right">$${dayHireC.toLocaleString()} / $${Math.min(tC, C_total_hire).toLocaleString()}</td>
+      <td><span style="color:${d <= layupLead ? '#fb923c' : '#4ade80'}">${status}</span></td>
+      <td class="right" style="color:${savings > 0 ? '#4ade80' : '#f87171'}">${savings > 0 ? '+' : ''}$${savings.toLocaleString()}</td>
+    </tr>`;
+  }
+  thtml += '</tbody>';
+  document.getElementById('detailTable').innerHTML = thtml;
+
+  // Decision box
+  const box = document.getElementById('decisionBox');
+  let recommendation = '';
+  if (totalDays <= 14) {
+    recommendation = `<h3>📊 권고: Option A (Standby 유지)</h3>
+    <p><strong>근거:</strong> ${totalDays}일 기준 Lay-Up 절차 소요(${layupLead}일)가 전체 기간과 비슷하여 실질 절감 효과가 미미합니다.
+    Standby 총 비용 <strong>$${A_total.toLocaleString()}</strong> (AED ${Math.round(A_total * EXCHANGE).toLocaleString()}).
+    단, 즉시 FM Notice 발송 및 증빙 봉인을 병행하여 향후 upstream claim 기반을 마련하십시오.</p>`;
+  } else if (bestOption === 'B') {
+    recommendation = `<h3>📊 권고: Option B (Lay-Up 전환) ✅</h3>
+    <p><strong>근거:</strong> ${totalDays}일 시나리오에서 Lay-Up이 Standby 대비 <strong>$${savingsB.toLocaleString()}</strong> 절감됩니다
+    (AED ${Math.round(savingsB * EXCHANGE).toLocaleString()}).
+    Lay-Up 개시까지 ${layupLead}일간은 full hire($12,000/day)가 발생하고, 이후 reduced hire($${reducedHire.toLocaleString()}/day)가 적용됩니다.</p>
+    <p style="margin-top:8px"><strong>즉시 조치:</strong> ① ALS에 Clause 33 Lay-Up 요청서 발송 (Jopetwil Jetty를 safe port로 지정)
+    ② 7일 이내 ALS의 reduced hire 견적 수령 ③ 7일 이내 Samsung 확정 통보 ④ FM Notice 병행 발송</p>
+    <p style="margin-top:8px;color:#fbbf24"><strong>⚠ 리스크:</strong> Lay-Up 상태에서 Amd5 3/31 만료 시 Cl.33(f) 추가비용 발생 가능 (30일분 reduced hire + 재가동비 + demob transit)</p>`;
+  } else {
+    recommendation = `<h3>📊 권고: 상황별 판단 필요</h3>
+    <p>조기해지(Option C)는 잔여기간 Balance Hire 전액 지급이므로 비용절감 효과가 없습니다.
+    <strong>위기가 4월 이후까지 연장될 경우에만</strong> Lay-Up 또는 해지 검토가 유효합니다.
+    현 시점에서는 Standby 유지 + FM Notice + upstream claim 준비가 최선입니다.</p>`;
+  }
+  box.innerHTML = recommendation;
+}
+
+document.getElementById('endDate').addEventListener('change', calculate);
+document.getElementById('layupDiscount').addEventListener('input', calculate);
+document.getElementById('layupLead').addEventListener('change', calculate);
+
+calculate();
+</script>
+</body>
+</html>

@@ -1,0 +1,396 @@
+{
+  "routes": [
+    {
+      "dest": "AGI_FIELD",
+      "trips": 43,
+      "total_days": 290,
+      "load_days": 78,
+      "disc_days": 32,
+      "sail_days": 47,
+      "anchor_days": 30,
+      "total_fuel": 82636.5,
+      "avg_trip_fuel": 1921.8,
+      "load_fpd": 312.0,
+      "disc_fpd": 393.1,
+      "sail_fpd": 393.7,
+      "anchor_fpd": 452.2
+    },
+    {
+      "dest": "MW4_MUSAFFAH",
+      "trips": 6,
+      "total_days": 14,
+      "load_days": 11,
+      "disc_days": 1,
+      "sail_days": 1,
+      "anchor_days": 0,
+      "total_fuel": 5814.3,
+      "avg_trip_fuel": 969.1,
+      "load_fpd": 424.3,
+      "disc_fpd": 333.0,
+      "sail_fpd": 440.0,
+      "anchor_fpd": 0
+    },
+    {
+      "dest": "JPW_BASE",
+      "trips": 4,
+      "total_days": 16,
+      "load_days": 4,
+      "disc_days": 0,
+      "sail_days": 6,
+      "anchor_days": 1,
+      "total_fuel": 4526.0,
+      "avg_trip_fuel": 1131.5,
+      "load_fpd": 247.5,
+      "disc_fpd": 0,
+      "sail_fpd": 452.0,
+      "anchor_fpd": 440.0
+    },
+    {
+      "dest": "DAS_ISLAND",
+      "trips": 2,
+      "total_days": 54,
+      "load_days": 2,
+      "disc_days": 1,
+      "sail_days": 14,
+      "anchor_days": 29,
+      "total_fuel": 17421.6,
+      "avg_trip_fuel": 8710.8,
+      "load_fpd": 250.0,
+      "disc_fpd": 380.6,
+      "sail_fpd": 454.5,
+      "anchor_fpd": 309.0
+    },
+    {
+      "dest": "FREE_PORT",
+      "trips": 1,
+      "total_days": 2,
+      "load_days": 1,
+      "disc_days": 0,
+      "sail_days": 1,
+      "anchor_days": 0,
+      "total_fuel": 977.0,
+      "avg_trip_fuel": 977.0,
+      "load_fpd": 137.0,
+      "disc_fpd": 0,
+      "sail_fpd": 840.0,
+      "anchor_fpd": 0
+    },
+    {
+      "dest": "OTHER",
+      "trips": 1,
+      "total_days": 6,
+      "load_days": 1,
+      "disc_days": 0,
+      "sail_days": 3,
+      "anchor_days": 0,
+      "total_fuel": 2549.5,
+      "avg_trip_fuel": 2549.5,
+      "load_fpd": 191.0,
+      "disc_fpd": 0,
+      "sail_fpd": 550.2,
+      "anchor_fpd": 0
+    }
+  ],
+  "act_fuel": [
+    {
+      "act": "LOADING",
+      "days": 97,
+      "avg": 317.7,
+      "med": 290.4,
+      "total": 30817.8,
+      "max": 810.0
+    },
+    {
+      "act": "DISCHARGING",
+      "days": 34,
+      "avg": 390.9,
+      "med": 364.0,
+      "total": 13291.6,
+      "max": 810.0
+    },
+    {
+      "act": "SAILING",
+      "days": 72,
+      "avg": 423.7,
+      "med": 395.9,
+      "total": 30508.7,
+      "max": 840.4
+    },
+    {
+      "act": "AT_ANCHOR",
+      "days": 60,
+      "avg": 382.8,
+      "med": 381.6,
+      "total": 22966.6,
+      "max": 781.0
+    },
+    {
+      "act": "AT_BERTH",
+      "days": 49,
+      "avg": 101.5,
+      "med": 77.0,
+      "total": 4975.0,
+      "max": 664.0
+    },
+    {
+      "act": "MAINTENANCE",
+      "days": 45,
+      "avg": 123.5,
+      "med": 77.0,
+      "total": 5558.4,
+      "max": 575.0
+    },
+    {
+      "act": "BUNKERING",
+      "days": 21,
+      "avg": 260.6,
+      "med": 231.0,
+      "total": 5472.8,
+      "max": 631.0
+    },
+    {
+      "act": "OTHER",
+      "days": 4,
+      "avg": 83.5,
+      "med": 73.7,
+      "total": 334.0,
+      "max": 116.6
+    }
+  ],
+  "port_data": [
+    {
+      "port": "AGI_FIELD",
+      "state": "LADEN",
+      "days": 52,
+      "avg": 321.0,
+      "total": 16689.5
+    },
+    {
+      "port": "AGI_FIELD",
+      "state": "PORT_OPS",
+      "days": 27,
+      "avg": 151.8,
+      "total": 4097.6
+    },
+    {
+      "port": "AGI_FIELD",
+      "state": "UNKNOWN",
+      "days": 48,
+      "avg": 398.8,
+      "total": 19141.6
+    },
+    {
+      "port": "DAS_ISLAND",
+      "state": "LADEN",
+      "days": 4,
+      "avg": 294.9,
+      "total": 1179.6
+    },
+    {
+      "port": "DAS_ISLAND",
+      "state": "PORT_OPS",
+      "days": 1,
+      "avg": 389.4,
+      "total": 389.4
+    },
+    {
+      "port": "DAS_ISLAND",
+      "state": "UNKNOWN",
+      "days": 20,
+      "avg": 393.7,
+      "total": 7874.4
+    },
+    {
+      "port": "FREE_PORT",
+      "state": "LADEN",
+      "days": 9,
+      "avg": 329.1,
+      "total": 2962.0
+    },
+    {
+      "port": "FREE_PORT",
+      "state": "PORT_OPS",
+      "days": 2,
+      "avg": 269.5,
+      "total": 539.0
+    },
+    {
+      "port": "FREE_PORT",
+      "state": "UNKNOWN",
+      "days": 6,
+      "avg": 556.5,
+      "total": 3339.0
+    },
+    {
+      "port": "JPW_BASE",
+      "state": "LADEN",
+      "days": 11,
+      "avg": 338.0,
+      "total": 3718.0
+    },
+    {
+      "port": "JPW_BASE",
+      "state": "PORT_OPS",
+      "days": 58,
+      "avg": 98.7,
+      "total": 5726.0
+    },
+    {
+      "port": "JPW_BASE",
+      "state": "UNKNOWN",
+      "days": 38,
+      "avg": 373.1,
+      "total": 14178.2
+    },
+    {
+      "port": "MUSAFFAH",
+      "state": "LADEN",
+      "days": 6,
+      "avg": 237.5,
+      "total": 1425.0
+    },
+    {
+      "port": "MW4_MUSAFFAH",
+      "state": "LADEN",
+      "days": 49,
+      "avg": 370.1,
+      "total": 18135.3
+    },
+    {
+      "port": "MW4_MUSAFFAH",
+      "state": "PORT_OPS",
+      "days": 24,
+      "avg": 198.7,
+      "total": 4768.0
+    },
+    {
+      "port": "MW4_MUSAFFAH",
+      "state": "UNKNOWN",
+      "days": 16,
+      "avg": 430.2,
+      "total": 6882.6
+    },
+    {
+      "port": "OTHER",
+      "state": "PORT_OPS",
+      "days": 3,
+      "avg": 162.1,
+      "total": 486.2
+    },
+    {
+      "port": "OTHER",
+      "state": "UNKNOWN",
+      "days": 8,
+      "avg": 299.2,
+      "total": 2393.5
+    }
+  ],
+  "handle": [
+    {
+      "load_days": 0,
+      "trips": 3,
+      "avg_total_fuel": 2101.0,
+      "avg_load_fuel": 0.0,
+      "avg_trip_days": 6.7
+    },
+    {
+      "load_days": 1,
+      "trips": 29,
+      "avg_total_fuel": 2275.5,
+      "avg_load_fuel": 256.1,
+      "avg_trip_days": 7.5
+    },
+    {
+      "load_days": 2,
+      "trips": 10,
+      "avg_total_fuel": 1584.5,
+      "avg_load_fuel": 608.0,
+      "avg_trip_days": 6.3
+    },
+    {
+      "load_days": 3,
+      "trips": 12,
+      "avg_total_fuel": 1627.9,
+      "avg_load_fuel": 1057.2,
+      "avg_trip_days": 5.2
+    },
+    {
+      "load_days": 4,
+      "trips": 3,
+      "avg_total_fuel": 2084.3,
+      "avg_load_fuel": 1541.6,
+      "avg_trip_days": 6.0
+    }
+  ],
+  "disc": [
+    {
+      "disc_days": 0,
+      "trips": 38,
+      "avg_total_fuel": 1750.2,
+      "avg_disc_fuel": 0.0
+    },
+    {
+      "disc_days": 1,
+      "trips": 11,
+      "avg_total_fuel": 2886.4,
+      "avg_disc_fuel": 429.5
+    },
+    {
+      "disc_days": 2,
+      "trips": 5,
+      "avg_total_fuel": 1594.4,
+      "avg_disc_fuel": 760.6
+    },
+    {
+      "disc_days": 4,
+      "trips": 2,
+      "avg_total_fuel": 2038.0,
+      "avg_disc_fuel": 957.0
+    },
+    {
+      "disc_days": 5,
+      "trips": 1,
+      "avg_total_fuel": 3618.0,
+      "avg_disc_fuel": 2850.0
+    }
+  ],
+  "wind": [
+    {
+      "label": "Light(<8)",
+      "days": 44,
+      "avg": 288.5,
+      "med": 209.0
+    },
+    {
+      "label": "Moderate(8-12)",
+      "days": 209,
+      "avg": 303.1,
+      "med": 286.0
+    },
+    {
+      "label": "Fresh(12-16)",
+      "days": 75,
+      "avg": 293.0,
+      "med": 224.0
+    },
+    {
+      "label": "Strong(16+)",
+      "days": 13,
+      "avg": 110.5,
+      "med": 90.0
+    }
+  ],
+  "findings": {
+    "total_trips": 57,
+    "agi_trips": 43,
+    "das_trips": 2,
+    "agi_avg_fuel": 1921.8,
+    "das_avg_fuel": 8710.8,
+    "load_fpd": 317.7,
+    "disc_fpd": 390.9,
+    "sail_fpd": 423.7,
+    "anchor_fpd": 382.8,
+    "disc_vs_load": 1.23,
+    "anchor_vs_load": 1.2
+  }
+}

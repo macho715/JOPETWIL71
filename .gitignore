@@ -1,0 +1,8 @@
+node_modules/
+__pycache__/
+*.pyc
+.env
+.env.local
+**/public-proxy-token.txt
+.DS_Store
+Thumbs.db

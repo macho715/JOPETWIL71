@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>JPT71 Voyage KPI Dashboard v5.1</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f0;padding:16px}
+.header{text-align:center;padding:12px 0;border-bottom:2px solid #334155;margin-bottom:16px}
+.header h1{font-size:22px;color:#38bdf8} .header .ver{color:#94a3b8;font-size:13px}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px}
+.kpi{background:#1e293b;border-radius:10px;padding:14px;text-align:center;border-left:4px solid #38bdf8}
+.kpi .val{font-size:24px;font-weight:700;color:#f1f5f9} .kpi .lbl{font-size:11px;color:#94a3b8;margin-top:2px}
+.kpi.green{border-color:#22c55e} .kpi.red{border-color:#ef4444} .kpi.yellow{border-color:#eab308} .kpi.purple{border-color:#a855f7}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.card{background:#1e293b;border-radius:10px;padding:16px}
+.card h3{font-size:14px;color:#38bdf8;margin-bottom:10px}
+canvas{max-height:280px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:#334155;padding:6px 8px;text-align:left;color:#94a3b8;font-weight:600}
+td{padding:5px 8px;border-bottom:1px solid #334155}
+tr:hover{background:#334155} .r{text-align:right}
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.tag-red{background:#7f1d1d;color:#fca5a5} .tag-green{background:#14532d;color:#86efac}
+.tag-yellow{background:#713f12;color:#fde047} .tag-gray{background:#374151;color:#9ca3af}
+.exc-banner{background:linear-gradient(135deg,#7f1d1d,#991b1b);border-radius:10px;padding:12px 18px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.tabs{display:flex;gap:8px;margin-bottom:12px}
+.tab{padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;background:#334155;color:#94a3b8}
+.tab.active{background:#38bdf8;color:#0f172a;font-weight:600}
+.panel{display:none} .panel.active{display:block}
+@media(max-width:768px){.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="header"><h1>JPT71 OFCO Voyage KPI Dashboard</h1>
+<div class="ver">v5.1 | BUSHRA Excluded | J71-007 Fixed | Date Serial Corrected | 1226 in-scope lines</div></div>
+<div class="exc-banner">
+<div><div style="font-size:13px">BUSHRA Excluded (Non-JPT71)</div><div style="color:#fca5a5;font-size:12px">BUSHRA_TR3,4 + TR5,6 + SSS-BUSHRA-OCT25</div></div>
+<div style="text-align:right"><div style="font-size:20px;font-weight:700">77 rows</div>
+<div style="color:#fca5a5;font-size:13px">AED 273,582</div></div></div>
+<div class="kpi-row">
+<div class="kpi green"><div class="val">98.8%</div><div class="lbl">Full Coverage</div></div>
+<div class="kpi"><div class="val">93.9%</div><div class="lbl">Strict Coverage</div></div>
+<div class="kpi yellow"><div class="val">89.1</div><div class="lbl">Blended AED/ton</div></div>
+<div class="kpi"><div class="val">50.9</div><div class="lbl">Median AED/ton</div></div>
+<div class="kpi purple"><div class="val">5,756,327</div><div class="lbl">Total AED (scope)</div></div>
+<div class="kpi"><div class="val">64,641</div><div class="lbl">Total Tonnage</div></div>
+<div class="kpi red"><div class="val">8</div><div class="lbl">Outliers (>271)</div></div>
+<div class="kpi green"><div class="val">1038</div><div class="lbl">DIRECT Lines</div></div>
+</div>
+<div class="tabs">
+<div class="tab active" onclick="showTab('overview')">Overview</div>
+<div class="tab" onclick="showTab('monthly')">Monthly Trend</div>
+<div class="tab" onclick="showTab('voyages')">Top Voyages</div>
+<div class="tab" onclick="showTab('groups')">Vessel Groups</div>
+<div class="tab" onclick="showTab('allocation')">Allocation</div>
+</div>
+<div id="overview" class="panel active"><div class="grid2">
+<div class="card"><h3>Allocation Distribution (Lines)</h3><canvas id="pieLines"></canvas></div>
+<div class="card"><h3>Allocation Distribution (AED)</h3><canvas id="pieAed"></canvas></div></div>
+<div class="card" style="margin-bottom:14px"><h3>Outlier Voyages (> 271 AED/ton)</h3>
+<table><tr><th>Voyage</th><th class="r">AED/ton</th><th>Month</th><th class="r">Tonnage</th></tr>
+<tr><td>HVDC-AGI-J71-001</td><td class="r"><span class="tag tag-red">2285.1</span></td><td>2025-02</td><td class="r">24</td></tr>
+<tr><td>HVDC-AGI-J71-002</td><td class="r"><span class="tag tag-red">846.9</span></td><td>2025-02</td><td class="r">101</td></tr>
+<tr><td>HVDC-AGI-GRM-J71-047</td><td class="r"><span class="tag tag-red">685.2</span></td><td>2025-02</td><td class="r">348</td></tr>
+<tr><td>HVDC-AGI-J71-003</td><td class="r"><span class="tag tag-red">489.4</span></td><td>2025-03</td><td class="r">170</td></tr>
+<tr><td>HVDC-AGI-J71-004</td><td class="r"><span class="tag tag-red">359.3</span></td><td>2025-03</td><td class="r">324</td></tr>
+<tr><td>HVDC-DAS-J71</td><td class="r"><span class="tag tag-red">346.6</span></td><td>2025-08</td><td class="r">202</td></tr>
+<tr><td>HVDC-AGI-010</td><td class="r"><span class="tag tag-red">337.5</span></td><td>2025-08</td><td class="r">249</td></tr>
+<tr><td>HVDC-AGI-GRM-J71-062</td><td class="r"><span class="tag tag-red">312.0</span></td><td>2025-09</td><td class="r">745</td></tr>
+</table></div></div>
+<div id="monthly" class="panel">
+<div class="card" style="margin-bottom:14px"><h3>Monthly AED & Tonnage (Effective Month)</h3><canvas id="monthlyChart" style="max-height:320px"></canvas></div>
+<div class="card"><h3>Monthly AED/ton Rate</h3><canvas id="rateChart" style="max-height:280px"></canvas></div></div>
+<div id="voyages" class="panel"><div class="card"><h3>Top 15 Voyages by Total AED</h3>
+<table><tr><th>#</th><th>Voyage ID</th><th class="r">Total AED</th><th class="r">Tonnage</th><th class="r">AED/ton</th><th>Month</th></tr>
+<tr><td>1</td><td>HVDC-AGI-GRM-J71-047</td><td class="r">238,214</td><td class="r">348</td><td class="r"><span class="tag tag-red">685.2</span></td><td>2025-02</td></tr>
+<tr><td>2</td><td>HVDC-AGI-GRM-J71-062</td><td class="r">232,577</td><td class="r">745</td><td class="r"><span class="tag tag-red">312.0</span></td><td>2025-09</td></tr>
+<tr><td>3</td><td>HVDC-AGI-GRM-J71-061</td><td class="r">220,909</td><td class="r">818</td><td class="r"><span class="tag tag-yellow">270.2</span></td><td>2025-08</td></tr>
+<tr><td>4</td><td>HVDC-AGI-GRM-J71-087</td><td class="r">167,268</td><td class="r">760</td><td class="r"><span class="tag tag-yellow">220.0</span></td><td>2025-12</td></tr>
+<tr><td>5</td><td>HVDC-AGI-GRM-J71-048</td><td class="r">165,478</td><td class="r">700</td><td class="r"><span class="tag tag-yellow">236.3</span></td><td>2025-04</td></tr>
+<tr><td>6</td><td>HVDC-AGI-GRM-J71-056</td><td class="r">162,225</td><td class="r">754</td><td class="r"><span class="tag tag-yellow">215.2</span></td><td>2025-07</td></tr>
+<tr><td>7</td><td>HVDC-AGI-GRM-J71-065</td><td class="r">155,772</td><td class="r">716</td><td class="r"><span class="tag tag-yellow">217.4</span></td><td>2025-09</td></tr>
+<tr><td>8</td><td>HVDC-AGI-GRM-71-040</td><td class="r">145,529</td><td class="r">682</td><td class="r"><span class="tag tag-yellow">213.5</span></td><td>2024-12</td></tr>
+<tr><td>9</td><td>HVDC-AGI-GRM-J71-074</td><td class="r">143,517</td><td class="r">756</td><td class="r"><span class="tag tag-yellow">190.0</span></td><td>2025-10</td></tr>
+<tr><td>10</td><td>HVDC-AGI-GRM-71-035</td><td class="r">139,222</td><td class="r">612</td><td class="r"><span class="tag tag-yellow">227.6</span></td><td>2024-11</td></tr>
+<tr><td>11</td><td>HVDC-AGI-GRM-J71-050</td><td class="r">134,138</td><td class="r">671</td><td class="r"><span class="tag tag-yellow">199.9</span></td><td>2025-04</td></tr>
+<tr><td>12</td><td>HVDC-AGI-GRM-J71-091</td><td class="r">131,011</td><td class="r">649</td><td class="r"><span class="tag tag-yellow">202.0</span></td><td>2026-01</td></tr>
+<tr><td>13</td><td>HVDC-AGI-GRM-J71-081</td><td class="r">125,713</td><td class="r">716</td><td class="r"><span class="tag tag-yellow">175.7</span></td><td>2025-11</td></tr>
+<tr><td>14</td><td>HVDC-AGI-GRM-71-007</td><td class="r">116,933</td><td class="r">613</td><td class="r"><span class="tag tag-yellow">190.6</span></td><td>2024-08</td></tr>
+<tr><td>15</td><td>HVDC-AGI-J71-004</td><td class="r">116,410</td><td class="r">324</td><td class="r"><span class="tag tag-red">359.3</span></td><td>2025-03</td></tr>
+</table></div></div>
+<div id="groups" class="panel"><div class="grid2">
+<div class="card"><h3>Vessel Group AED</h3><canvas id="grpBar"></canvas></div>
+<div class="card"><h3>Vessel Group AED/ton</h3><canvas id="grpRate"></canvas></div></div>
+<div class="card"><h3>Vessel Group Summary</h3>
+<table><tr><th>Group</th><th class="r">Voyages</th><th class="r">AED</th><th class="r">Tonnage</th><th class="r">AED/ton</th></tr>
+<tr><td>009</td><td class="r">1</td><td class="r">90,691</td><td class="r">405</td><td class="r">223.9</td></tr>
+<tr><td>010</td><td class="r">1</td><td class="r">83,911</td><td class="r">249</td><td class="r">337.5</td></tr>
+<tr><td>DEBRIS</td><td class="r">8</td><td class="r">98,830</td><td class="r">3,974</td><td class="r">24.9</td></tr>
+<tr><td>GRM</td><td class="r">91</td><td class="r">4,646,070</td><td class="r">59,191</td><td class="r">78.5</td></tr>
+<tr><td>J71</td><td class="r">5</td><td class="r">409,907</td><td class="r">821</td><td class="r">499.1</td></tr>
+</table></div></div>
+<div id="allocation" class="panel"><div class="card"><h3>Allocation Type Detail</h3>
+<table><tr><th>Type</th><th class="r">Lines</th><th class="r">AED</th><th class="r">% of Total</th></tr>
+<tr><td>DIRECT</td><td class="r">1038</td><td class="r">4,134,598</td><td class="r">71.8%</td></tr>
+<tr><td>MANUAL_REVIEW</td><td class="r">54</td><td class="r">200,472</td><td class="r">3.5%</td></tr>
+<tr><td>NEW_TYPE</td><td class="r">39</td><td class="r">110,271</td><td class="r">1.9%</td></tr>
+<tr><td>PRORATE_APPLIED</td><td class="r">37</td><td class="r">1,071,661</td><td class="r">18.6%</td></tr>
+<tr><td>MULTI_PRORATED</td><td class="r">34</td><td class="r">168,105</td><td class="r">2.9%</td></tr>
+<tr><td>SEPARATE_OPS</td><td class="r">22</td><td class="r">42,885</td><td class="r">0.7%</td></tr>
+<tr><td>DATE_INFER</td><td class="r">2</td><td class="r">28,335</td><td class="r">0.5%</td></tr>
+</table>
+<div style="margin-top:12px;padding:10px;background:#334155;border-radius:8px;font-size:12px">
+<b>v5.1 Changes:</b> BUSHRA 77 rows excluded | J71-007 (7 lines) MR_B→DIRECT | AGU→AGI annotated | JUMBOBAG tagged | Date serial 46381→2025-12 (258 rows)</div>
+</div></div>
+<script>
+const DATA = {"version": "v5.1", "total_lines": 1226, "total_aed": 5756327, "total_ton": 64641, "blended_rate": 89.1, "strict_coverage": 93.9, "full_coverage": 98.8, "excluded": {"rows": 77, "aed": 273582}, "monthly": [{"m": "2024-07", "aed": 9674, "ton": 1223, "rate": 7.9}, {"m": "2024-08", "aed": 322965, "ton": 6066, "rate": 53.2}, {"m": "2024-09", "aed": 436059, "ton": 6194, "rate": 70.4}, {"m": "2024-10", "aed": 320802, "ton": 4095, "rate": 78.3}, {"m": "2024-11", "aed": 266026, "ton": 3361, "rate": 79.2}, {"m": "2024-12", "aed": 293079, "ton": 5031, "rate": 58.3}, {"m": "2025-01", "aed": 32243, "ton": 1454, "rate": 22.2}, {"m": "2025-02", "aed": 450429, "ton": 472, "rate": 953.9}, {"m": "2025-03", "aed": 199848, "ton": 494, "rate": 404.2}, {"m": "2025-04", "aed": 485856, "ton": 2036, "rate": 238.7}, {"m": "2025-05", "aed": 289208, "ton": 2100, "rate": 137.8}, {"m": "2025-06", "aed": 117898, "ton": 0, "rate": 0}, {"m": "2025-07", "aed": 297386, "ton": 3639, "rate": 81.7}, {"m": "2025-08", "aed": 560781, "ton": 2390, "rate": 234.6}, {"m": "2025-09", "aed": 559534, "ton": 6095, "rate": 91.8}, {"m": "2025-10", "aed": 289888, "ton": 6429, "rate": 45.1}, {"m": "2025-11", "aed": 191763, "ton": 3610, "rate": 53.1}, {"m": "2025-12", "aed": 328017, "ton": 3741, "rate": 87.7}, {"m": "2026-01", "aed": 233322, "ton": 4911, "rate": 47.5}, {"m": "2026-02", "aed": 48918, "ton": 0, "rate": 0}], "at_dist": {"DIRECT": 1038, "MANUAL_REVIEW": 54, "NEW_TYPE": 39, "PRORATE_APPLIED": 37, "MULTI_PRORATED": 34, "SEPARATE_OPS": 22, "DATE_INFER": 2}, "at_aed": {"DATE_INFER": 28335, "DIRECT": 4134598, "MANUAL_REVIEW": 200472, "MULTI_PRORATED": 168105, "NEW_TYPE": 110271, "PRORATE_APPLIED": 1071661, "SEPARATE_OPS": 42885}, "top_voyages": [{"Voyage_ID": "HVDC-AGI-GRM-J71-047", "total_aed_v4": 238214.3, "total_ton": 347.7, "aed_per_ton_v4": 685.2, "load_month": "2025-02"}, {"Voyage_ID": "HVDC-AGI-GRM-J71-062", "total_aed_v4": 232576.9, "total_ton": 745.3, "aed_per_ton_v4": 312.0, "load_month": "2025-09"}, {"Voyage_ID": "HVDC-AGI-GRM-J71-061", "total_aed_v4": 220909.2, "total_ton": 817.6, "aed_per_ton_v4": 270.2, "load_month": "2025-08"}, {"Voyage_ID": "HVDC-AGI-GRM-J71-087", "total_aed_v4": 167267.8, "total_ton": 760.1, "aed_per_ton_v4": 220.0, "load_month": "2025-12"}, {"Voyage_ID": "HVDC-AGI-GRM-J71-048", "total_aed_v4": 165478.0, "total_ton": 700.4, "aed_per_ton_v4": 236.3, "load_month": "2025-04"}, {"Voyage_ID": "HVDC-AGI-GRM-J71-056", "total_aed_v4": 162225.2, "total_ton": 753.7, "aed_per_ton_v4": 215.2, "load_month": "2025-07"}, {"Voyage_ID": "HVDC-AGI-GRM-J71-065", "total_aed_v4": 155772.4, "total_ton": 716.4, "aed_per_ton_v4": 217.4, "load_month": "2025-09"}, {"Voyage_ID": "HVDC-AGI-GRM-71-040", "total_aed_v4": 145528.9, "total_ton": 681.6, "aed_per_ton_v4": 213.5, "load_month": "2024-12"}, {"Voyage_ID": "HVDC-AGI-GRM-J71-074", "total_aed_v4": 143516.7, "total_ton": 755.5, "aed_per_ton_v4": 190.0, "load_month": "2025-10"}, {"Voyage_ID": "HVDC-AGI-GRM-71-035", "total_aed_v4": 139222.3, "total_ton": 611.6, "aed_per_ton_v4": 227.6, "load_month": "2024-11"}, {"Voyage_ID": "HVDC-AGI-GRM-J71-050", "total_aed_v4": 134138.0, "total_ton": 671.1, "aed_per_ton_v4": 199.9, "load_month": "2025-04"}, {"Voyage_ID": "HVDC-AGI-GRM-J71-091", "total_aed_v4": 131010.7, "total_ton": 648.6, "aed_per_ton_v4": 202.0, "load_month": "2026-01"}, {"Voyage_ID": "HVDC-AGI-GRM-J71-081", "total_aed_v4": 125713.2, "total_ton": 715.5, "aed_per_ton_v4": 175.7, "load_month": "2025-11"}, {"Voyage_ID": "HVDC-AGI-GRM-71-007", "total_aed_v4": 116932.6, "total_ton": 613.4, "aed_per_ton_v4": 190.6, "load_month": "2024-08"}, {"Voyage_ID": "HVDC-AGI-J71-004", "total_aed_v4": 116410.3, "total_ton": 324.0, "aed_per_ton_v4": 359.3, "load_month": "2025-03"}], "outliers": [{"Voyage_ID": "HVDC-AGI-J71-001", "aed_per_ton_v4": 2285.135529608007, "load_month": "2025-02", "total_ton": 23.98}, {"Voyage_ID": "HVDC-AGI-GRM-J71-047", "aed_per_ton_v4": 685.1933210608065, "load_month": "2025-02", "total_ton": 347.66}, {"Voyage_ID": "HVDC-AGI-J71-002", "aed_per_ton_v4": 846.9062437860408, "load_month": "2025-02", "total_ton": 100.58}, {"Voyage_ID": "HVDC-AGI-J71-003", "aed_per_ton_v4": 489.4271468793994, "load_month": "2025-03", "total_ton": 170.48}, {"Voyage_ID": "HVDC-AGI-J71-004", "aed_per_ton_v4": 359.2911728395062, "load_month": "2025-03", "total_ton": 324.0}, {"Voyage_ID": "HVDC-DAS-J71", "aed_per_ton_v4": 346.62256405183496, "load_month": "2025-08", "total_ton": 202.18}, {"Voyage_ID": "HVDC-AGI-010", "aed_per_ton_v4": 337.4653529056907, "load_month": "2025-08", "total_ton": 248.65}, {"Voyage_ID": "HVDC-AGI-GRM-J71-062", "aed_per_ton_v4": 312.0497236086513, "load_month": "2025-09", "total_ton": 745.32}], "fence": 271.4, "q1": 25.1, "q3": 123.7, "groups": [{"group": "009", "n": 1, "aed": 90691.07, "ton": 405.01, "rate": 223.9}, {"group": "010", "n": 1, "aed": 83910.76, "ton": 248.65, "rate": 337.5}, {"group": "DEBRIS", "n": 8, "aed": 98830.24, "ton": 3974.5, "rate": 24.9}, {"group": "GRM", "n": 91, "aed": 4646070.07, "ton": 59191.18, "rate": 78.5}, {"group": "J71", "n": 5, "aed": 409907.41000000003, "ton": 821.22, "rate": 499.1}], "median_rate": 50.9};
+
+const monthly = DATA.monthly;
+const atDist = DATA.at_dist;
+const atAed = DATA.at_aed;
+const groups = DATA.groups;
+
+function showTab(id) {
+    document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});
+    document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+}
+
+var colors = {
+    DIRECT:'#22c55e', PRORATE_APPLIED:'#3b82f6', MULTI_PRORATED:'#eab308',
+    MANUAL_REVIEW:'#ef4444', SEPARATE_OPS:'#a855f7', NEW_TYPE:'#f97316',
+    DATE_INFER:'#06b6d4', EXCLUDED:'#6b7280'
+};
+
+new Chart(document.getElementById('pieLines'),{type:'doughnut',data:{
+    labels:Object.keys(atDist), datasets:[{data:Object.values(atDist),
+    backgroundColor:Object.keys(atDist).map(function(k){return colors[k]||'#64748b'})}]
+},options:{responsive:true,plugins:{legend:{position:'right',labels:{color:'#94a3b8',font:{size:11}}}}}});
+
+new Chart(document.getElementById('pieAed'),{type:'doughnut',data:{
+    labels:Object.keys(atAed), datasets:[{data:Object.values(atAed),
+    backgroundColor:Object.keys(atAed).map(function(k){return colors[k]||'#64748b'})}]
+},options:{responsive:true,plugins:{legend:{position:'right',labels:{color:'#94a3b8',font:{size:11}}}}}});
+
+var mLabels = monthly.map(function(m){return m.m});
+var mAed = monthly.map(function(m){return m.aed});
+var mTon = monthly.map(function(m){return m.ton});
+var mRate = monthly.map(function(m){return m.rate});
+
+new Chart(document.getElementById('monthlyChart'),{type:'bar',data:{
+    labels:mLabels,
+    datasets:[
+        {label:'AED',data:mAed,backgroundColor:'#3b82f6',yAxisID:'y',order:2},
+        {label:'Tonnage',data:mTon,type:'line',borderColor:'#22c55e',backgroundColor:'transparent',yAxisID:'y1',order:1,pointRadius:3}
+    ]
+},options:{responsive:true,scales:{
+    y:{position:'left',ticks:{color:'#94a3b8',callback:function(v){return v>=1000?(v/1000)+'K':v}},grid:{color:'#334155'}},
+    y1:{position:'right',ticks:{color:'#22c55e'},grid:{display:false}},
+    x:{ticks:{color:'#94a3b8',maxRotation:45},grid:{color:'#334155'}}
+},plugins:{legend:{labels:{color:'#94a3b8'}}}}});
+
+new Chart(document.getElementById('rateChart'),{type:'line',data:{
+    labels:mLabels,
+    datasets:[{label:'AED/ton',data:mRate,borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,0.1)',fill:true,tension:0.3,pointRadius:4}]
+},options:{responsive:true,scales:{
+    y:{ticks:{color:'#94a3b8'},grid:{color:'#334155'}},
+    x:{ticks:{color:'#94a3b8',maxRotation:45},grid:{color:'#334155'}}
+},plugins:{legend:{labels:{color:'#94a3b8'}}}}});
+
+var gLabels = groups.map(function(g){return g.group});
+var gAed = groups.map(function(g){return g.aed});
+var gRate = groups.map(function(g){return g.rate});
+var gColors = ['#22c55e','#3b82f6','#eab308','#ef4444','#a855f7'];
+
+new Chart(document.getElementById('grpBar'),{type:'bar',data:{
+    labels:gLabels,datasets:[{label:'Total AED',data:gAed,backgroundColor:gColors}]
+},options:{responsive:true,scales:{y:{ticks:{color:'#94a3b8',callback:function(v){return(v/1000)+'K'}},grid:{color:'#334155'}},x:{ticks:{color:'#94a3b8'}}},plugins:{legend:{display:false}}}});
+
+new Chart(document.getElementById('grpRate'),{type:'bar',data:{
+    labels:gLabels,datasets:[{label:'AED/ton',data:gRate,backgroundColor:gColors}]
+},options:{responsive:true,scales:{y:{ticks:{color:'#94a3b8'},grid:{color:'#334155'}},x:{ticks:{color:'#94a3b8'}}},plugins:{legend:{display:false}}}});
+
+</script></body></html>

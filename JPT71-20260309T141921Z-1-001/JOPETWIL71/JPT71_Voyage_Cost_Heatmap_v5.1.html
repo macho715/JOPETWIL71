@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>JPT71 Voyage Cost Heatmap v5.1</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f0;padding:16px}
+.header{text-align:center;padding:12px 0;border-bottom:2px solid #334155;margin-bottom:16px}
+.header h1{font-size:22px;color:#38bdf8} .header .ver{color:#94a3b8;font-size:13px}
+.tabs{display:flex;gap:8px;margin-bottom:12px}
+.tab{padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;background:#334155;color:#94a3b8}
+.tab.active{background:#38bdf8;color:#0f172a;font-weight:600}
+.panel{display:none} .panel.active{display:block}
+.card{background:#1e293b;border-radius:10px;padding:16px;margin-bottom:14px}
+.card h3{font-size:14px;color:#38bdf8;margin-bottom:10px}
+.heatmap{width:100%;border-collapse:collapse;font-size:11px}
+.heatmap th{background:#334155;padding:6px;text-align:center;color:#94a3b8;font-weight:600;min-width:70px}
+.heatmap td{padding:6px;text-align:center;border:1px solid #1e293b;font-weight:500}
+.heatmap .row-label{text-align:left;background:#1e293b;color:#e2e8f0;font-weight:600;min-width:90px}
+.legend{display:flex;gap:16px;margin-top:12px;justify-content:center;font-size:11px}
+.legend-item{display:flex;align-items:center;gap:4px}
+.legend-box{width:20px;height:14px;border-radius:3px}
+.note{background:#334155;border-radius:8px;padding:10px;font-size:12px;margin-bottom:14px}
+</style>
+</head><body>
+<div class="header"><h1>JPT71 Voyage Cost Heatmap</h1>
+<div class="ver">v5.1 | Effective Month Basis | BUSHRA Excluded</div></div>
+<div class="note"><b>v5.1 Update:</b> BUSHRA 77 rows excluded | J71-007→DIRECT | Date serial 46381→2025-12 fixed | Effective month = voyage load_month (not billing)</div>
+<div class="tabs">
+<div class="tab active" onclick="showTab('aed')">AED Heatmap</div>
+<div class="tab" onclick="showTab('rate')">AED/ton Heatmap</div>
+</div>
+<div id="aed" class="panel active"><div class="card"><h3>AED by Vessel Group × Effective Month</h3>
+<div style="overflow-x:auto"><table class="heatmap"><tr><th></th>
+<th>2024-07</th>
+<th>2024-08</th>
+<th>2024-09</th>
+<th>2024-10</th>
+<th>2024-11</th>
+<th>2024-12</th>
+<th>2025-01</th>
+<th>2025-02</th>
+<th>2025-03</th>
+<th>2025-04</th>
+<th>2025-05</th>
+<th>2025-06</th>
+<th>2025-07</th>
+<th>2025-08</th>
+<th>2025-09</th>
+<th>2025-10</th>
+<th>2025-11</th>
+<th>2025-12</th>
+<th>2026-01</th>
+<th>2026-02</th>
+<th>2026-12</th>
+<th>Total</th></tr>
+<tr><td class="row-label">009</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e4620;color:#4ade80">91K</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#334155;font-weight:700">91K</td></tr>
+<tr><td class="row-label">010</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e4620;color:#4ade80">84K</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#334155;font-weight:700">84K</td></tr>
+<tr><td class="row-label">AGI-J71</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e4620;color:#4ade80">77K</td>
+<td style="background:#1e4620;color:#4ade80">108K</td>
+<td style="background:#854d0e;color:#fde047">211K</td>
+<td style="background:#1a3a2a;color:#86efac">19K</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#334155;font-weight:700">415K</td></tr>
+<tr><td class="row-label">DAS-J71</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e4620;color:#4ade80">58K</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e4620;color:#4ade80">70K</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#334155;font-weight:700">128K</td></tr>
+<tr><td class="row-label">DEBRIS</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1a3a2a;color:#86efac">27K</td>
+<td style="background:#1e4620;color:#4ade80">59K</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1a3a2a;color:#86efac">13K</td>
+<td style="background:#334155;font-weight:700">99K</td></tr>
+<tr><td class="row-label">GRM</td>
+<td style="background:#1a3a2a;color:#86efac">10K</td>
+<td style="background:#7f1d1d;color:#fca5a5">323K</td>
+<td style="background:#7f1d1d;color:#fca5a5">436K</td>
+<td style="background:#7f1d1d;color:#fca5a5">321K</td>
+<td style="background:#854d0e;color:#fde047">266K</td>
+<td style="background:#854d0e;color:#fde047">265K</td>
+<td style="background:#1a3a2a;color:#86efac">24K</td>
+<td style="background:#1e4620;color:#4ade80">63K</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#854d0e;color:#fde047">275K</td>
+<td style="background:#854d0e;color:#fde047">157K</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#854d0e;color:#fde047">204K</td>
+<td style="background:#7f1d1d;color:#fca5a5">316K</td>
+<td style="background:#7f1d1d;color:#fca5a5">560K</td>
+<td style="background:#854d0e;color:#fde047">290K</td>
+<td style="background:#854d0e;color:#fde047">192K</td>
+<td style="background:#854d0e;color:#fde047">196K</td>
+<td style="background:#854d0e;color:#fde047">174K</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1a3a2a;color:#86efac">10K</td>
+<td style="background:#334155;font-weight:700">4083K</td></tr>
+<tr><td class="row-label">OTHER</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1a3a2a;color:#86efac">28K</td>
+<td style="background:#1a3a2a;color:#86efac">8K</td>
+<td style="background:#854d0e;color:#fde047">252K</td>
+<td style="background:#1e4620;color:#4ade80">91K</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e4620;color:#4ade80">113K</td>
+<td style="background:#1e4620;color:#4ade80">118K</td>
+<td style="background:#1e4620;color:#4ade80">93K</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e4620;color:#4ade80">105K</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1a3a2a;color:#86efac">49K</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#334155;font-weight:700">857K</td></tr>
+<tr><td class="row-label" style="font-weight:700">Total</td>
+<td style="background:#334155;font-weight:700">10K</td>
+<td style="background:#334155;font-weight:700">323K</td>
+<td style="background:#334155;font-weight:700">436K</td>
+<td style="background:#334155;font-weight:700">321K</td>
+<td style="background:#334155;font-weight:700">266K</td>
+<td style="background:#334155;font-weight:700">293K</td>
+<td style="background:#334155;font-weight:700">32K</td>
+<td style="background:#334155;font-weight:700">450K</td>
+<td style="background:#334155;font-weight:700">200K</td>
+<td style="background:#334155;font-weight:700">486K</td>
+<td style="background:#334155;font-weight:700">289K</td>
+<td style="background:#334155;font-weight:700">118K</td>
+<td style="background:#334155;font-weight:700">297K</td>
+<td style="background:#334155;font-weight:700">561K</td>
+<td style="background:#334155;font-weight:700">560K</td>
+<td style="background:#334155;font-weight:700">290K</td>
+<td style="background:#334155;font-weight:700">192K</td>
+<td style="background:#334155;font-weight:700">328K</td>
+<td style="background:#334155;font-weight:700">233K</td>
+<td style="background:#334155;font-weight:700">49K</td>
+<td style="background:#334155;font-weight:700">23K</td>
+<td style="background:#475569;font-weight:700">5756K</td></tr>
+</table></div>
+<div class="legend">
+<div class="legend-item"><div class="legend-box" style="background:#1e293b"></div>0</div>
+<div class="legend-item"><div class="legend-box" style="background:#1a3a2a"></div>&lt;50K</div>
+<div class="legend-item"><div class="legend-box" style="background:#1e4620"></div>&lt;150K</div>
+<div class="legend-item"><div class="legend-box" style="background:#854d0e"></div>&lt;300K</div>
+<div class="legend-item"><div class="legend-box" style="background:#7f1d1d"></div>300K+</div>
+</div></div></div>
+<div id="rate" class="panel"><div class="card"><h3>Avg AED/ton by Vessel Group × Load Month</h3>
+<div style="overflow-x:auto"><table class="heatmap"><tr><th></th>
+<th>2024-07</th>
+<th>2024-08</th>
+<th>2024-09</th>
+<th>2024-10</th>
+<th>2024-11</th>
+<th>2024-12</th>
+<th>2025-01</th>
+<th>2025-02</th>
+<th>2025-03</th>
+<th>2025-04</th>
+<th>2025-05</th>
+<th>2025-07</th>
+<th>2025-08</th>
+<th>2025-09</th>
+<th>2025-10</th>
+<th>2025-11</th>
+<th>2025-12</th>
+<th>2026-01</th>
+<th>2026-12</th>
+</tr>
+<tr><td class="row-label">009</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#92400e;color:#fbbf24">224</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+</tr>
+<tr><td class="row-label">010</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#92400e;color:#fbbf24">338</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+</tr>
+<tr><td class="row-label">AGI-J71</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#7f1d1d;color:#fca5a5">1566</td>
+<td style="background:#92400e;color:#fbbf24">424</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+</tr>
+<tr><td class="row-label">DAS-J71</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#92400e;color:#fbbf24">347</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+</tr>
+<tr><td class="row-label">DEBRIS</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#1a3a2a;color:#86efac">17</td>
+<td style="background:#1a3a2a;color:#86efac">32</td>
+<td style="background:#1a3a2a;color:#86efac">23</td>
+</tr>
+<tr><td class="row-label">GRM</td>
+<td style="background:#1a3a2a;color:#86efac">8</td>
+<td style="background:#1e4620;color:#4ade80">67</td>
+<td style="background:#1e4620;color:#4ade80">70</td>
+<td style="background:#1e4620;color:#4ade80">87</td>
+<td style="background:#1e4620;color:#4ade80">82</td>
+<td style="background:#1e4620;color:#4ade80">51</td>
+<td style="background:#1a3a2a;color:#86efac">23</td>
+<td style="background:#7f1d1d;color:#fca5a5">685</td>
+<td style="background:#1e293b;color:#475569">—</td>
+<td style="background:#854d0e;color:#fde047">181</td>
+<td style="background:#854d0e;color:#fde047">129</td>
+<td style="background:#1e4620;color:#4ade80">79</td>
+<td style="background:#92400e;color:#fbbf24">202</td>
+<td style="background:#1e4620;color:#4ade80">93</td>
+<td style="background:#1a3a2a;color:#86efac">44</td>
+<td style="background:#1e4620;color:#4ade80">53</td>
+<td style="background:#1e4620;color:#4ade80">87</td>
+<td style="background:#1e4620;color:#4ade80">54</td>
+<td style="background:#1a3a2a;color:#86efac">13</td>
+</tr>
+</table></div>
+<div class="legend">
+<div class="legend-item"><div class="legend-box" style="background:#1a3a2a"></div>&lt;50</div>
+<div class="legend-item"><div class="legend-box" style="background:#1e4620"></div>&lt;100</div>
+<div class="legend-item"><div class="legend-box" style="background:#854d0e"></div>&lt;200</div>
+<div class="legend-item"><div class="legend-box" style="background:#92400e"></div>&lt;500</div>
+<div class="legend-item"><div class="legend-box" style="background:#7f1d1d"></div>500+</div>
+</div></div></div>
+<script>
+function showTab(id) {
+    document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});
+    document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+}
+</script></body></html>

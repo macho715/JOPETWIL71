@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JPT71 Voyage KPI Dashboard — v4 Final</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--border:#334155;--text:#e2e8f0;--text2:#94a3b8;--accent:#3b82f6;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--purple:#a855f7;--cyan:#06b6d4;--orange:#f97316}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text)}
+.header{background:linear-gradient(135deg,#0c2340,#1a365d);padding:20px 30px;border-bottom:2px solid var(--accent)}
+.header h1{font-size:20px;font-weight:700;color:#fff}
+.header .sub{font-size:12px;color:var(--text2);margin-top:4px}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;margin-left:8px}
+.badge-v4{background:#1e40af;color:#93c5fd}
+.badge-g{background:#166534;color:#86efac}
+
+.delta-bar{display:flex;gap:20px;padding:12px 30px;background:#1a2744;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.delta-item{font-size:12px;display:flex;align-items:center;gap:5px}
+.delta-item .lbl{color:var(--text2)}
+.delta-item .up{color:var(--green);font-weight:700}
+.delta-item .dn{color:var(--red);font-weight:700}
+
+.tabs{display:flex;gap:0;padding:0 30px;background:var(--card);border-bottom:1px solid var(--border)}
+.tab{padding:12px 24px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text2);border-bottom:3px solid transparent;transition:.2s}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+.content{padding:20px 30px}
+.panel{display:none}
+.panel.active{display:block}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px}
+.card .lbl{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.card .val{font-size:22px;font-weight:700;margin-top:4px}
+.card .note{font-size:10px;color:var(--text2);margin-top:2px}
+
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.chart-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px}
+.chart-box h3{font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:600}
+.chart-box.full{grid-column:1/-1}
+.chart-box.third{grid-column:span 1}
+
+.filter-bar{display:flex;gap:12px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
+.filter-bar label{font-size:12px;color:var(--text2)}
+.filter-bar select,.filter-bar input{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:12px}
+
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{background:#1a2744;color:var(--text2);padding:8px 10px;text-align:left;font-weight:600;position:sticky;top:0;border-bottom:2px solid var(--accent);cursor:pointer}
+th:hover{color:var(--accent)}
+td{padding:6px 10px;border-bottom:1px solid var(--border)}
+tr:hover td{background:#253349}
+.tbl-wrap{max-height:550px;overflow-y:auto;background:var(--card);border:1px solid var(--border);border-radius:8px}
+
+.tag{display:inline-block;padding:1px 7px;border-radius:4px;font-size:10px;font-weight:600}
+.tag-grm{background:#1e3a5f;color:#93c5fd}
+.tag-agi{background:#7c2d12;color:#fed7aa}
+.tag-das{background:#991b1b;color:#fca5a5}
+.tag-out{background:#92400e;color:#fde68a}
+
+@media(max-width:768px){.chart-row{grid-template-columns:1fr}.cards{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>JPT71 Voyage Unit-Cost KPI Dashboard <span class="badge badge-v4">v4 FINAL</span></h1>
+  <div class="sub">AED/ton Analysis · 106 Voyages · 64,641 tons · 5,243,825 AED resolved
+    <span class="badge badge-g">87.7% coverage</span>
+  </div>
+</div>
+
+<div class="delta-bar">
+  <div class="delta-item"><span class="lbl">v3→v4</span></div>
+  <div class="delta-item"><span class="lbl">Blended:</span><span class="up">79.2→81.1 AED/ton ▲+1.9</span></div>
+  <div class="delta-item"><span class="lbl">Median:</span><span class="up">28.4→50.5 ▲</span></div>
+  <div class="delta-item"><span class="lbl">Coverage:</span><span class="up">84.9%→87.7% ▲+2.8pp</span></div>
+  <div class="delta-item"><span class="lbl">Manual:</span><span class="dn">94→61 ▼-33</span></div>
+  <div class="delta-item"><span class="lbl">Outliers:</span><span class="lbl">9 (>241.6 AED/ton)</span></div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab(0)">Overview</div>
+  <div class="tab" onclick="showTab(1)">Monthly Trend</div>
+  <div class="tab" onclick="showTab(2)">Voyage Detail</div>
+</div>
+
+<div class="content">
+
+<!-- TAB 0: OVERVIEW -->
+<div class="panel active" id="p0">
+<div class="cards">
+  <div class="card"><div class="lbl">Blended AED/ton</div><div class="val" style="color:var(--cyan)">81.1</div><div class="note">5,243,825 / 64,641 ton</div></div>
+  <div class="card"><div class="lbl">Median AED/ton</div><div class="val" style="color:var(--accent)">50.5</div><div class="note">Q1=25.1 · Q3=111.7</div></div>
+  <div class="card"><div class="lbl">Voyages</div><div class="val">106</div><div class="note">GRM 91 · AGI 14 · DAS 1</div></div>
+  <div class="card"><div class="lbl">Outliers</div><div class="val" style="color:var(--yellow)">9</div><div class="note">&gt;241.6 AED/ton (IQR)</div></div>
+  <div class="card"><div class="lbl">Total Tonnage</div><div class="val">64,641</div><div class="note">19 months span</div></div>
+  <div class="card"><div class="lbl">Coverage</div><div class="val" style="color:var(--green)">87.7%</div><div class="note">AED basis, v4</div></div>
+</div>
+
+<div class="chart-row">
+  <div class="chart-box"><h3>AED/ton vs Tonnage (Scatter)</h3>
+    <div class="filter-bar">
+      <label>Vessel:</label><select id="fVessel" onchange="updateScatter()"><option value="ALL">All</option><option value="GRM">GRM</option><option value="AGI">AGI</option><option value="DAS">DAS</option></select>
+      <label>Outlier:</label><select id="fOutlier" onchange="updateScatter()"><option value="ALL">All</option><option value="Y">Outliers Only</option><option value="N">Normal Only</option></select>
+    </div>
+    <canvas id="scatterChart"></canvas>
+  </div>
+  <div class="chart-box"><h3>AED/ton Distribution (Histogram)</h3><canvas id="histChart"></canvas></div>
+</div>
+
+<div class="chart-row">
+  <div class="chart-box"><h3>Vessel Group Comparison</h3><canvas id="vesselChart"></canvas></div>
+  <div class="chart-box"><h3>Top 15 Voyages by AED/ton</h3><canvas id="top15Chart"></canvas></div>
+</div>
+
+<div class="chart-row">
+  <div class="chart-box"><h3>Cost Type per Ton (AED/ton)</h3><canvas id="ctChart"></canvas></div>
+  <div class="chart-box"><h3>Allocation Type (AED)</h3><canvas id="allocChart"></canvas></div>
+</div>
+</div>
+
+<!-- TAB 1: MONTHLY -->
+<div class="panel" id="p1">
+<div class="chart-row">
+  <div class="chart-box full"><h3>Monthly Blended / Average / Median AED/ton + Volume</h3><canvas id="monthlyChart"></canvas></div>
+</div>
+<div class="chart-row">
+  <div class="chart-box full"><h3>Monthly AED Total + Voyage Count</h3><canvas id="monthlyAedChart"></canvas></div>
+</div>
+<div class="chart-row">
+  <div class="chart-box full"><h3>Monthly Tonnage + Cumulative AED</h3><canvas id="monthlyCumulChart"></canvas></div>
+</div>
+</div>
+
+<!-- TAB 2: DETAIL TABLE -->
+<div class="panel" id="p2">
+<div class="filter-bar">
+  <label>Vessel:</label><select id="tVessel" onchange="filterTable()"><option value="ALL">All</option><option value="GRM">GRM</option><option value="AGI">AGI</option><option value="DAS">DAS</option></select>
+  <label>Outlier:</label><select id="tOutlier" onchange="filterTable()"><option value="ALL">All</option><option value="Y">Outliers</option><option value="N">Normal</option></select>
+  <label>Month:</label><select id="tMonth" onchange="filterTable()"><option value="ALL">All</option></select>
+  <label style="margin-left:auto;font-weight:600" id="tCount">106 voyages</label>
+</div>
+<div class="tbl-wrap">
+<table>
+<thead><tr>
+<th onclick="sortTable(0)">#</th>
+<th onclick="sortTable(1)">Voyage ID</th>
+<th onclick="sortTable(2)">Group</th>
+<th onclick="sortTable(3)">Month</th>
+<th onclick="sortTable(4)">Tonnage</th>
+<th onclick="sortTable(5)">Direct AED</th>
+<th onclick="sortTable(6)">Prorate AED</th>
+<th onclick="sortTable(7)">Total AED (v4)</th>
+<th onclick="sortTable(8)">AED/ton (direct)</th>
+<th onclick="sortTable(9)">AED/ton (v3)</th>
+<th onclick="sortTable(10)">AED/ton (v4)</th>
+<th onclick="sortTable(11)">Flag</th>
+</tr></thead>
+<tbody id="detailTbody"></tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+<script>
+const D = {"scatter": [{"id": "HVDC-AGI-GRM-71-001", "ton": 600.0, "aed": 4435.0, "apt": 7.4, "apt_d": 7.4, "apt_v3": 7.4, "grp": "GRM", "month": "2024-07", "outlier": false, "direct": 4435.0, "prorate": 0.0, "lines": 2, "pro_items": 0}, {"id": "HVDC-AGI-GRM-71-002", "ton": 623.0, "aed": 5239.0, "apt": 8.4, "apt_d": 8.4, "apt_v3": 8.4, "grp": "GRM", "month": "2024-07", "outlier": false, "direct": 5239.0, "prorate": 0.0, "lines": 4, "pro_items": 0}, {"id": "HVDC-AGI-GRM-71-003", "ton": 619.0, "aed": 35092.0, "apt": 56.7, "apt_d": 31.5, "apt_v3": 56.7, "grp": "GRM", "month": "2024-08", "outlier": false, "direct": 19528.0, "prorate": 15565.0, "lines": 5, "pro_items": 2}, {"id": "HVDC-AGI-GRM-71-004", "ton": 626.0, "aed": 30777.0, "apt": 49.1, "apt_d": 24.0, "apt_v3": 49.1, "grp": "GRM", "month": "2024-08", "outlier": false, "direct": 15028.0, "prorate": 15749.0, "lines": 4, "pro_items": 2}, {"id": "HVDC-AGI-GRM-71-005", "ton": 614.0, "aed": 34728.0, "apt": 56.5, "apt_d": 31.4, "apt_v3": 56.5, "grp": "GRM", "month": "2024-08", "outlier": false, "direct": 19282.0, "prorate": 15445.0, "lines": 9, "pro_items": 2}, {"id": "HVDC-AGI-GRM-71-006", "ton": 560.0, "aed": 29090.0, "apt": 51.9, "apt_d": 26.8, "apt_v3": 51.9, "grp": "GRM", "month": "2024-08", "outlier": false, "direct": 15008.0, "prorate": 14082.0, "lines": 5, "pro_items": 2}, {"id": "HVDC-AGI-GRM-71-007", "ton": 613.0, "aed": 31348.0, "apt": 51.1, "apt_d": 26.0, "apt_v3": 51.1, "grp": "GRM", "month": "2024-08", "outlier": false, "direct": 15922.0, "prorate": 15426.0, "lines": 7, "pro_items": 2}, {"id": "HVDC-AGI-GRM-71-008", "ton": 620.0, "aed": 34322.0, "apt": 55.3, "apt_d": 30.2, "apt_v3": 55.3, "grp": "GRM", "month": "2024-08", "outlier": false, "direct": 18722.0, "prorate": 15600.0, "lines": 7, "pro_items": 2}, {"id": "HVDC-AGI-GRM-71-009", "ton": 593.0, "aed": 28921.0, "apt": 48.8, "apt_d": 23.7, "apt_v3": 48.8, "grp": "GRM", "month": "2024-08", "outlier": false, "direct": 14018.0, "prorate": 14903.0, "lines": 5, "pro_items": 2}, {"id": "HVDC-AGI-GRM-71-010", "ton": 610.0, "aed": 34873.0, "apt": 57.1, "apt_d": 32.0, "apt_v3": 57.1, "grp": "GRM", "month": "2024-08", "outlier": false, "direct": 19528.0, "prorate": 15345.0, "lines": 5, "pro_items": 2}, {"id": "HVDC-AGI-GRM-71-011", "ton": 602.0, "aed": 30077.0, "apt": 49.9, "apt_d": 24.8, "apt_v3": 49.9, "grp": "GRM", "month": "2024-08", "outlier": false, "direct": 14932.0, "prorate": 15145.0, "lines": 7, "pro_items": 2}, {"id": "HVDC-AGI-GRM-71-012", "ton": 608.0, "aed": 33738.0, "apt": 55.5, "apt_d": 30.4, "apt_v3": 55.5, "grp": "GRM", "month": "2024-08", "outlier": false, "direct": 18452.0, "prorate": 15286.0, "lines": 6, "pro_items": 2}, {"id": "HVDC-AGI-GRM-71-013", "ton": 636.0, "aed": 46151.0, "apt": 72.5, "apt_d": 28.3, "apt_v3": 72.5, "grp": "GRM", "month": "2024-09", "outlier": false, "direct": 18028.0, "prorate": 28124.0, "lines": 6, "pro_items": 3}, {"id": "HVDC-AGI-GRM-71-014", "ton": 635.0, "aed": 44223.0, "apt": 69.7, "apt_d": 25.5, "apt_v3": 69.7, "grp": "GRM", "month": "2024-09", "outlier": false, "direct": 16182.0, "prorate": 28041.0, "lines": 7, "pro_items": 3}, {"id": "HVDC-AGI-GRM-71-015", "ton": 626.0, "aed": 43348.0, "apt": 69.2, "apt_d": 25.0, "apt_v3": 69.2, "grp": "GRM", "month": "2024-09", "outlier": false, "direct": 15678.0, "prorate": 27671.0, "lines": 5, "pro_items": 3}, {"id": "HVDC-AGI-GRM-71-016", "ton": 618.0, "aed": 42981.0, "apt": 69.6, "apt_d": 25.4, "apt_v3": 69.6, "grp": "GRM", "month": "2024-09", "outlier": false, "direct": 15678.0, "prorate": 27304.0, "lines": 5, "pro_items": 3}, {"id": "HVDC-AGI-GRM-71-017", "ton": 590.0, "aed": 46242.0, "apt": 78.4, "apt_d": 34.2, "apt_v3": 78.4, "grp": "GRM", "month": "2024-09", "outlier": false, "direct": 20182.0, "prorate": 26060.0, "lines": 7, "pro_items": 3}, {"id": "HVDC-AGI-GRM-71-018", "ton": 605.0, "aed": 42424.0, "apt": 70.1, "apt_d": 25.9, "apt_v3": 70.1, "grp": "GRM", "month": "2024-09", "outlier": false, "direct": 15678.0, "prorate": 26746.0, "lines": 5, "pro_items": 3}, {"id": "HVDC-AGI-GRM-71-019", "ton": 590.0, "aed": 40339.0, "apt": 68.4, "apt_d": 24.2, "apt_v3": 68.4, "grp": "GRM", "month": "2024-09", "outlier": false, "direct": 14278.0, "prorate": 26061.0, "lines": 5, "pro_items": 3}, {"id": "HVDC-AGI-GRM-71-020", "ton": 629.0, "aed": 42716.0, "apt": 67.9, "apt_d": 23.7, "apt_v3": 67.9, "grp": "GRM", "month": "2024-09", "outlier": false, "direct": 14932.0, "prorate": 27784.0, "lines": 7, "pro_items": 3}, {"id": "HVDC-AGI-GRM-71-021", "ton": 634.0, "aed": 44032.0, "apt": 69.5, "apt_d": 25.3, "apt_v3": 69.5, "grp": "GRM", "month": "2024-09", "outlier": false, "direct": 16028.0, "prorate": 28005.0, "lines": 6, "pro_items": 3}, {"id": "HVDC-AGI-GRM-71-022", "ton": 632.0, "aed": 43603.0, "apt": 69.0, "apt_d": 24.8, "apt_v3": 69.0, "grp": "GRM", "month": "2024-09", "outlier": false, "direct": 15678.0, "prorate": 27925.0, "lines": 5, "pro_items": 3}, {"id": "HVDC-AGI-GRM-71-023", "ton": 338.0, "aed": 38204.0, "apt": 113.1, "apt_d": 79.6, "apt_v3": 113.1, "grp": "GRM", "month": "2024-10", "outlier": false, "direct": 26895.0, "prorate": 11309.0, "lines": 8, "pro_items": 3}, {"id": "HVDC-AGI-GRM-71-024", "ton": 624.0, "aed": 36553.0, "apt": 58.6, "apt_d": 25.1, "apt_v3": 58.6, "grp": "GRM", "month": "2024-10", "outlier": false, "direct": 15678.0, "prorate": 20875.0, "lines": 5, "pro_items": 3}, {"id": "HVDC-AGI-GRM-71-025", "ton": 614.0, "aed": 34823.0, "apt": 56.7, "apt_d": 23.3, "apt_v3": 56.7, "grp": "GRM", "month": "2024-10", "outlier": false, "direct": 14278.0, "prorate": 20546.0, "lines": 5, "pro_items": 3}, {"id": "HVDC-AGI-GRM-71-026", "ton": 620.0, "aed": 35694.0, "apt": 57.6, "apt_d": 24.1, "apt_v3": 57.6, "grp": "GRM", "month": "2024-10", "outlier": false, "direct": 14932.0, "prorate": 20762.0, "lines": 7, "pro_items": 3}, {"id": "HVDC-AGI-GRM-71-027", "ton": 360.0, "aed": 50702.0, "apt": 140.7, "apt_d": 107.2, "apt_v3": 140.7, "grp": "GRM", "month": "2024-10", "outlier": false, "direct": 38639.0, "prorate": 12063.0, "lines": 7, "pro_items": 3}, {"id": "HVDC-AGI-GRM-71-028", "ton": 626.0, "aed": 33427.0, "apt": 53.4, "apt_d": 19.9, "apt_v3": 53.4, "grp": "GRM", "month": "2024-10", "outlier": false, "direct": 12478.0, "prorate": 20949.0, "lines": 4, "pro_items": 3}, {"id": "HVDC-AGI-GRM-71-029", "ton": 553.0, "aed": 38678.0, "apt": 69.9, "apt_d": 36.5, "apt_v3": 69.9, "grp": "GRM", "month": "2024-10", "outlier": false, "direct": 20162.0, "prorate": 18516.0, "lines": 8, "pro_items": 3}, {"id": "HVDC-AGI-GRM-71-030", "ton": 360.0, "aed": 52723.0, "apt": 146.3, "apt_d": 112.8, "apt_v3": 146.3, "grp": "GRM", "month": "2024-10", "outlier": false, "direct": 40660.0, "prorate": 12063.0, "lines": 8, "pro_items": 3}, {"id": "HVDC-AGI-GRM-71-031", "ton": 613.0, "aed": 25110.0, "apt": 41.0, "apt_d": 41.0, "apt_v3": 41.0, "grp": "GRM", "month": "2024-11", "outlier": false, "direct": 25110.0, "prorate": 0.0, "lines": 6, "pro_items": 0}, {"id": "HVDC-AGI-GRM-71-032", "ton": 604.0, "aed": 15797.0, "apt": 26.1, "apt_d": 26.1, "apt_v3": 26.1, "grp": "GRM", "month": "2024-11", "outlier": false, "direct": 15797.0, "prorate": 0.0, "lines": 5, "pro_items": 0}, {"id": "HVDC-AGI-GRM-71-033", "ton": 599.0, "aed": 22578.0, "apt": 37.7, "apt_d": 37.7, "apt_v3": 37.7, "grp": "GRM", "month": "2024-11", "outlier": false, "direct": 22578.0, "prorate": 0.0, "lines": 5, "pro_items": 0}, {"id": "HVDC-AGI-GRM-71-034", "ton": 351.0, "aed": 44642.0, "apt": 127.2, "apt_d": 127.2, "apt_v3": 127.2, "grp": "GRM", "month": "2024-11", "outlier": false, "direct": 44642.0, "prorate": 0.0, "lines": 7, "pro_items": 0}, {"id": "HVDC-AGI-GRM-71-035", "ton": 612.0, "aed": 139222.0, "apt": 227.6, "apt_d": 227.6, "apt_v3": 227.6, "grp": "GRM", "month": "2024-11", "outlier": false, "direct": 139222.0, "prorate": 0.0, "lines": 9, "pro_items": 0}, {"id": "HVDC-AGI-GRM-71-036", "ton": 582.0, "aed": 18678.0, "apt": 32.1, "apt_d": 32.1, "apt_v3": 32.1, "grp": "GRM", "month": "2024-11", "outlier": false, "direct": 18678.0, "prorate": 0.0, "lines": 7, "pro_items": 0}, {"id": "HVDC-AGI-GRM-71-037", "ton": 652.0, "aed": 26463.0, "apt": 40.6, "apt_d": 40.6, "apt_v3": 40.6, "grp": "GRM", "month": "2024-12", "outlier": false, "direct": 26463.0, "prorate": 0.0, "lines": 9, "pro_items": 0}, {"id": "HVDC-AGI-GRM-71-038", "ton": 586.0, "aed": 14542.0, "apt": 24.8, "apt_d": 24.8, "apt_v3": 24.8, "grp": "GRM", "month": "2024-12", "outlier": false, "direct": 14542.0, "prorate": 0.0, "lines": 7, "pro_items": 0}, {"id": "HVDC-AGI-GRM-71-039", "ton": 653.0, "aed": 19730.0, "apt": 30.2, "apt_d": 30.2, "apt_v3": 30.2, "grp": "GRM", "month": "2024-12", "outlier": false, "direct": 19730.0, "prorate": 0.0, "lines": 5, "pro_items": 0}, {"id": "HVDC-AGI-GRM-71-040", "ton": 682.0, "aed": 145529.0, "apt": 213.5, "apt_d": 213.5, "apt_v3": 213.5, "grp": "GRM", "month": "2024-12", "outlier": false, "direct": 145529.0, "prorate": 0.0, "lines": 6, "pro_items": 0}, {"id": "HVDC-AGI-GRM-71-041", "ton": 610.0, "aed": 12882.0, "apt": 21.1, "apt_d": 21.1, "apt_v3": 21.1, "grp": "GRM", "month": "2024-12", "outlier": false, "direct": 12882.0, "prorate": 0.0, "lines": 4, "pro_items": 0}, {"id": "HVDC-AGI-GRM-71-042", "ton": 615.0, "aed": 18018.0, "apt": 29.3, "apt_d": 29.3, "apt_v3": 29.3, "grp": "GRM", "month": "2024-12", "outlier": false, "direct": 18018.0, "prorate": 0.0, "lines": 5, "pro_items": 0}, {"id": "HVDC-AGI-GRM-71-043", "ton": 635.0, "aed": 14018.0, "apt": 22.1, "apt_d": 22.1, "apt_v3": 22.1, "grp": "GRM", "month": "2024-12", "outlier": false, "direct": 14018.0, "prorate": 0.0, "lines": 5, "pro_items": 0}, {"id": "HVDC-AGI-GRM-71-044", "ton": 598.0, "aed": 14018.0, "apt": 23.4, "apt_d": 23.4, "apt_v3": 23.4, "grp": "GRM", "month": "2024-12", "outlier": false, "direct": 14018.0, "prorate": 0.0, "lines": 5, "pro_items": 0}, {"id": "HVDC-AGI-GRM-71-045", "ton": 672.0, "aed": 22685.0, "apt": 33.8, "apt_d": 28.6, "apt_v3": 33.7, "grp": "GRM", "month": "2025-01", "outlier": false, "direct": 19196.0, "prorate": 3489.0, "lines": 7, "pro_items": 1}, {"id": "HVDC-AGI-GRM-71-046", "ton": 782.0, "aed": 9054.0, "apt": 11.6, "apt_d": 6.4, "apt_v3": 11.5, "grp": "GRM", "month": "2025-01", "outlier": false, "direct": 4991.0, "prorate": 4063.0, "lines": 2, "pro_items": 1}, {"id": "HVDC-AGI-J71-001", "ton": 24.0, "aed": 54798.0, "apt": 2285.1, "apt_d": 1782.5, "apt_v3": 2254.9, "grp": "AGI", "month": "2025-02", "outlier": true, "direct": 42745.0, "prorate": 12053.0, "lines": 24, "pro_items": 11}, {"id": "HVDC-AGI-GRM-J71-047", "ton": 348.0, "aed": 238214.0, "apt": 685.2, "apt_d": 182.5, "apt_v3": 654.9, "grp": "GRM", "month": "2025-02", "outlier": true, "direct": 63459.0, "prorate": 174756.0, "lines": 23, "pro_items": 11}, {"id": "HVDC-AGI-J71-002", "ton": 101.0, "aed": 85182.0, "apt": 846.9, "apt_d": 344.2, "apt_v3": 816.7, "grp": "AGI", "month": "2025-02", "outlier": true, "direct": 34623.0, "prorate": 50558.0, "lines": 23, "pro_items": 11}, {"id": "HVDC-AGI-J71-003", "ton": 170.0, "aed": 83438.0, "apt": 489.4, "apt_d": 304.4, "apt_v3": 489.4, "grp": "AGI", "month": "2025-03", "outlier": true, "direct": 51902.0, "prorate": 31535.0, "lines": 33, "pro_items": 6}, {"id": "HVDC-AGI-J71-004", "ton": 324.0, "aed": 116410.0, "apt": 359.3, "apt_d": 174.3, "apt_v3": 359.3, "grp": "AGI", "month": "2025-03", "outlier": true, "direct": 56477.0, "prorate": 59933.0, "lines": 25, "pro_items": 6}, {"id": "HVDC-AGI-GRM-J71-048", "ton": 700.0, "aed": 165478.0, "apt": 236.3, "apt_d": 189.2, "apt_v3": 189.2, "grp": "GRM", "month": "2025-04", "outlier": false, "direct": 132482.0, "prorate": 32996.0, "lines": 3, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-049", "ton": 664.0, "aed": 71514.0, "apt": 107.7, "apt_d": 60.6, "apt_v3": 60.6, "grp": "GRM", "month": "2025-04", "outlier": false, "direct": 40227.0, "prorate": 31287.0, "lines": 16, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-050", "ton": 671.0, "aed": 134138.0, "apt": 199.9, "apt_d": 152.8, "apt_v3": 152.8, "grp": "GRM", "month": "2025-04", "outlier": false, "direct": 102521.0, "prorate": 31617.0, "lines": 45, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-051", "ton": 687.0, "aed": 110626.0, "apt": 161.0, "apt_d": 107.5, "apt_v3": 154.9, "grp": "GRM", "month": "2025-05", "outlier": false, "direct": 73915.0, "prorate": 36711.0, "lines": 43, "pro_items": 6}, {"id": "HVDC-AGI-GRM-J71-052", "ton": 697.0, "aed": 90109.0, "apt": 129.4, "apt_d": 75.9, "apt_v3": 123.3, "grp": "GRM", "month": "2025-05", "outlier": false, "direct": 52903.0, "prorate": 37206.0, "lines": 18, "pro_items": 6}, {"id": "HVDC-AGI-GRM-J71-053", "ton": 716.0, "aed": 68904.0, "apt": 96.3, "apt_d": 42.9, "apt_v3": 90.2, "grp": "GRM", "month": "2025-05", "outlier": false, "direct": 30679.0, "prorate": 38225.0, "lines": 12, "pro_items": 6}, {"id": "HVDC-AGI-GRM-J71-055", "ton": 761.0, "aed": 29656.0, "apt": 39.0, "apt_d": 15.1, "apt_v3": 39.0, "grp": "GRM", "month": "2025-07", "outlier": false, "direct": 11466.0, "prorate": 18190.0, "lines": 4, "pro_items": 5}, {"id": "HVDC-AGI-GRM-J71-056", "ton": 754.0, "aed": 162225.0, "apt": 215.2, "apt_d": 191.3, "apt_v3": 215.2, "grp": "GRM", "month": "2025-07", "outlier": false, "direct": 144198.0, "prorate": 18027.0, "lines": 12, "pro_items": 5}, {"id": "HVDC-AGI-GRM-J71-057", "ton": 791.0, "aed": 31728.0, "apt": 40.1, "apt_d": 16.2, "apt_v3": 40.1, "grp": "GRM", "month": "2025-07", "outlier": false, "direct": 12816.0, "prorate": 18912.0, "lines": 7, "pro_items": 5}, {"id": "HVDC-AGI-GRM-J71-058", "ton": 766.0, "aed": 40320.0, "apt": 52.7, "apt_d": 28.7, "apt_v3": 52.7, "grp": "GRM", "month": "2025-07", "outlier": false, "direct": 22009.0, "prorate": 18312.0, "lines": 7, "pro_items": 5}, {"id": "HVDC-AGI-GRM-J71-059", "ton": 568.0, "aed": 27403.0, "apt": 48.2, "apt_d": 24.3, "apt_v3": 48.2, "grp": "GRM", "month": "2025-07", "outlier": false, "direct": 13810.0, "prorate": 13593.0, "lines": 5, "pro_items": 5}, {"id": "HVDC-AGI-GRM-J71-060", "ton": 717.0, "aed": 95190.0, "apt": 132.8, "apt_d": 132.8, "apt_v3": 132.8, "grp": "GRM", "month": "2025-08", "outlier": false, "direct": 95190.0, "prorate": 0.0, "lines": 52, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-061", "ton": 818.0, "aed": 220909.0, "apt": 270.2, "apt_d": 270.2, "apt_v3": 270.2, "grp": "GRM", "month": "2025-08", "outlier": true, "direct": 220909.0, "prorate": 0.0, "lines": 23, "pro_items": 0}, {"id": "HVDC-DAS-J71", "ton": 202.0, "aed": 70080.0, "apt": 346.6, "apt_d": 346.6, "apt_v3": 346.6, "grp": "DAS", "month": "2025-08", "outlier": true, "direct": 70080.0, "prorate": 0.0, "lines": 38, "pro_items": 0}, {"id": "HVDC-AGI-009", "ton": 405.0, "aed": 90691.0, "apt": 223.9, "apt_d": 223.9, "apt_v3": 223.9, "grp": "AGI", "month": "2025-08", "outlier": false, "direct": 90691.0, "prorate": 0.0, "lines": 26, "pro_items": 0}, {"id": "HVDC-AGI-010", "ton": 249.0, "aed": 83911.0, "apt": 337.5, "apt_d": 337.5, "apt_v3": 337.5, "grp": "AGI", "month": "2025-08", "outlier": true, "direct": 83911.0, "prorate": 0.0, "lines": 39, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-062", "ton": 745.0, "aed": 232577.0, "apt": 312.0, "apt_d": 312.0, "apt_v3": 312.0, "grp": "GRM", "month": "2025-09", "outlier": true, "direct": 232577.0, "prorate": 0.0, "lines": 16, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-063", "ton": 733.0, "aed": 32650.0, "apt": 44.6, "apt_d": 44.6, "apt_v3": 44.6, "grp": "GRM", "month": "2025-09", "outlier": false, "direct": 32650.0, "prorate": 0.0, "lines": 10, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-064", "ton": 841.0, "aed": 72295.0, "apt": 86.0, "apt_d": 86.0, "apt_v3": 86.0, "grp": "GRM", "month": "2025-09", "outlier": false, "direct": 72295.0, "prorate": 0.0, "lines": 23, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-065", "ton": 716.0, "aed": 155772.0, "apt": 217.4, "apt_d": 217.4, "apt_v3": 217.4, "grp": "GRM", "month": "2025-09", "outlier": false, "direct": 155772.0, "prorate": 0.0, "lines": 12, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-066", "ton": 744.0, "aed": 17983.0, "apt": 24.2, "apt_d": 24.2, "apt_v3": 24.2, "grp": "GRM", "month": "2025-09", "outlier": false, "direct": 17983.0, "prorate": 0.0, "lines": 7, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-067", "ton": 794.0, "aed": 16577.0, "apt": 20.9, "apt_d": 20.9, "apt_v3": 20.9, "grp": "GRM", "month": "2025-09", "outlier": false, "direct": 16577.0, "prorate": 0.0, "lines": 6, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-068", "ton": 779.0, "aed": 18213.0, "apt": 23.4, "apt_d": 23.4, "apt_v3": 23.4, "grp": "GRM", "month": "2025-09", "outlier": false, "direct": 18213.0, "prorate": 0.0, "lines": 8, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-069", "ton": 743.0, "aed": 13466.0, "apt": 18.1, "apt_d": 18.1, "apt_v3": 18.1, "grp": "GRM", "month": "2025-09", "outlier": false, "direct": 13466.0, "prorate": 0.0, "lines": 8, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-070", "ton": 542.0, "aed": 17339.0, "apt": 32.0, "apt_d": 32.0, "apt_v3": 32.0, "grp": "GRM", "month": "2025-10", "outlier": false, "direct": 17339.0, "prorate": 0.0, "lines": 11, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-071", "ton": 737.0, "aed": 16162.0, "apt": 21.9, "apt_d": 21.9, "apt_v3": 21.9, "grp": "GRM", "month": "2025-10", "outlier": false, "direct": 16162.0, "prorate": 0.0, "lines": 6, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-072", "ton": 740.0, "aed": 16176.0, "apt": 21.9, "apt_d": 21.9, "apt_v3": 21.9, "grp": "GRM", "month": "2025-10", "outlier": false, "direct": 16176.0, "prorate": 0.0, "lines": 6, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-073", "ton": 772.0, "aed": 14929.0, "apt": 19.3, "apt_d": 19.3, "apt_v3": 19.3, "grp": "GRM", "month": "2025-10", "outlier": false, "direct": 14929.0, "prorate": 0.0, "lines": 9, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-074", "ton": 755.0, "aed": 143517.0, "apt": 190.0, "apt_d": 190.0, "apt_v3": 190.0, "grp": "GRM", "month": "2025-10", "outlier": false, "direct": 143517.0, "prorate": 0.0, "lines": 8, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-075", "ton": 807.0, "aed": 17274.0, "apt": 21.4, "apt_d": 21.4, "apt_v3": 21.4, "grp": "GRM", "month": "2025-10", "outlier": false, "direct": 17274.0, "prorate": 0.0, "lines": 8, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-076", "ton": 695.0, "aed": 23470.0, "apt": 33.8, "apt_d": 33.8, "apt_v3": 33.8, "grp": "GRM", "month": "2025-10", "outlier": false, "direct": 23470.0, "prorate": 0.0, "lines": 9, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-077", "ton": 642.0, "aed": 21125.0, "apt": 32.9, "apt_d": 32.9, "apt_v3": 32.9, "grp": "GRM", "month": "2025-10", "outlier": false, "direct": 21125.0, "prorate": 0.0, "lines": 9, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-078", "ton": 739.0, "aed": 19897.0, "apt": 26.9, "apt_d": 26.9, "apt_v3": 26.9, "grp": "GRM", "month": "2025-10", "outlier": false, "direct": 19897.0, "prorate": 0.0, "lines": 8, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-079", "ton": 785.0, "aed": 20282.0, "apt": 25.8, "apt_d": 25.8, "apt_v3": 25.8, "grp": "GRM", "month": "2025-11", "outlier": false, "direct": 20282.0, "prorate": 0.0, "lines": 8, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-080", "ton": 759.0, "aed": 22023.0, "apt": 29.0, "apt_d": 29.0, "apt_v3": 29.0, "grp": "GRM", "month": "2025-11", "outlier": false, "direct": 22023.0, "prorate": 0.0, "lines": 7, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-081", "ton": 715.0, "aed": 125713.0, "apt": 175.7, "apt_d": 175.7, "apt_v3": 175.7, "grp": "GRM", "month": "2025-11", "outlier": false, "direct": 125713.0, "prorate": 0.0, "lines": 3, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-082", "ton": 736.0, "aed": 18325.0, "apt": 24.9, "apt_d": 24.9, "apt_v3": 24.9, "grp": "GRM", "month": "2025-11", "outlier": false, "direct": 18325.0, "prorate": 0.0, "lines": 4, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-083", "ton": 616.0, "aed": 5420.0, "apt": 8.8, "apt_d": 8.8, "apt_v3": 8.8, "grp": "GRM", "month": "2025-11", "outlier": false, "direct": 5420.0, "prorate": 0.0, "lines": 3, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-084", "ton": 662.0, "aed": 18722.0, "apt": 28.3, "apt_d": 28.3, "apt_v3": 28.3, "grp": "GRM", "month": "2025-12", "outlier": false, "direct": 18722.0, "prorate": 0.0, "lines": 8, "pro_items": 0}, {"id": "HVDC-AGI-DEBRIS-005", "ton": 550.0, "aed": 12792.0, "apt": 23.3, "apt_d": 23.3, "apt_v3": 23.3, "grp": "AGI", "month": "2025-12", "outlier": false, "direct": 12792.0, "prorate": 0.0, "lines": 3, "pro_items": 0}, {"id": "HVDC-AGI-DEBRIS-006", "ton": 550.0, "aed": 11101.0, "apt": 20.2, "apt_d": 20.2, "apt_v3": 20.2, "grp": "AGI", "month": "2025-12", "outlier": false, "direct": 11101.0, "prorate": 0.0, "lines": 3, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-086", "ton": 734.0, "aed": 10232.0, "apt": 13.9, "apt_d": 13.9, "apt_v3": 13.9, "grp": "GRM", "month": "2025-12", "outlier": false, "direct": 10232.0, "prorate": 0.0, "lines": 6, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-087", "ton": 760.0, "aed": 167268.0, "apt": 220.0, "apt_d": 220.0, "apt_v3": 220.0, "grp": "GRM", "month": "2025-12", "outlier": false, "direct": 167268.0, "prorate": 0.0, "lines": 18, "pro_items": 0}, {"id": "HVDC-AGI-DEBRIS-008", "ton": 484.0, "aed": 3184.0, "apt": 6.6, "apt_d": 6.6, "apt_v3": 6.6, "grp": "AGI", "month": "2025-12", "outlier": false, "direct": 3184.0, "prorate": 0.0, "lines": 1, "pro_items": 0}, {"id": "HVDC-AGI-DEBRIS-009", "ton": 460.0, "aed": 13702.0, "apt": 29.8, "apt_d": 29.8, "apt_v3": 29.8, "grp": "AGI", "month": "2026-01", "outlier": false, "direct": 13702.0, "prorate": 0.0, "lines": 3, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-089", "ton": 690.0, "aed": 8212.0, "apt": 11.9, "apt_d": 11.9, "apt_v3": 11.9, "grp": "GRM", "month": "2026-01", "outlier": false, "direct": 8212.0, "prorate": 0.0, "lines": 6, "pro_items": 0}, {"id": "HVDC-AGI-DEBRIS-010", "ton": 460.0, "aed": 12929.0, "apt": 28.1, "apt_d": 28.1, "apt_v3": 28.1, "grp": "AGI", "month": "2026-01", "outlier": false, "direct": 12929.0, "prorate": 0.0, "lines": 3, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-090", "ton": 572.0, "aed": 7435.0, "apt": 13.0, "apt_d": 13.0, "apt_v3": 13.0, "grp": "GRM", "month": "2026-01", "outlier": false, "direct": 7435.0, "prorate": 0.0, "lines": 4, "pro_items": 0}, {"id": "HVDC-AGI-DEBRIS-011", "ton": 460.0, "aed": 22570.0, "apt": 49.1, "apt_d": 49.1, "apt_v3": 49.1, "grp": "AGI", "month": "2026-01", "outlier": false, "direct": 22570.0, "prorate": 0.0, "lines": 5, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-091", "ton": 649.0, "aed": 131011.0, "apt": 202.0, "apt_d": 202.0, "apt_v3": 202.0, "grp": "GRM", "month": "2026-01", "outlier": false, "direct": 131011.0, "prorate": 0.0, "lines": 10, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-092", "ton": 729.0, "aed": 22394.0, "apt": 30.7, "apt_d": 30.7, "apt_v3": 30.7, "grp": "GRM", "month": "2026-01", "outlier": false, "direct": 22394.0, "prorate": 0.0, "lines": 11, "pro_items": 0}, {"id": "HVDC-AGI-DEBRIS-012", "ton": 460.0, "aed": 9758.0, "apt": 21.2, "apt_d": 21.2, "apt_v3": 21.2, "grp": "AGI", "month": "2026-01", "outlier": false, "direct": 9758.0, "prorate": 0.0, "lines": 3, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-093", "ton": 431.0, "aed": 5310.0, "apt": 12.3, "apt_d": 12.3, "apt_v3": 12.3, "grp": "GRM", "month": "2026-01", "outlier": false, "direct": 5310.0, "prorate": 0.0, "lines": 3, "pro_items": 0}, {"id": "HVDC-AGI-GRM-J71-085", "ton": 749.0, "aed": 9838.0, "apt": 13.1, "apt_d": 13.1, "apt_v3": 13.1, "grp": "GRM", "month": "2026-12", "outlier": false, "direct": 9838.0, "prorate": 0.0, "lines": 4, "pro_items": 0}, {"id": "HVDC-AGI-DEBRIS-007", "ton": 550.0, "aed": 12792.0, "apt": 23.3, "apt_d": 23.3, "apt_v3": 23.3, "grp": "AGI", "month": "2026-12", "outlier": false, "direct": 12792.0, "prorate": 0.0, "lines": 3, "pro_items": 0}], "histogram": [{"range": "0-20", "count": 12}, {"range": "20-40", "count": 32}, {"range": "40-60", "count": 21}, {"range": "60-80", "count": 11}, {"range": "80-100", "count": 2}, {"range": "100-150", "count": 7}, {"range": "150-200", "count": 4}, {"range": "200-300", "count": 9}, {"range": "300-500", "count": 5}, {"range": "500-1000", "count": 2}, {"range": "1000-2500", "count": 1}, {"range": "2500+", "count": 0}], "vg_summary": {"AGI": {"n": 14, "ton": 5247.0, "aed": 613259.0, "avg_apt": 338.8, "med_apt": 39.4}, "DAS": {"n": 1, "ton": 202.0, "aed": 70080.0, "avg_apt": 346.6, "med_apt": 346.6}, "GRM": {"n": 91, "ton": 59191.0, "aed": 4560485.0, "avg_apt": 79.8, "med_apt": 51.1}}, "monthly": [{"month": "2024-07", "n_voy": 2, "ton": 1223.0, "aed": 9674.0, "blended": 7.9, "avg": 7.9, "med": 7.9}, {"month": "2024-08", "n_voy": 10, "ton": 6066.0, "aed": 322965.0, "blended": 53.2, "avg": 53.2, "med": 53.6}, {"month": "2024-09", "n_voy": 10, "ton": 6194.0, "aed": 436059.0, "blended": 70.4, "avg": 70.4, "med": 69.5}, {"month": "2024-10", "n_voy": 8, "ton": 4095.0, "aed": 320802.0, "blended": 78.3, "avg": 87.0, "med": 64.3}, {"month": "2024-11", "n_voy": 6, "ton": 3361.0, "aed": 266026.0, "blended": 79.2, "avg": 82.0, "med": 39.3}, {"month": "2024-12", "n_voy": 8, "ton": 5031.0, "aed": 265199.0, "blended": 52.7, "avg": 50.6, "med": 27.0}, {"month": "2025-01", "n_voy": 2, "ton": 1454.0, "aed": 31740.0, "blended": 21.8, "avg": 22.7, "med": 22.7}, {"month": "2025-02", "n_voy": 3, "ton": 472.0, "aed": 378194.0, "blended": 800.9, "avg": 1272.4, "med": 846.9}, {"month": "2025-03", "n_voy": 2, "ton": 494.0, "aed": 199848.0, "blended": 404.2, "avg": 424.4, "med": 424.4}, {"month": "2025-04", "n_voy": 3, "ton": 2036.0, "aed": 371130.0, "blended": 182.3, "avg": 181.3, "med": 199.9}, {"month": "2025-05", "n_voy": 3, "ton": 2100.0, "aed": 269638.0, "blended": 128.4, "avg": 128.9, "med": 129.4}, {"month": "2025-07", "n_voy": 5, "ton": 3639.0, "aed": 291332.0, "blended": 80.1, "avg": 79.0, "med": 48.2}, {"month": "2025-08", "n_voy": 5, "ton": 2390.0, "aed": 560781.0, "blended": 234.6, "avg": 262.2, "med": 270.2}, {"month": "2025-09", "n_voy": 8, "ton": 6095.0, "aed": 559534.0, "blended": 91.8, "avg": 93.3, "med": 34.4}, {"month": "2025-10", "n_voy": 9, "ton": 6429.0, "aed": 289888.0, "blended": 45.1, "avg": 44.5, "med": 26.9}, {"month": "2025-11", "n_voy": 5, "ton": 3610.0, "aed": 191763.0, "blended": 53.1, "avg": 52.9, "med": 25.8}, {"month": "2025-12", "n_voy": 6, "ton": 3741.0, "aed": 223300.0, "blended": 59.7, "avg": 52.0, "med": 21.7}, {"month": "2026-01", "n_voy": 9, "ton": 4911.0, "aed": 233322.0, "blended": 47.5, "avg": 44.2, "med": 28.1}, {"month": "2026-12", "n_voy": 2, "ton": 1299.0, "aed": 22630.0, "blended": 17.4, "avg": 18.2, "med": 18.2}], "top15": [{"id": "HVDC-AGI-J71-001", "apt": 2285.1, "ton": 24.0, "aed": 54798.0, "grp": "AGI"}, {"id": "HVDC-AGI-J71-002", "apt": 846.9, "ton": 101.0, "aed": 85182.0, "grp": "AGI"}, {"id": "HVDC-AGI-GRM-J71-047", "apt": 685.2, "ton": 348.0, "aed": 238214.0, "grp": "GRM"}, {"id": "HVDC-AGI-J71-003", "apt": 489.4, "ton": 170.0, "aed": 83438.0, "grp": "AGI"}, {"id": "HVDC-AGI-J71-004", "apt": 359.3, "ton": 324.0, "aed": 116410.0, "grp": "AGI"}, {"id": "HVDC-DAS-J71", "apt": 346.6, "ton": 202.0, "aed": 70080.0, "grp": "DAS"}, {"id": "HVDC-AGI-010", "apt": 337.5, "ton": 249.0, "aed": 83911.0, "grp": "AGI"}, {"id": "HVDC-AGI-GRM-J71-062", "apt": 312.0, "ton": 745.0, "aed": 232577.0, "grp": "GRM"}, {"id": "HVDC-AGI-GRM-J71-061", "apt": 270.2, "ton": 818.0, "aed": 220909.0, "grp": "GRM"}, {"id": "HVDC-AGI-GRM-J71-048", "apt": 236.3, "ton": 700.0, "aed": 165478.0, "grp": "GRM"}, {"id": "HVDC-AGI-GRM-71-035", "apt": 227.6, "ton": 612.0, "aed": 139222.0, "grp": "GRM"}, {"id": "HVDC-AGI-009", "apt": 223.9, "ton": 405.0, "aed": 90691.0, "grp": "AGI"}, {"id": "HVDC-AGI-GRM-J71-087", "apt": 220.0, "ton": 760.0, "aed": 167268.0, "grp": "GRM"}, {"id": "HVDC-AGI-GRM-J71-065", "apt": 217.4, "ton": 716.0, "aed": 155772.0, "grp": "GRM"}, {"id": "HVDC-AGI-GRM-J71-056", "apt": 215.2, "ton": 754.0, "aed": 162225.0, "grp": "GRM"}], "ct_data": {"Agency": 16610.0, "Bunker": 518118.0, "Cargo": 559936.0, "Other": 2979768.0, "Port": 1241320.0, "Supply": 1364.0}, "ct_per_ton": {"Agency": 0.3, "Bunker": 8.0, "Cargo": 8.7, "Other": 46.1, "Port": 19.2, "Supply": 0.0}, "delta": {"v3_blended": 79.2, "v4_blended": 81.1, "v3_coverage": 84.9, "v4_coverage": 87.7, "v3_manual": 94, "v4_manual": 61, "v3_median": 28.4, "v4_median": 50.5, "fence": 241.6, "n_outlier": 9, "q1": 25.1, "q3": 111.7}, "alloc": {"DATE_INFER": {"aed": 28335.0, "n": 2}, "DIRECT": {"aed": 4049014.0, "n": 1031}, "MANUAL_REVIEW": {"aed": 286056.0, "n": 61}, "MULTI_PRORATED": {"aed": 168105.0, "n": 34}, "NEW_TYPE": {"aed": 110271.0, "n": 39}, "PRORATE_APPLIED": {"aed": 1071661.0, "n": 37}, "SEPARATE_OPS": {"aed": 316466.0, "n": 99}}, "detail": [{"id": "HVDC-AGI-J71-001", "grp": "AGI", "month": "2025-02", "ton": 24.0, "direct": 42745.0, "prorate": 12053.0, "total": 54798.0, "apt_d": 1782.5, "apt_v3": 2254.9, "apt_v4": 2285.1, "outlier": true}, {"id": "HVDC-AGI-J71-002", "grp": "AGI", "month": "2025-02", "ton": 101.0, "direct": 34623.0, "prorate": 50558.0, "total": 85182.0, "apt_d": 344.2, "apt_v3": 816.7, "apt_v4": 846.9, "outlier": true}, {"id": "HVDC-AGI-GRM-J71-047", "grp": "GRM", "month": "2025-02", "ton": 348.0, "direct": 63459.0, "prorate": 174756.0, "total": 238214.0, "apt_d": 182.5, "apt_v3": 654.9, "apt_v4": 685.2, "outlier": true}, {"id": "HVDC-AGI-J71-003", "grp": "AGI", "month": "2025-03", "ton": 170.0, "direct": 51902.0, "prorate": 31535.0, "total": 83438.0, "apt_d": 304.4, "apt_v3": 489.4, "apt_v4": 489.4, "outlier": true}, {"id": "HVDC-AGI-J71-004", "grp": "AGI", "month": "2025-03", "ton": 324.0, "direct": 56477.0, "prorate": 59933.0, "total": 116410.0, "apt_d": 174.3, "apt_v3": 359.3, "apt_v4": 359.3, "outlier": true}, {"id": "HVDC-DAS-J71", "grp": "DAS", "month": "2025-08", "ton": 202.0, "direct": 70080.0, "prorate": 0.0, "total": 70080.0, "apt_d": 346.6, "apt_v3": 346.6, "apt_v4": 346.6, "outlier": true}, {"id": "HVDC-AGI-010", "grp": "AGI", "month": "2025-08", "ton": 249.0, "direct": 83911.0, "prorate": 0.0, "total": 83911.0, "apt_d": 337.5, "apt_v3": 337.5, "apt_v4": 337.5, "outlier": true}, {"id": "HVDC-AGI-GRM-J71-062", "grp": "GRM", "month": "2025-09", "ton": 745.0, "direct": 232577.0, "prorate": 0.0, "total": 232577.0, "apt_d": 312.0, "apt_v3": 312.0, "apt_v4": 312.0, "outlier": true}, {"id": "HVDC-AGI-GRM-J71-061", "grp": "GRM", "month": "2025-08", "ton": 818.0, "direct": 220909.0, "prorate": 0.0, "total": 220909.0, "apt_d": 270.2, "apt_v3": 270.2, "apt_v4": 270.2, "outlier": true}, {"id": "HVDC-AGI-GRM-J71-048", "grp": "GRM", "month": "2025-04", "ton": 700.0, "direct": 132482.0, "prorate": 32996.0, "total": 165478.0, "apt_d": 189.2, "apt_v3": 189.2, "apt_v4": 236.3, "outlier": false}, {"id": "HVDC-AGI-GRM-71-035", "grp": "GRM", "month": "2024-11", "ton": 612.0, "direct": 139222.0, "prorate": 0.0, "total": 139222.0, "apt_d": 227.6, "apt_v3": 227.6, "apt_v4": 227.6, "outlier": false}, {"id": "HVDC-AGI-009", "grp": "AGI", "month": "2025-08", "ton": 405.0, "direct": 90691.0, "prorate": 0.0, "total": 90691.0, "apt_d": 223.9, "apt_v3": 223.9, "apt_v4": 223.9, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-087", "grp": "GRM", "month": "2025-12", "ton": 760.0, "direct": 167268.0, "prorate": 0.0, "total": 167268.0, "apt_d": 220.0, "apt_v3": 220.0, "apt_v4": 220.0, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-065", "grp": "GRM", "month": "2025-09", "ton": 716.0, "direct": 155772.0, "prorate": 0.0, "total": 155772.0, "apt_d": 217.4, "apt_v3": 217.4, "apt_v4": 217.4, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-056", "grp": "GRM", "month": "2025-07", "ton": 754.0, "direct": 144198.0, "prorate": 18027.0, "total": 162225.0, "apt_d": 191.3, "apt_v3": 215.2, "apt_v4": 215.2, "outlier": false}, {"id": "HVDC-AGI-GRM-71-040", "grp": "GRM", "month": "2024-12", "ton": 682.0, "direct": 145529.0, "prorate": 0.0, "total": 145529.0, "apt_d": 213.5, "apt_v3": 213.5, "apt_v4": 213.5, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-091", "grp": "GRM", "month": "2026-01", "ton": 649.0, "direct": 131011.0, "prorate": 0.0, "total": 131011.0, "apt_d": 202.0, "apt_v3": 202.0, "apt_v4": 202.0, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-050", "grp": "GRM", "month": "2025-04", "ton": 671.0, "direct": 102521.0, "prorate": 31617.0, "total": 134138.0, "apt_d": 152.8, "apt_v3": 152.8, "apt_v4": 199.9, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-074", "grp": "GRM", "month": "2025-10", "ton": 755.0, "direct": 143517.0, "prorate": 0.0, "total": 143517.0, "apt_d": 190.0, "apt_v3": 190.0, "apt_v4": 190.0, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-081", "grp": "GRM", "month": "2025-11", "ton": 715.0, "direct": 125713.0, "prorate": 0.0, "total": 125713.0, "apt_d": 175.7, "apt_v3": 175.7, "apt_v4": 175.7, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-051", "grp": "GRM", "month": "2025-05", "ton": 687.0, "direct": 73915.0, "prorate": 36711.0, "total": 110626.0, "apt_d": 107.5, "apt_v3": 154.9, "apt_v4": 161.0, "outlier": false}, {"id": "HVDC-AGI-GRM-71-030", "grp": "GRM", "month": "2024-10", "ton": 360.0, "direct": 40660.0, "prorate": 12063.0, "total": 52723.0, "apt_d": 112.8, "apt_v3": 146.3, "apt_v4": 146.3, "outlier": false}, {"id": "HVDC-AGI-GRM-71-027", "grp": "GRM", "month": "2024-10", "ton": 360.0, "direct": 38639.0, "prorate": 12063.0, "total": 50702.0, "apt_d": 107.2, "apt_v3": 140.7, "apt_v4": 140.7, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-060", "grp": "GRM", "month": "2025-08", "ton": 717.0, "direct": 95190.0, "prorate": 0.0, "total": 95190.0, "apt_d": 132.8, "apt_v3": 132.8, "apt_v4": 132.8, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-052", "grp": "GRM", "month": "2025-05", "ton": 697.0, "direct": 52903.0, "prorate": 37206.0, "total": 90109.0, "apt_d": 75.9, "apt_v3": 123.3, "apt_v4": 129.4, "outlier": false}, {"id": "HVDC-AGI-GRM-71-034", "grp": "GRM", "month": "2024-11", "ton": 351.0, "direct": 44642.0, "prorate": 0.0, "total": 44642.0, "apt_d": 127.2, "apt_v3": 127.2, "apt_v4": 127.2, "outlier": false}, {"id": "HVDC-AGI-GRM-71-023", "grp": "GRM", "month": "2024-10", "ton": 338.0, "direct": 26895.0, "prorate": 11309.0, "total": 38204.0, "apt_d": 79.6, "apt_v3": 113.1, "apt_v4": 113.1, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-049", "grp": "GRM", "month": "2025-04", "ton": 664.0, "direct": 40227.0, "prorate": 31287.0, "total": 71514.0, "apt_d": 60.6, "apt_v3": 60.6, "apt_v4": 107.7, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-053", "grp": "GRM", "month": "2025-05", "ton": 716.0, "direct": 30679.0, "prorate": 38225.0, "total": 68904.0, "apt_d": 42.9, "apt_v3": 90.2, "apt_v4": 96.3, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-064", "grp": "GRM", "month": "2025-09", "ton": 841.0, "direct": 72295.0, "prorate": 0.0, "total": 72295.0, "apt_d": 86.0, "apt_v3": 86.0, "apt_v4": 86.0, "outlier": false}, {"id": "HVDC-AGI-GRM-71-017", "grp": "GRM", "month": "2024-09", "ton": 590.0, "direct": 20182.0, "prorate": 26060.0, "total": 46242.0, "apt_d": 34.2, "apt_v3": 78.4, "apt_v4": 78.4, "outlier": false}, {"id": "HVDC-AGI-GRM-71-013", "grp": "GRM", "month": "2024-09", "ton": 636.0, "direct": 18028.0, "prorate": 28124.0, "total": 46151.0, "apt_d": 28.3, "apt_v3": 72.5, "apt_v4": 72.5, "outlier": false}, {"id": "HVDC-AGI-GRM-71-018", "grp": "GRM", "month": "2024-09", "ton": 605.0, "direct": 15678.0, "prorate": 26746.0, "total": 42424.0, "apt_d": 25.9, "apt_v3": 70.1, "apt_v4": 70.1, "outlier": false}, {"id": "HVDC-AGI-GRM-71-029", "grp": "GRM", "month": "2024-10", "ton": 553.0, "direct": 20162.0, "prorate": 18516.0, "total": 38678.0, "apt_d": 36.5, "apt_v3": 69.9, "apt_v4": 69.9, "outlier": false}, {"id": "HVDC-AGI-GRM-71-014", "grp": "GRM", "month": "2024-09", "ton": 635.0, "direct": 16182.0, "prorate": 28041.0, "total": 44223.0, "apt_d": 25.5, "apt_v3": 69.7, "apt_v4": 69.7, "outlier": false}, {"id": "HVDC-AGI-GRM-71-016", "grp": "GRM", "month": "2024-09", "ton": 618.0, "direct": 15678.0, "prorate": 27304.0, "total": 42981.0, "apt_d": 25.4, "apt_v3": 69.6, "apt_v4": 69.6, "outlier": false}, {"id": "HVDC-AGI-GRM-71-021", "grp": "GRM", "month": "2024-09", "ton": 634.0, "direct": 16028.0, "prorate": 28005.0, "total": 44032.0, "apt_d": 25.3, "apt_v3": 69.5, "apt_v4": 69.5, "outlier": false}, {"id": "HVDC-AGI-GRM-71-015", "grp": "GRM", "month": "2024-09", "ton": 626.0, "direct": 15678.0, "prorate": 27671.0, "total": 43348.0, "apt_d": 25.0, "apt_v3": 69.2, "apt_v4": 69.2, "outlier": false}, {"id": "HVDC-AGI-GRM-71-022", "grp": "GRM", "month": "2024-09", "ton": 632.0, "direct": 15678.0, "prorate": 27925.0, "total": 43603.0, "apt_d": 24.8, "apt_v3": 69.0, "apt_v4": 69.0, "outlier": false}, {"id": "HVDC-AGI-GRM-71-019", "grp": "GRM", "month": "2024-09", "ton": 590.0, "direct": 14278.0, "prorate": 26061.0, "total": 40339.0, "apt_d": 24.2, "apt_v3": 68.4, "apt_v4": 68.4, "outlier": false}, {"id": "HVDC-AGI-GRM-71-020", "grp": "GRM", "month": "2024-09", "ton": 629.0, "direct": 14932.0, "prorate": 27784.0, "total": 42716.0, "apt_d": 23.7, "apt_v3": 67.9, "apt_v4": 67.9, "outlier": false}, {"id": "HVDC-AGI-GRM-71-024", "grp": "GRM", "month": "2024-10", "ton": 624.0, "direct": 15678.0, "prorate": 20875.0, "total": 36553.0, "apt_d": 25.1, "apt_v3": 58.6, "apt_v4": 58.6, "outlier": false}, {"id": "HVDC-AGI-GRM-71-026", "grp": "GRM", "month": "2024-10", "ton": 620.0, "direct": 14932.0, "prorate": 20762.0, "total": 35694.0, "apt_d": 24.1, "apt_v3": 57.6, "apt_v4": 57.6, "outlier": false}, {"id": "HVDC-AGI-GRM-71-010", "grp": "GRM", "month": "2024-08", "ton": 610.0, "direct": 19528.0, "prorate": 15345.0, "total": 34873.0, "apt_d": 32.0, "apt_v3": 57.1, "apt_v4": 57.1, "outlier": false}, {"id": "HVDC-AGI-GRM-71-025", "grp": "GRM", "month": "2024-10", "ton": 614.0, "direct": 14278.0, "prorate": 20546.0, "total": 34823.0, "apt_d": 23.3, "apt_v3": 56.7, "apt_v4": 56.7, "outlier": false}, {"id": "HVDC-AGI-GRM-71-003", "grp": "GRM", "month": "2024-08", "ton": 619.0, "direct": 19528.0, "prorate": 15565.0, "total": 35092.0, "apt_d": 31.5, "apt_v3": 56.7, "apt_v4": 56.7, "outlier": false}, {"id": "HVDC-AGI-GRM-71-005", "grp": "GRM", "month": "2024-08", "ton": 614.0, "direct": 19282.0, "prorate": 15445.0, "total": 34728.0, "apt_d": 31.4, "apt_v3": 56.5, "apt_v4": 56.5, "outlier": false}, {"id": "HVDC-AGI-GRM-71-012", "grp": "GRM", "month": "2024-08", "ton": 608.0, "direct": 18452.0, "prorate": 15286.0, "total": 33738.0, "apt_d": 30.4, "apt_v3": 55.5, "apt_v4": 55.5, "outlier": false}, {"id": "HVDC-AGI-GRM-71-008", "grp": "GRM", "month": "2024-08", "ton": 620.0, "direct": 18722.0, "prorate": 15600.0, "total": 34322.0, "apt_d": 30.2, "apt_v3": 55.3, "apt_v4": 55.3, "outlier": false}, {"id": "HVDC-AGI-GRM-71-028", "grp": "GRM", "month": "2024-10", "ton": 626.0, "direct": 12478.0, "prorate": 20949.0, "total": 33427.0, "apt_d": 19.9, "apt_v3": 53.4, "apt_v4": 53.4, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-058", "grp": "GRM", "month": "2025-07", "ton": 766.0, "direct": 22009.0, "prorate": 18312.0, "total": 40320.0, "apt_d": 28.7, "apt_v3": 52.7, "apt_v4": 52.7, "outlier": false}, {"id": "HVDC-AGI-GRM-71-006", "grp": "GRM", "month": "2024-08", "ton": 560.0, "direct": 15008.0, "prorate": 14082.0, "total": 29090.0, "apt_d": 26.8, "apt_v3": 51.9, "apt_v4": 51.9, "outlier": false}, {"id": "HVDC-AGI-GRM-71-007", "grp": "GRM", "month": "2024-08", "ton": 613.0, "direct": 15922.0, "prorate": 15426.0, "total": 31348.0, "apt_d": 26.0, "apt_v3": 51.1, "apt_v4": 51.1, "outlier": false}, {"id": "HVDC-AGI-GRM-71-011", "grp": "GRM", "month": "2024-08", "ton": 602.0, "direct": 14932.0, "prorate": 15145.0, "total": 30077.0, "apt_d": 24.8, "apt_v3": 49.9, "apt_v4": 49.9, "outlier": false}, {"id": "HVDC-AGI-GRM-71-004", "grp": "GRM", "month": "2024-08", "ton": 626.0, "direct": 15028.0, "prorate": 15749.0, "total": 30777.0, "apt_d": 24.0, "apt_v3": 49.1, "apt_v4": 49.1, "outlier": false}, {"id": "HVDC-AGI-DEBRIS-011", "grp": "AGI", "month": "2026-01", "ton": 460.0, "direct": 22570.0, "prorate": 0.0, "total": 22570.0, "apt_d": 49.1, "apt_v3": 49.1, "apt_v4": 49.1, "outlier": false}, {"id": "HVDC-AGI-GRM-71-009", "grp": "GRM", "month": "2024-08", "ton": 593.0, "direct": 14018.0, "prorate": 14903.0, "total": 28921.0, "apt_d": 23.7, "apt_v3": 48.8, "apt_v4": 48.8, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-059", "grp": "GRM", "month": "2025-07", "ton": 568.0, "direct": 13810.0, "prorate": 13593.0, "total": 27403.0, "apt_d": 24.3, "apt_v3": 48.2, "apt_v4": 48.2, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-063", "grp": "GRM", "month": "2025-09", "ton": 733.0, "direct": 32650.0, "prorate": 0.0, "total": 32650.0, "apt_d": 44.6, "apt_v3": 44.6, "apt_v4": 44.6, "outlier": false}, {"id": "HVDC-AGI-GRM-71-031", "grp": "GRM", "month": "2024-11", "ton": 613.0, "direct": 25110.0, "prorate": 0.0, "total": 25110.0, "apt_d": 41.0, "apt_v3": 41.0, "apt_v4": 41.0, "outlier": false}, {"id": "HVDC-AGI-GRM-71-037", "grp": "GRM", "month": "2024-12", "ton": 652.0, "direct": 26463.0, "prorate": 0.0, "total": 26463.0, "apt_d": 40.6, "apt_v3": 40.6, "apt_v4": 40.6, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-057", "grp": "GRM", "month": "2025-07", "ton": 791.0, "direct": 12816.0, "prorate": 18912.0, "total": 31728.0, "apt_d": 16.2, "apt_v3": 40.1, "apt_v4": 40.1, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-055", "grp": "GRM", "month": "2025-07", "ton": 761.0, "direct": 11466.0, "prorate": 18190.0, "total": 29656.0, "apt_d": 15.1, "apt_v3": 39.0, "apt_v4": 39.0, "outlier": false}, {"id": "HVDC-AGI-GRM-71-033", "grp": "GRM", "month": "2024-11", "ton": 599.0, "direct": 22578.0, "prorate": 0.0, "total": 22578.0, "apt_d": 37.7, "apt_v3": 37.7, "apt_v4": 37.7, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-076", "grp": "GRM", "month": "2025-10", "ton": 695.0, "direct": 23470.0, "prorate": 0.0, "total": 23470.0, "apt_d": 33.8, "apt_v3": 33.8, "apt_v4": 33.8, "outlier": false}, {"id": "HVDC-AGI-GRM-71-045", "grp": "GRM", "month": "2025-01", "ton": 672.0, "direct": 19196.0, "prorate": 3489.0, "total": 22685.0, "apt_d": 28.6, "apt_v3": 33.7, "apt_v4": 33.8, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-077", "grp": "GRM", "month": "2025-10", "ton": 642.0, "direct": 21125.0, "prorate": 0.0, "total": 21125.0, "apt_d": 32.9, "apt_v3": 32.9, "apt_v4": 32.9, "outlier": false}, {"id": "HVDC-AGI-GRM-71-036", "grp": "GRM", "month": "2024-11", "ton": 582.0, "direct": 18678.0, "prorate": 0.0, "total": 18678.0, "apt_d": 32.1, "apt_v3": 32.1, "apt_v4": 32.1, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-070", "grp": "GRM", "month": "2025-10", "ton": 542.0, "direct": 17339.0, "prorate": 0.0, "total": 17339.0, "apt_d": 32.0, "apt_v3": 32.0, "apt_v4": 32.0, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-092", "grp": "GRM", "month": "2026-01", "ton": 729.0, "direct": 22394.0, "prorate": 0.0, "total": 22394.0, "apt_d": 30.7, "apt_v3": 30.7, "apt_v4": 30.7, "outlier": false}, {"id": "HVDC-AGI-GRM-71-039", "grp": "GRM", "month": "2024-12", "ton": 653.0, "direct": 19730.0, "prorate": 0.0, "total": 19730.0, "apt_d": 30.2, "apt_v3": 30.2, "apt_v4": 30.2, "outlier": false}, {"id": "HVDC-AGI-DEBRIS-009", "grp": "AGI", "month": "2026-01", "ton": 460.0, "direct": 13702.0, "prorate": 0.0, "total": 13702.0, "apt_d": 29.8, "apt_v3": 29.8, "apt_v4": 29.8, "outlier": false}, {"id": "HVDC-AGI-GRM-71-042", "grp": "GRM", "month": "2024-12", "ton": 615.0, "direct": 18018.0, "prorate": 0.0, "total": 18018.0, "apt_d": 29.3, "apt_v3": 29.3, "apt_v4": 29.3, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-080", "grp": "GRM", "month": "2025-11", "ton": 759.0, "direct": 22023.0, "prorate": 0.0, "total": 22023.0, "apt_d": 29.0, "apt_v3": 29.0, "apt_v4": 29.0, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-084", "grp": "GRM", "month": "2025-12", "ton": 662.0, "direct": 18722.0, "prorate": 0.0, "total": 18722.0, "apt_d": 28.3, "apt_v3": 28.3, "apt_v4": 28.3, "outlier": false}, {"id": "HVDC-AGI-DEBRIS-010", "grp": "AGI", "month": "2026-01", "ton": 460.0, "direct": 12929.0, "prorate": 0.0, "total": 12929.0, "apt_d": 28.1, "apt_v3": 28.1, "apt_v4": 28.1, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-078", "grp": "GRM", "month": "2025-10", "ton": 739.0, "direct": 19897.0, "prorate": 0.0, "total": 19897.0, "apt_d": 26.9, "apt_v3": 26.9, "apt_v4": 26.9, "outlier": false}, {"id": "HVDC-AGI-GRM-71-032", "grp": "GRM", "month": "2024-11", "ton": 604.0, "direct": 15797.0, "prorate": 0.0, "total": 15797.0, "apt_d": 26.1, "apt_v3": 26.1, "apt_v4": 26.1, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-079", "grp": "GRM", "month": "2025-11", "ton": 785.0, "direct": 20282.0, "prorate": 0.0, "total": 20282.0, "apt_d": 25.8, "apt_v3": 25.8, "apt_v4": 25.8, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-082", "grp": "GRM", "month": "2025-11", "ton": 736.0, "direct": 18325.0, "prorate": 0.0, "total": 18325.0, "apt_d": 24.9, "apt_v3": 24.9, "apt_v4": 24.9, "outlier": false}, {"id": "HVDC-AGI-GRM-71-038", "grp": "GRM", "month": "2024-12", "ton": 586.0, "direct": 14542.0, "prorate": 0.0, "total": 14542.0, "apt_d": 24.8, "apt_v3": 24.8, "apt_v4": 24.8, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-066", "grp": "GRM", "month": "2025-09", "ton": 744.0, "direct": 17983.0, "prorate": 0.0, "total": 17983.0, "apt_d": 24.2, "apt_v3": 24.2, "apt_v4": 24.2, "outlier": false}, {"id": "HVDC-AGI-GRM-71-044", "grp": "GRM", "month": "2024-12", "ton": 598.0, "direct": 14018.0, "prorate": 0.0, "total": 14018.0, "apt_d": 23.4, "apt_v3": 23.4, "apt_v4": 23.4, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-068", "grp": "GRM", "month": "2025-09", "ton": 779.0, "direct": 18213.0, "prorate": 0.0, "total": 18213.0, "apt_d": 23.4, "apt_v3": 23.4, "apt_v4": 23.4, "outlier": false}, {"id": "HVDC-AGI-DEBRIS-005", "grp": "AGI", "month": "2025-12", "ton": 550.0, "direct": 12792.0, "prorate": 0.0, "total": 12792.0, "apt_d": 23.3, "apt_v3": 23.3, "apt_v4": 23.3, "outlier": false}, {"id": "HVDC-AGI-DEBRIS-007", "grp": "AGI", "month": "2026-12", "ton": 550.0, "direct": 12792.0, "prorate": 0.0, "total": 12792.0, "apt_d": 23.3, "apt_v3": 23.3, "apt_v4": 23.3, "outlier": false}, {"id": "HVDC-AGI-GRM-71-043", "grp": "GRM", "month": "2024-12", "ton": 635.0, "direct": 14018.0, "prorate": 0.0, "total": 14018.0, "apt_d": 22.1, "apt_v3": 22.1, "apt_v4": 22.1, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-071", "grp": "GRM", "month": "2025-10", "ton": 737.0, "direct": 16162.0, "prorate": 0.0, "total": 16162.0, "apt_d": 21.9, "apt_v3": 21.9, "apt_v4": 21.9, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-072", "grp": "GRM", "month": "2025-10", "ton": 740.0, "direct": 16176.0, "prorate": 0.0, "total": 16176.0, "apt_d": 21.9, "apt_v3": 21.9, "apt_v4": 21.9, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-075", "grp": "GRM", "month": "2025-10", "ton": 807.0, "direct": 17274.0, "prorate": 0.0, "total": 17274.0, "apt_d": 21.4, "apt_v3": 21.4, "apt_v4": 21.4, "outlier": false}, {"id": "HVDC-AGI-DEBRIS-012", "grp": "AGI", "month": "2026-01", "ton": 460.0, "direct": 9758.0, "prorate": 0.0, "total": 9758.0, "apt_d": 21.2, "apt_v3": 21.2, "apt_v4": 21.2, "outlier": false}, {"id": "HVDC-AGI-GRM-71-041", "grp": "GRM", "month": "2024-12", "ton": 610.0, "direct": 12882.0, "prorate": 0.0, "total": 12882.0, "apt_d": 21.1, "apt_v3": 21.1, "apt_v4": 21.1, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-067", "grp": "GRM", "month": "2025-09", "ton": 794.0, "direct": 16577.0, "prorate": 0.0, "total": 16577.0, "apt_d": 20.9, "apt_v3": 20.9, "apt_v4": 20.9, "outlier": false}, {"id": "HVDC-AGI-DEBRIS-006", "grp": "AGI", "month": "2025-12", "ton": 550.0, "direct": 11101.0, "prorate": 0.0, "total": 11101.0, "apt_d": 20.2, "apt_v3": 20.2, "apt_v4": 20.2, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-073", "grp": "GRM", "month": "2025-10", "ton": 772.0, "direct": 14929.0, "prorate": 0.0, "total": 14929.0, "apt_d": 19.3, "apt_v3": 19.3, "apt_v4": 19.3, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-069", "grp": "GRM", "month": "2025-09", "ton": 743.0, "direct": 13466.0, "prorate": 0.0, "total": 13466.0, "apt_d": 18.1, "apt_v3": 18.1, "apt_v4": 18.1, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-086", "grp": "GRM", "month": "2025-12", "ton": 734.0, "direct": 10232.0, "prorate": 0.0, "total": 10232.0, "apt_d": 13.9, "apt_v3": 13.9, "apt_v4": 13.9, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-085", "grp": "GRM", "month": "2026-12", "ton": 749.0, "direct": 9838.0, "prorate": 0.0, "total": 9838.0, "apt_d": 13.1, "apt_v3": 13.1, "apt_v4": 13.1, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-090", "grp": "GRM", "month": "2026-01", "ton": 572.0, "direct": 7435.0, "prorate": 0.0, "total": 7435.0, "apt_d": 13.0, "apt_v3": 13.0, "apt_v4": 13.0, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-093", "grp": "GRM", "month": "2026-01", "ton": 431.0, "direct": 5310.0, "prorate": 0.0, "total": 5310.0, "apt_d": 12.3, "apt_v3": 12.3, "apt_v4": 12.3, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-089", "grp": "GRM", "month": "2026-01", "ton": 690.0, "direct": 8212.0, "prorate": 0.0, "total": 8212.0, "apt_d": 11.9, "apt_v3": 11.9, "apt_v4": 11.9, "outlier": false}, {"id": "HVDC-AGI-GRM-71-046", "grp": "GRM", "month": "2025-01", "ton": 782.0, "direct": 4991.0, "prorate": 4063.0, "total": 9054.0, "apt_d": 6.4, "apt_v3": 11.5, "apt_v4": 11.6, "outlier": false}, {"id": "HVDC-AGI-GRM-J71-083", "grp": "GRM", "month": "2025-11", "ton": 616.0, "direct": 5420.0, "prorate": 0.0, "total": 5420.0, "apt_d": 8.8, "apt_v3": 8.8, "apt_v4": 8.8, "outlier": false}, {"id": "HVDC-AGI-GRM-71-002", "grp": "GRM", "month": "2024-07", "ton": 623.0, "direct": 5239.0, "prorate": 0.0, "total": 5239.0, "apt_d": 8.4, "apt_v3": 8.4, "apt_v4": 8.4, "outlier": false}, {"id": "HVDC-AGI-GRM-71-001", "grp": "GRM", "month": "2024-07", "ton": 600.0, "direct": 4435.0, "prorate": 0.0, "total": 4435.0, "apt_d": 7.4, "apt_v3": 7.4, "apt_v4": 7.4, "outlier": false}, {"id": "HVDC-AGI-DEBRIS-008", "grp": "AGI", "month": "2025-12", "ton": 484.0, "direct": 3184.0, "prorate": 0.0, "total": 3184.0, "apt_d": 6.6, "apt_v3": 6.6, "apt_v4": 6.6, "outlier": false}], "total_ton": 64641.0, "total_aed": 5243825.0, "n_voyages": 106};
+
+function showTab(n){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===n));
+}
+
+const grpColor={GRM:'#3b82f6',AGI:'#f97316',DAS:'#ef4444',OTHER:'#a855f7'};
+
+// ── SCATTER ──
+let scatterChart;
+function buildScatter(data){
+  const ctx=document.getElementById('scatterChart');
+  if(scatterChart) scatterChart.destroy();
+  const datasets={};
+  data.forEach(d=>{
+    if(!datasets[d.grp]) datasets[d.grp]={label:d.grp,data:[],backgroundColor:grpColor[d.grp]||'#64748b',borderColor:grpColor[d.grp]||'#64748b',pointRadius:d.outlier?6:4};
+    datasets[d.grp].data.push({x:d.ton,y:d.apt,label:d.id});
+  });
+  scatterChart=new Chart(ctx,{
+    type:'scatter',
+    data:{datasets:Object.values(datasets)},
+    options:{
+      plugins:{legend:{labels:{color:'#94a3b8'}},tooltip:{callbacks:{label:ctx=>{const p=ctx.raw;return p.label+': '+p.y+' AED/ton · '+p.x+' ton'}}}},
+      scales:{
+        x:{title:{display:true,text:'Tonnage',color:'#94a3b8'},ticks:{color:'#94a3b8'},grid:{color:'#1e293b'}},
+        y:{title:{display:true,text:'AED/ton',color:'#94a3b8'},ticks:{color:'#94a3b8'},grid:{color:'#1e293b'}}
+      }
+    }
+  });
+}
+function updateScatter(){
+  const v=document.getElementById('fVessel').value;
+  const o=document.getElementById('fOutlier').value;
+  let data=D.scatter;
+  if(v!=='ALL') data=data.filter(d=>d.grp===v);
+  if(o==='Y') data=data.filter(d=>d.outlier);
+  else if(o==='N') data=data.filter(d=>!d.outlier);
+  buildScatter(data);
+}
+buildScatter(D.scatter);
+
+// ── HISTOGRAM ──
+new Chart(document.getElementById('histChart'),{
+  type:'bar',
+  data:{labels:D.histogram.map(h=>h.range),datasets:[{label:'Voyages',data:D.histogram.map(h=>h.count),backgroundColor:'#3b82f6'}]},
+  options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.raw+' voyages'}}},scales:{x:{title:{display:true,text:'AED/ton range',color:'#94a3b8'},ticks:{color:'#94a3b8',font:{size:9}},grid:{display:false}},y:{title:{display:true,text:'Count',color:'#94a3b8'},ticks:{color:'#94a3b8'},grid:{color:'#1e293b'}}}}
+});
+
+// ── VESSEL GROUP ──
+const vgs=Object.entries(D.vg_summary);
+new Chart(document.getElementById('vesselChart'),{
+  type:'bar',
+  data:{labels:vgs.map(v=>v[0]+' ('+v[1].n+')'),datasets:[
+    {label:'Avg AED/ton',data:vgs.map(v=>v[1].avg_apt),backgroundColor:vgs.map(v=>grpColor[v[0]])},
+    {label:'Median AED/ton',data:vgs.map(v=>v[1].med_apt),backgroundColor:vgs.map(v=>grpColor[v[0]]+'88')}
+  ]},
+  options:{plugins:{legend:{labels:{color:'#94a3b8'}},tooltip:{callbacks:{label:ctx=>{const g=vgs[ctx.dataIndex];return ctx.dataset.label+': '+ctx.raw+' · '+g[1].ton.toLocaleString()+'t · '+g[1].aed.toLocaleString()+' AED'}}}},scales:{x:{ticks:{color:'#94a3b8'},grid:{display:false}},y:{ticks:{color:'#94a3b8'},grid:{color:'#1e293b'}}}}
+});
+
+// ── TOP 15 ──
+new Chart(document.getElementById('top15Chart'),{
+  type:'bar',
+  data:{labels:D.top15.map(t=>t.id.replace('HVDC-AGI-','').replace('HVDC-DAS-','').replace('HVDC-','')),datasets:[{label:'AED/ton',data:D.top15.map(t=>t.apt),backgroundColor:D.top15.map(t=>grpColor[t.grp]||'#64748b')}]},
+  options:{indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const t=D.top15[ctx.dataIndex];return t.apt+' AED/ton · '+t.ton+'t · '+t.aed.toLocaleString()+' AED'}}}},scales:{x:{ticks:{color:'#94a3b8'},grid:{color:'#1e293b'}},y:{ticks:{color:'#94a3b8',font:{size:9}},grid:{display:false}}}}
+});
+
+// ── COST TYPE PER TON ──
+const ctKeys=Object.keys(D.ct_per_ton);
+const ctColors=['#3b82f6','#22c55e','#f97316','#a855f7','#06b6d4','#ef4444'];
+new Chart(document.getElementById('ctChart'),{
+  type:'bar',
+  data:{labels:ctKeys,datasets:[{label:'AED/ton',data:ctKeys.map(k=>D.ct_per_ton[k]),backgroundColor:ctColors}]},
+  options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.raw+' AED/ton (total: '+D.ct_data[ctKeys[ctx.dataIndex]].toLocaleString()+' AED)'}}},scales:{x:{ticks:{color:'#94a3b8'},grid:{display:false}},y:{title:{display:true,text:'AED/ton',color:'#94a3b8'},ticks:{color:'#94a3b8'},grid:{color:'#1e293b'}}}}
+});
+
+// ── ALLOC DONUT ──
+const allocKeys=Object.keys(D.alloc);
+const allocColors={DIRECT:'#22c55e',PRORATE_APPLIED:'#eab308',MULTI_PRORATED:'#3b82f6',SEPARATE_OPS:'#6b7280',MANUAL_REVIEW:'#ef4444',NEW_TYPE:'#a855f7',DATE_INFER:'#f97316'};
+new Chart(document.getElementById('allocChart'),{
+  type:'doughnut',
+  data:{labels:allocKeys,datasets:[{data:allocKeys.map(k=>D.alloc[k].aed),backgroundColor:allocKeys.map(k=>allocColors[k]||'#64748b')}]},
+  options:{plugins:{legend:{position:'right',labels:{color:'#94a3b8',font:{size:10}}},tooltip:{callbacks:{label:ctx=>ctx.label+': '+ctx.raw.toLocaleString()+' AED ('+D.alloc[ctx.label].n+' rows)'}}},cutout:'55%'}
+});
+
+// ── MONTHLY TREND ──
+const ml=D.monthly.map(m=>m.month);
+new Chart(document.getElementById('monthlyChart'),{
+  type:'bar',
+  data:{
+    labels:ml,
+    datasets:[
+      {type:'bar',label:'Tonnage',data:D.monthly.map(m=>m.ton),backgroundColor:'rgba(59,130,246,0.3)',yAxisID:'y1',order:2},
+      {type:'line',label:'Blended AED/ton',data:D.monthly.map(m=>m.blended),borderColor:'#22c55e',pointRadius:4,tension:.3,yAxisID:'y',order:0},
+      {type:'line',label:'Avg AED/ton',data:D.monthly.map(m=>m.avg),borderColor:'#f97316',borderDash:[5,3],pointRadius:3,tension:.3,yAxisID:'y',order:0},
+      {type:'line',label:'Median AED/ton',data:D.monthly.map(m=>m.med),borderColor:'#a855f7',borderDash:[2,2],pointRadius:3,tension:.3,yAxisID:'y',order:0}
+    ]
+  },
+  options:{plugins:{legend:{labels:{color:'#94a3b8'}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.raw.toLocaleString()+(ctx.dataset.yAxisID==='y1'?' ton':' AED/ton')}}},scales:{
+    x:{ticks:{color:'#94a3b8',font:{size:9}},grid:{display:false}},
+    y:{position:'left',title:{display:true,text:'AED/ton',color:'#94a3b8'},ticks:{color:'#94a3b8'},grid:{color:'#1e293b'}},
+    y1:{position:'right',title:{display:true,text:'Tonnage',color:'#94a3b8'},ticks:{color:'#94a3b8'},grid:{display:false}}
+  }}
+});
+
+new Chart(document.getElementById('monthlyAedChart'),{
+  type:'bar',
+  data:{
+    labels:ml,
+    datasets:[
+      {type:'bar',label:'Total AED',data:D.monthly.map(m=>m.aed),backgroundColor:'#3b82f6',yAxisID:'y'},
+      {type:'line',label:'Voyage Count',data:D.monthly.map(m=>m.n_voy),borderColor:'#f97316',pointRadius:4,yAxisID:'y1'}
+    ]
+  },
+  options:{plugins:{legend:{labels:{color:'#94a3b8'}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.raw.toLocaleString()+(ctx.datasetIndex===0?' AED':' voyages')}}},scales:{
+    x:{ticks:{color:'#94a3b8',font:{size:9}},grid:{display:false}},
+    y:{position:'left',ticks:{color:'#94a3b8',callback:v=>(v/1000)+'K'},grid:{color:'#1e293b'}},
+    y1:{position:'right',ticks:{color:'#94a3b8'},grid:{display:false}}
+  }}
+});
+
+// Cumulative
+let cumAed=0;
+const cumData=D.monthly.map(m=>{cumAed+=m.aed;return cumAed});
+new Chart(document.getElementById('monthlyCumulChart'),{
+  type:'bar',
+  data:{
+    labels:ml,
+    datasets:[
+      {type:'bar',label:'Monthly Ton',data:D.monthly.map(m=>m.ton),backgroundColor:'rgba(6,182,212,0.3)',yAxisID:'y1'},
+      {type:'line',label:'Cumulative AED',data:cumData,borderColor:'#22c55e',fill:true,backgroundColor:'rgba(34,197,94,0.08)',tension:.3,yAxisID:'y'}
+    ]
+  },
+  options:{plugins:{legend:{labels:{color:'#94a3b8'}}},scales:{
+    x:{ticks:{color:'#94a3b8',font:{size:9}},grid:{display:false}},
+    y:{position:'left',ticks:{color:'#94a3b8',callback:v=>(v/1e6).toFixed(1)+'M'},grid:{color:'#1e293b'}},
+    y1:{position:'right',ticks:{color:'#94a3b8'},grid:{display:false}}
+  }}
+});
+
+// ── DETAIL TABLE ──
+let sortCol=-1, sortAsc=true;
+const months=[...new Set(D.detail.map(d=>d.month))].sort();
+const mSel=document.getElementById('tMonth');
+months.forEach(m=>{const o=document.createElement('option');o.value=m;o.text=m;mSel.appendChild(o)});
+
+function renderTable(data){
+  const tb=document.getElementById('detailTbody');
+  tb.innerHTML='';
+  data.forEach((d,i)=>{
+    const grpTag='tag-'+d.grp.toLowerCase();
+    const flag=d.outlier?'<span class="tag tag-out">OUTLIER</span>':'';
+    tb.innerHTML+='<tr>'+
+      '<td>'+(i+1)+'</td>'+
+      '<td style="font-weight:600;font-size:10px">'+d.id+'</td>'+
+      '<td><span class="tag '+grpTag+'">'+d.grp+'</span></td>'+
+      '<td>'+d.month+'</td>'+
+      '<td style="text-align:right">'+d.ton.toLocaleString()+'</td>'+
+      '<td style="text-align:right">'+d.direct.toLocaleString()+'</td>'+
+      '<td style="text-align:right">'+d.prorate.toLocaleString()+'</td>'+
+      '<td style="text-align:right;font-weight:700">'+d.total.toLocaleString()+'</td>'+
+      '<td style="text-align:right">'+d.apt_d+'</td>'+
+      '<td style="text-align:right">'+d.apt_v3+'</td>'+
+      '<td style="text-align:right;font-weight:700;color:'+(d.apt_v4>D.delta.fence?'var(--yellow)':'var(--text)')+'">'+d.apt_v4+'</td>'+
+      '<td>'+flag+'</td></tr>';
+  });
+  document.getElementById('tCount').textContent=data.length+' voyages';
+}
+
+function filterTable(){
+  const v=document.getElementById('tVessel').value;
+  const o=document.getElementById('tOutlier').value;
+  const m=document.getElementById('tMonth').value;
+  let data=D.detail;
+  if(v!=='ALL') data=data.filter(d=>d.grp===v);
+  if(o==='Y') data=data.filter(d=>d.outlier);
+  else if(o==='N') data=data.filter(d=>!d.outlier);
+  if(m!=='ALL') data=data.filter(d=>d.month===m);
+  renderTable(data);
+}
+
+function sortTable(col){
+  const keys=['','id','grp','month','ton','direct','prorate','total','apt_d','apt_v3','apt_v4','outlier'];
+  if(col===0) return;
+  if(sortCol===col) sortAsc=!sortAsc; else{sortCol=col;sortAsc=true}
+  const key=keys[col];
+  D.detail.sort((a,b)=>{
+    let va=a[key],vb=b[key];
+    if(typeof va==='string') return sortAsc?va.localeCompare(vb):vb.localeCompare(va);
+    return sortAsc?va-vb:vb-va;
+  });
+  filterTable();
+}
+
+renderTable(D.detail);
+</script>
+</body>
+</html>

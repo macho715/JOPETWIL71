@@ -1,0 +1,22 @@
+JPT71 Public Share QA Checklist
+
+프록시
+- `GET https://api.your-domain.com/api/ai/health` 가 `200` 인지 확인
+- 허용 origin 에서 `OPTIONS /api/ai/chat` 성공 확인
+- 정상 `x-ai-proxy-token` 으로 `POST /api/ai/chat` 성공 확인
+- 잘못된 토큰에서 `401` 확인
+- 비허용 origin 에서 CORS 차단 확인
+- `MYAGENT_PROXY_ALLOW_SANITIZED_TO_COPILOT=0` 상태에서 sanitize payload 외부 전송 금지 확인
+- bearer/PAT 패턴 payload 에서 `DLP_BLOCKED` 확인
+- `sensitivity=secret` 요청에서 local route 또는 안전 실패 확인
+
+대시보드
+- 공유 URL 에서 AI 요청 대상이 `127.0.0.1` 이 아니라 공개 HTTPS 엔드포인트인지 확인
+- `x-ai-proxy-token` 이 runtime config 로만 주입되는지 확인
+- 프리셋 버튼과 자유 질문이 모두 plain text 응답으로 보이는지 확인
+- 응답에 HTML/script 문자열이 들어와도 실행되지 않고 문자 그대로 렌더링되는지 확인
+- 기간 변경 후 stale 안내가 유지되고 재질문 시 새 기간 payload 가 전송되는지 확인
+
+문서/운영
+- Node.js 22.12.0+, `pnpm`, `MYAGENT_PROXY_AUTH_TOKEN`, `MYAGENT_PROXY_CORS_ORIGINS`, `MYAGENT_PROXY_ALLOW_SANITIZED_TO_COPILOT=0` 기준이 문서와 배포 팩에서 일치하는지 확인
+- `proxy-release\myagent-copilot-standalone-v0.1.0.zip` 생성 및 압축 해제 후 `pnpm export:zip` 재생성 가능 여부 확인

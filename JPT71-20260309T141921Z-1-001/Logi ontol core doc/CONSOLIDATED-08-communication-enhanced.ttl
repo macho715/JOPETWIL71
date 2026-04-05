@@ -1,0 +1,239 @@
+@prefix comm: <https://hvdc.samsungct.com/ontology/communication#> .
+@prefix doc: <https://hvdc.samsungct.com/ontology/document#> .
+@prefix ops: <https://hvdc.samsungct.com/ontology/operations#> .
+@prefix proj: <https://hvdc.samsungct.com/ontology/project#> .
+@prefix fin: <https://hvdc.samsungct.com/ontology/finance#> .
+@prefix cntr: <https://hvdc.samsungct.com/ontology/container#> .
+@prefix erp: <https://hvdc.samsungct.com/ontology/erp#> .
+@prefix case: <https://hvdc.samsungct.com/ontology/case#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+# Email Communication Ontology - Enhanced Version
+# Version: 2.0
+# Date: 2025-10-29
+# Aligned with hvdc-comm-email 2_EXT-03
+
+###############################################################################
+# Classes
+###############################################################################
+
+comm:EmailMessage a owl:Class ;
+    rdfs:label "Email Message"@en ;
+    rdfs:comment "Email message entity with ontology enrichment"@en ;
+    rdfs:subClassOf prov:Entity .
+
+comm:Intent a owl:Class ;
+    rdfs:label "Intent"@en ;
+    rdfs:comment "Communication intent: request, inform, confirm, reply"@en .
+
+comm:LogisticsProcess a owl:Class ;
+    rdfs:label "Logistics Process"@en ;
+    rdfs:comment "Logistics process type: Shipment, Customs, GatePass, Warehouse, Invoice, Port"@en .
+
+doc:BillOfLading a owl:Class ;
+    rdfs:label "Bill of Lading"@en ;
+    rdfs:comment "BL document"@en .
+
+doc:DeliveryOrder a owl:Class ;
+    rdfs:label "Delivery Order"@en ;
+    rdfs:comment "DO document"@en .
+
+fin:Invoice a owl:Class ;
+    rdfs:label "Invoice"@en ;
+    rdfs:comment "Invoice document"@en .
+
+cntr:Container a owl:Class ;
+    rdfs:label "Container"@en ;
+    rdfs:comment "Container asset"@en .
+
+erp:LPO a owl:Class ;
+    rdfs:label "LPO"@en ;
+    rdfs:comment "Local Purchase Order"@en .
+
+case:CASE a owl:Class ;
+    rdfs:label "Case"@en ;
+    rdfs:comment "Case reference"@en .
+
+ops:FlowInstance a owl:Class ;
+    rdfs:label "Flow Instance"@en ;
+    rdfs:comment "Flow instance with flowCode (0..4)"@en ;
+    rdfs:subClassOf prov:Activity .
+
+proj:Project a owl:Class ;
+    rdfs:label "Project"@en ;
+    rdfs:comment "Project entity (HVDC, ADOPT, SCT, etc.)"@en .
+
+###############################################################################
+# Object Properties
+###############################################################################
+
+comm:from a owl:ObjectProperty, owl:FunctionalProperty ;
+    rdfs:label "from"@en ;
+    rdfs:comment "Sender email address (PII-maskable)"@en ;
+    rdfs:domain comm:EmailMessage ;
+    rdfs:range xsd:string .
+
+comm:to a owl:ObjectProperty ;
+    rdfs:label "to"@en ;
+    rdfs:comment "Recipient email addresses (PII-maskable)"@en ;
+    rdfs:domain comm:EmailMessage ;
+    rdfs:range rdf:List .
+
+comm:cc a owl:ObjectProperty ;
+    rdfs:label "cc"@en ;
+    rdfs:comment "CC recipient email addresses (PII-maskable)"@en ;
+    rdfs:domain comm:EmailMessage ;
+    rdfs:range rdf:List .
+
+comm:sentAt a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:label "sent at"@en ;
+    rdfs:comment "Email sent timestamp (xsd:dateTime, tz=Asia/Dubai, +04:00)"@en ;
+    rdfs:domain comm:EmailMessage ;
+    rdfs:range xsd:dateTime .
+
+comm:subject a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:label "subject"@en ;
+    rdfs:comment "Email subject line"@en ;
+    rdfs:domain comm:EmailMessage ;
+    rdfs:range xsd:string .
+
+comm:plaintextBody a owl:DatatypeProperty ;
+    rdfs:label "plaintext body"@en ;
+    rdfs:comment "Full email body text content"@en ;
+    rdfs:domain comm:EmailMessage ;
+    rdfs:range xsd:string .
+
+comm:hasIntent a owl:ObjectProperty ;
+    rdfs:label "has intent"@en ;
+    rdfs:comment "Communication intent (request, inform, confirm, reply)"@en ;
+    rdfs:domain comm:EmailMessage ;
+    rdfs:range comm:Intent .
+
+comm:aboutProcess a owl:ObjectProperty ;
+    rdfs:label "about process"@en ;
+    rdfs:comment "Related logistics process (Shipment, Customs, GatePass, Warehouse, Invoice, Port)"@en ;
+    rdfs:domain comm:EmailMessage ;
+    rdfs:range comm:LogisticsProcess .
+
+comm:mentions a owl:ObjectProperty ;
+    rdfs:label "mentions"@en ;
+    rdfs:comment "Email mentions document (BL/DO/Invoice/CNTR/LPO/CASE)"@en ;
+    rdfs:domain comm:EmailMessage ;
+    rdfs:range owl:Thing .
+
+comm:relatesTo a owl:ObjectProperty ;
+    rdfs:label "relates to"@en ;
+    rdfs:comment "Email relates to flow instance or operation"@en ;
+    rdfs:domain comm:EmailMessage ;
+    rdfs:range ops:FlowInstance .
+
+proj:hasProjectTag a owl:ObjectProperty ;
+    rdfs:label "has project tag"@en ;
+    rdfs:comment "Project tag identifier (HVDC-xxxx, ADOPT-xxx, SCT-xxx)"@en ;
+    rdfs:domain comm:EmailMessage ;
+    rdfs:range proj:Project .
+
+doc:refersTo a owl:ObjectProperty ;
+    rdfs:label "refers to"@en ;
+    rdfs:comment "Document references (BL/DO/Invoice/CNTR/LPO/CASE IDs)"@en ;
+    rdfs:domain comm:EmailMessage ;
+    rdfs:range owl:Thing .
+
+ops:suggestedFlow a owl:ObjectProperty ;
+    rdfs:label "suggested flow"@en ;
+    rdfs:comment "Suggested flow code based on process type (Flow_0..Flow_4)"@en ;
+    rdfs:domain comm:EmailMessage ;
+    rdfs:range ops:FlowInstance .
+
+###############################################################################
+# Flow Code Constants (Flow 0..4)
+###############################################################################
+
+ops:Flow_0 a ops:FlowInstance ;
+    rdfs:label "Flow 0"@en ;
+    rdfs:comment "Flow code 0"@en .
+
+ops:Flow_1 a ops:FlowInstance ;
+    rdfs:label "Flow 1"@en ;
+    rdfs:comment "Flow code 1"@en .
+
+ops:Flow_2 a ops:FlowInstance ;
+    rdfs:label "Flow 2"@en ;
+    rdfs:comment "Flow code 2 (Shipment)"@en .
+
+ops:Flow_3 a ops:FlowInstance ;
+    rdfs:label "Flow 3"@en ;
+    rdfs:comment "Flow code 3"@en .
+
+ops:Flow_4 a ops:FlowInstance ;
+    rdfs:label "Flow 4"@en ;
+    rdfs:comment "Flow code 4 (Invoice)"@en .
+
+###############################################################################
+# Intent Instances
+###############################################################################
+
+comm:intent_request a comm:Intent ;
+    rdfs:label "request"@en ;
+    rdfs:comment "Request intent"@en .
+
+comm:intent_inform a comm:Intent ;
+    rdfs:label "inform"@en ;
+    rdfs:comment "Inform intent"@en .
+
+comm:intent_confirm a comm:Intent ;
+    rdfs:label "confirm"@en ;
+    rdfs:comment "Confirm intent"@en .
+
+comm:intent_reply a comm:Intent ;
+    rdfs:label "reply"@en ;
+    rdfs:comment "Reply intent"@en .
+
+###############################################################################
+# Process Type Instances
+###############################################################################
+
+comm:process_Shipment a comm:LogisticsProcess ;
+    rdfs:label "Shipment"@en ;
+    rdfs:comment "Shipment process"@en .
+
+comm:process_Customs a comm:LogisticsProcess ;
+    rdfs:label "Customs"@en ;
+    rdfs:comment "Customs clearance process"@en .
+
+comm:process_GatePass a comm:LogisticsProcess ;
+    rdfs:label "GatePass"@en ;
+    rdfs:comment "Gate pass process"@en .
+
+comm:process_Warehouse a comm:LogisticsProcess ;
+    rdfs:label "Warehouse"@en ;
+    rdfs:comment "Warehouse operation process"@en .
+
+comm:process_Invoice a comm:LogisticsProcess ;
+    rdfs:label "Invoice"@en ;
+    rdfs:comment "Invoice process"@en .
+
+comm:process_Port a comm:LogisticsProcess ;
+    rdfs:label "Port"@en ;
+    rdfs:comment "Port operation process"@en .
+
+###############################################################################
+# Example Email Message Instance
+###############################################################################
+
+comm:example_email_001 a comm:EmailMessage ;
+    comm:sentAt "2025-10-29T10:30:00+04:00"^^xsd:dateTime ;
+    comm:from "sender@example.com"^^xsd:string ;
+    comm:to ( "recipient1@example.com"^^xsd:string "recipient2@example.com"^^xsd:string ) ;
+    comm:subject "Invoice Review Request"^^xsd:string ;
+    comm:plaintextBody "Please review invoice INV-2025-001..."^^xsd:string ;
+    comm:hasIntent comm:intent_request ;
+    comm:aboutProcess comm:process_Invoice ;
+    proj:hasProjectTag proj:project_HVDC_001 ;
+    doc:refersTo fin:invoice_INV_2025_001 .
+

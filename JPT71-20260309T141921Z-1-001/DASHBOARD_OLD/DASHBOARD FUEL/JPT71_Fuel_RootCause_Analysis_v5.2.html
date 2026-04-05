@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<title>JPT71 Fuel Root-Cause Analysis v5.2</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;color:#333}
+.header{background:linear-gradient(135deg,#7d3c98,#2e86c1);color:#fff;padding:20px 30px}
+.header h1{font-size:1.6em} .header p{opacity:0.85;margin-top:4px}
+.banner{background:#fdebd0;border-left:4px solid #e67e22;padding:12px 20px;margin:15px 20px;border-radius:4px;font-size:0.9em}
+.banner b{color:#e67e22}
+.tabs{display:flex;gap:0;margin:15px 20px 0;border-bottom:2px solid #ddd}
+.tab{padding:10px 24px;cursor:pointer;border:1px solid transparent;border-bottom:none;border-radius:6px 6px 0 0;background:#e8e8e8;font-weight:500}
+.tab.active{background:#fff;border-color:#ddd;border-bottom:1px solid #fff;margin-bottom:-2px;color:#7d3c98}
+.panel{display:none;padding:20px;background:#fff;margin:0 20px 20px;border-radius:0 0 8px 8px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.panel.active{display:block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.chart-box{background:#fff;border:1px solid #eee;border-radius:8px;padding:16px}
+table{width:100%;border-collapse:collapse;font-size:0.85em}
+th{background:#7d3c98;color:#fff;padding:8px;text-align:left}
+td{padding:6px 8px;border-bottom:1px solid #eee}
+tr:hover{background:#f5eef8}
+</style></head><body>
+
+<div class="header">
+<h1>JPT71 Fuel Root-Cause Analysis v5.2</h1>
+<p>JOPETWIL71 &middot; Activity Ranking &middot; Laden vs Ballast &middot; Efficiency Trend</p>
+</div>
+<div class="banner">
+<b>v5.2:</b> ADNOC 225 removed (31 rows, 65,600 L). Period fuel: 179,525 &rarr; 113,925 L. 
+Jan 2026: vessel at berth, 2 days only (154 L total).
+</div>
+
+<div class="tabs">
+<div class="tab active" onclick="showTab(0)">Activity Ranking</div>
+<div class="tab" onclick="showTab(1)">Laden vs Ballast</div>
+<div class="tab" onclick="showTab(2)">Fuel Efficiency</div>
+<div class="tab" onclick="showTab(3)">Monthly Breakdown</div>
+</div>
+<div class="panel active" id="p0"><div class="grid2">
+<div class="chart-box"><canvas id="c1"></canvas></div>
+<div><table><thead><tr><th>Activity</th><th>Days</th><th>Fuel (L)</th><th>L/Day</th></tr></thead><tbody>
+<tr><td>SAILING_LADEN</td><td>9</td><td>4,558</td><td>506.4</td></tr>
+<tr><td>DISCHARGING</td><td>97</td><td>42,711</td><td>440.3</td></tr>
+<tr><td>SAILING</td><td>33</td><td>12,409</td><td>376.0</td></tr>
+<tr><td>LOADING</td><td>117</td><td>35,038</td><td>299.5</td></tr>
+<tr><td>AT_ANCHOR</td><td>26</td><td>6,724</td><td>258.6</td></tr>
+<tr><td>OTHER</td><td>47</td><td>7,055</td><td>150.1</td></tr>
+<tr><td>BUNKERING</td><td>7</td><td>888</td><td>126.9</td></tr>
+<tr><td>MAINTENANCE</td><td>13</td><td>1,457</td><td>112.0</td></tr>
+<tr><td>AT_BERTH</td><td>33</td><td>3,085</td><td>93.5</td></tr>
+</tbody></table></div></div></div>
+<div class="panel" id="p1"><div class="chart-box"><canvas id="c2"></canvas></div></div>
+<div class="panel" id="p2"><div class="chart-box"><canvas id="c3"></canvas></div></div>
+<div class="panel" id="p3"><div class="chart-box"><canvas id="c4"></canvas></div></div>
+<script>
+function showTab(i){
+  document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
+  document.querySelectorAll('.panel').forEach((p,j)=>p.classList.toggle('active',j===i));
+}
+
+var actLabels=["SAILING_LADEN", "DISCHARGING", "SAILING", "LOADING", "AT_ANCHOR", "OTHER", "BUNKERING", "MAINTENANCE", "AT_BERTH"];
+var actFpd=[506.4, 440.3, 376.0, 299.5, 258.6, 150.1, 126.9, 112.0, 93.5];
+var lbMonths=["2024-11", "2024-12", "2025-01", "2025-02", "2025-03", "2025-04", "2025-05", "2025-07", "2025-08", "2025-10", "2025-11", "2025-12", "2026-02", "2026-03"];
+var ladenFuel=[9044.0, 12973.4, 5365.8, 7381.4, 5022.0, 5657.0, 3164.0, 5878.2, 7160.0, 9852.0, 7887.0, 7785.0, 8994.5, 0];
+var ballastFuel=[145.0, 198.0, 1342.0, 1445.4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 636.0];
+var feMonths=["2024-11", "2024-12", "2025-01", "2025-02", "2025-03", "2025-04", "2025-05", "2025-07", "2025-08", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03"];
+var feFpt=[2.76, 2.65, 6.04, 21.27, 12.97, 2.96, 1.67, 1.79, 3.86, 1.68, 2.39, 2.59, 0.03, null, null];
+var feLfpt=[2.69, 2.58, 3.69, 15.63, 10.16, 2.78, 1.51, 1.62, 3.0, 1.53, 2.18, 2.08, 0.0, null, null];
+var months=["2024-11", "2024-12", "2025-01", "2025-02", "2025-03", "2025-04", "2025-05", "2025-07", "2025-08", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03"];
+var fuelLaden=[9044.0, 12973.4, 5365.8, 7381.4, 5022.0, 5657.0, 3164.0, 5878.2, 7160.0, 9852.0, 7887.0, 7785.0, 0.0, 8994.5, 0.0];
+var fuelBallast=[145.0, 198.0, 1342.0, 1445.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 636.0];
+var fuelPort=[8600.0, 9160.8, 3839.0, 3335.2, 2921.0, 4974.0, 2702.0, 5878.2, 4842.0, 9395.0, 7436.0, 7785.0, 0.0, 6880.5, 0.0];
+var fuelUnk=[78.0, 173.8, 2076.4, 1218.8, 1392.0, 362.0, 350.0, 634.2, 2070.0, 960.0, 758.0, 1917.0, 154.0, 1225.0, 625.0];
+
+// C1: Activity fuel/day
+new Chart(document.getElementById('c1'),{
+  type:'bar',
+  data:{labels:actLabels,datasets:[{label:'Fuel/Day (L)',data:actFpd,backgroundColor:'rgba(125,60,152,0.7)'}]},
+  options:{indexAxis:'y',responsive:true,plugins:{title:{display:true,text:'Activity: Fuel Consumption per Day (L)'}}}
+});
+
+// C2: Laden vs Ballast grouped bar
+new Chart(document.getElementById('c2'),{
+  type:'bar',
+  data:{labels:lbMonths,datasets:[
+    {label:'Laden',data:ladenFuel,backgroundColor:'#27ae60'},
+    {label:'Ballast',data:ballastFuel,backgroundColor:'#3498db'}
+  ]},
+  options:{responsive:true,plugins:{title:{display:true,text:'Laden vs Ballast Monthly Fuel (L)'}}}
+});
+
+// C3: Fuel efficiency trend
+new Chart(document.getElementById('c3'),{
+  type:'line',
+  data:{labels:feMonths,datasets:[
+    {label:'Total Fuel/Ton',data:feFpt,borderColor:'#e74c3c',tension:0.3,spanGaps:true},
+    {label:'Laden Fuel/Ton',data:feLfpt,borderColor:'#27ae60',tension:0.3,spanGaps:true}
+  ]},
+  options:{responsive:true,plugins:{title:{display:true,text:'Fuel Efficiency (L/ton cargo)'}},
+    scales:{y:{title:{display:true,text:'L/ton'}}}}
+});
+
+// C4: Monthly stacked
+new Chart(document.getElementById('c4'),{
+  type:'bar',
+  data:{labels:months,datasets:[
+    {label:'Laden',data:fuelLaden,backgroundColor:'#27ae60'},
+    {label:'Ballast',data:fuelBallast,backgroundColor:'#3498db'},
+    {label:'Port Ops',data:fuelPort,backgroundColor:'#f39c12'},
+    {label:'Other',data:fuelUnk,backgroundColor:'#95a5a6'}
+  ]},
+  options:{responsive:true,plugins:{title:{display:true,text:'Monthly Fuel Breakdown by State'}},
+    scales:{x:{stacked:true},y:{stacked:true,title:{display:true,text:'Litres'}}}}
+});
+</script></body></html>
